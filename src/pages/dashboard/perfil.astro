@@ -1,0 +1,502 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import { createClient } from "@insforge/sdk";
+import { logger } from "../../lib/logger";
+import {
+    calcularBMR,
+    calcularTDEE,
+    calcularCaloriasObjetivo,
+    calcularIMC,
+    getCategoriaIMC,
+} from "../../lib/nutrition";
+
+const INSFORGE_URL = import.meta.env.PUBLIC_INSFORGE_URL;
+const INSFORGE_ANON_KEY = import.meta.env.PUBLIC_INSFORGE_ANON_KEY;
+
+logger.log("=== PERFIL.ASTRO ===");
+
+// Obtener token de la cookie
+const accessToken = Astro.cookies.get("if-access-token")?.value;
+
+if (!accessToken) {
+    logger.log("No hay token, redirigiendo a login");
+    return Astro.redirect("/login");
+}
+
+// Decodificar JWT para obtener datos básicos del usuario
+let userId = "";
+let userEmail = "";
+let userName = "Usuario";
+
+try {
+    const payloadBase64 = accessToken.split(".")[1];
+    const payload = JSON.parse(Buffer.from(payloadBase64, "base64").toString());
+    userId = payload.sub || payload.id || "";
+    userEmail = payload.email || "";
+    userName = payload.name || userEmail?.split("@")[0] || "Usuario";
+    logger.log("JWT decodificado - UserId:", userId);
+} catch (e) {
+    logger.error("Error decodificando token:", e);
+    return Astro.redirect("/login");
+}
+
+if (!userId) {
+    logger.log("No se pudo obtener userId del token");
+    return Astro.redirect("/login");
+}
+
+// Intentar obtener perfil de las cookies primero (caché local)
+let profile: any = null;
+let usandoCache = false;
+
+const cachedProfile = Astro.cookies.get("user_profile_cache")?.value;
+if (
+    cachedProfile &&
+    cachedProfile !== "null" &&
+    cachedProfile !== "undefined"
+) {
+    try {
+        profile = JSON.parse(cachedProfile);
+        logger.log("Perfil cargado desde caché:", profile?.nombre_completo);
+        usandoCache = true;
+    } catch (e) {
+        logger.log("Error parseando caché, ignorando");
+    }
+}
+
+// Función para obtener perfil de InsForge con reintentos
+async function obtenerPerfilDeInsForge(
+    userId: string,
+    maxIntentos = 3,
+): Promise<{ data: any; error: any }> {
+    // Usar el accessToken como clave para el cliente para asegurar que RLS funcione
+    const insforge = createClient({
+        baseUrl: INSFORGE_URL,
+        anonKey: accessToken!, // El token del usuario actúa como la "apiKey" autenticada
+    });
+
+    for (let intento = 1; intento <= maxIntentos; intento++) {
+        try {
+            logger.log(
+                `Intento ${intento}/${maxIntentos} - Consultando perfil para ID: ${userId}`,
+            );
+            const { data, error } = await insforge.database
+                .from("perfiles")
+                .select("*")
+                .eq("id", userId)
+                .maybeSingle();
+
+            if (error) {
+                logger.error(`Error en intento ${intento}:`, error.message);
+                if (intento < maxIntentos) {
+                    await new Promise((resolve) => setTimeout(resolve, 500));
+                    continue;
+                }
+                return { data: null, error };
+            }
+
+            logger.log("Perfil obtenido exitosamente de InsForge");
+            return { data, error: null };
+        } catch (e: any) {
+            logger.error(`Excepción en intento ${intento}:`, e.message);
+            if (intento < maxIntentos) {
+                await new Promise((resolve) => setTimeout(resolve, 500));
+                continue;
+            }
+            return { data: null, error: e };
+        }
+    }
+    return { data: null, error: "Máximos reintentos alcanzados" };
+}
+
+// Si no tenemos caché, intentar obtener de InsForge
+let errorCarga: any = null;
+if (!profile) {
+    try {
+        const result = await obtenerPerfilDeInsForge(userId);
+        profile = result.data;
+        errorCarga = result.error;
+    } catch (e) {
+        logger.error("Error obteniendo perfil:", e);
+        errorCarga = e;
+    }
+}
+
+// Si tenemos perfil, actualizar el nombre
+if (profile?.nombre_completo) {
+    userName = profile.nombre_completo;
+}
+
+logger.log(
+    "Profile final:",
+    profile
+        ? usandoCache
+            ? "Desde caché"
+            : "Desde InsForge"
+        : "No encontrado",
+);
+
+// Calcular valores con manejo de errores
+let bmr = null;
+let tdee = null;
+let caloriasObjetivo: any = null;
+let imc = null;
+let categoriaIMC = "--";
+let edad = null;
+
+try {
+    if (profile) {
+        bmr = calcularBMR(profile);
+        tdee = calcularTDEE(profile);
+        caloriasObjetivo = calcularCaloriasObjetivo(profile);
+        imc = calcularIMC(profile.peso_actual, profile.altura);
+        categoriaIMC = getCategoriaIMC(imc);
+
+        if (profile.fecha_nacimiento) {
+            try {
+                const hoy = new Date();
+                const nacimiento = new Date(profile.fecha_nacimiento);
+                if (!isNaN(nacimiento.getTime())) {
+                    edad = hoy.getFullYear() - nacimiento.getFullYear();
+                    const mes = hoy.getMonth() - nacimiento.getMonth();
+                    if (
+                        mes < 0 ||
+                        (mes === 0 && hoy.getDate() < nacimiento.getDate())
+                    )
+                        edad--;
+                }
+            } catch (dateError) {
+                logger.error("Error calculando edad:", dateError);
+            }
+        }
+    }
+} catch (e) {
+    logger.error("Error en cálculos:", e);
+}
+
+const datosCompletos = !!(
+    profile?.peso_actual &&
+    profile?.altura &&
+    profile?.fecha_nacimiento &&
+    profile?.genero
+);
+let avatarUrl = profile?.avatar_url || null;
+
+logger.log("=== FIN PERFIL.ASTRO ===");
+---
+
+<DashboardLayout title="Mi Perfil">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div
+            class="glass-panel p-6 md:p-8 rounded-2xl border border-white/10 flex flex-col md:flex-row items-center gap-6 md:gap-8 mb-8"
+        >
+            <div class="relative">
+                <div
+                    class="w-32 h-32 rounded-full bg-orange-500/20 flex items-center justify-center text-5xl border-4 border-[#141414] shadow-[0_0_30px_rgba(249,115,22,0.3)] overflow-hidden relative group"
+                >
+                    {
+                        avatarUrl ? (
+                            <img
+                                src={avatarUrl}
+                                alt="Foto de perfil"
+                                class="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <span class="fallback-avatar">
+                                {userName[0] || "U"}
+                            </span>
+                        )
+                    }
+                </div>
+                <a
+                    href="/dashboard/perfil/editar"
+                    class="absolute -bottom-2 -right-2 w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center hover:bg-orange-400 transition-colors shadow-lg"
+                >
+                    <svg
+                        class="w-5 h-5 text-black"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                        ></path>
+                    </svg>
+                </a>
+            </div>
+
+            <div class="text-center md:text-left flex-1">
+                <h2 class="text-3xl font-bold text-white mb-2">{userName}</h2>
+                <p class="text-gray-400 mb-4">{userEmail}</p>
+                <div
+                    class="flex flex-wrap gap-2 justify-center md:justify-start"
+                >
+                    <span
+                        class="px-3 py-1 bg-white/5 rounded-full text-sm border border-white/10 capitalize"
+                        >{profile?.nivel || "Sin nivel"}</span
+                    >
+                    <span
+                        class="px-3 py-1 bg-orange-500/10 text-orange-400 rounded-full text-sm border border-orange-500/20 capitalize"
+                        >{
+                            profile?.objetivo?.replace("_", " ") ||
+                                "Sin objetivo"
+                        }</span
+                    >
+                    {
+                        edad !== null && (
+                            <span class="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-sm border border-blue-500/20">
+                                {edad} años
+                            </span>
+                        )
+                    }
+                </div>
+
+                {
+                    !profile && (
+                        <div class="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                            <p class="text-red-400 text-sm font-bold flex items-center gap-2">
+                                <svg
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                </svg>
+                                Error al cargar perfil
+                            </p>
+                            {errorCarga && (
+                                <pre class="mt-2 p-2 bg-black/40 rounded text-[10px] text-gray-500 overflow-x-auto">
+                                    {JSON.stringify(errorCarga, null, 2)}
+                                </pre>
+                            )}
+                            <p class="mt-3">
+                                <button
+                                    onclick="location.reload()"
+                                    class="px-4 py-2 bg-red-500 text-white text-xs font-bold rounded-lg hover:bg-red-600 transition-colors"
+                                >
+                                    Reintentar Conexión
+                                </button>
+                            </p>
+                        </div>
+                    )
+                }
+                {
+                    usandoCache && (
+                        <div class="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                            <p class="text-blue-400 text-sm">
+                                ℹ️ Mostrando datos en caché.{" "}
+                                <button
+                                    onclick="location.reload()"
+                                    class="text-orange-400 hover:underline"
+                                >
+                                    Actualizar
+                                </button>
+                            </p>
+                        </div>
+                    )
+                }
+            </div>
+
+            <a
+                href="/dashboard/perfil/editar"
+                class="px-6 py-3 bg-orange-500 text-black font-bold rounded-xl hover:bg-orange-400 transition-colors flex items-center gap-2"
+            >
+                <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    ></path>
+                </svg>
+                Editar
+            </a>
+        </div>
+
+        {
+            !datosCompletos && profile && (
+                <div class="mb-8 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-400">
+                    <p class="font-medium">⚠️ Completa tu perfil</p>
+                    <p class="text-sm mt-1">
+                        Agrega tu peso, altura, fecha de nacimiento y género
+                        para calcular tus calorías.{" "}
+                        <a
+                            href="/dashboard/perfil/editar"
+                            class="text-orange-400 hover:underline ml-1"
+                        >
+                            Completar ahora →
+                        </a>
+                    </p>
+                </div>
+            )
+        }
+
+        {
+            datosCompletos && (
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10 hover:border-orange-500/30 transition-all">
+                        <div class="flex items-center gap-2 mb-3">
+                            <>
+                                <span class="text-2xl">🔥</span>
+                                <h3 class="text-gray-400 text-sm font-medium">
+                                    Metabolismo Basal (BMR)
+                                </h3>
+                            </>
+                        </div>
+                        <div class="flex items-baseline gap-2 mb-3">
+                            <>
+                                <span class="text-4xl font-bold text-white">
+                                    {bmr || "--"}
+                                </span>
+                                <span class="text-gray-500">kcal/día</span>
+                            </>
+                        </div>
+                        <div class="p-3 bg-white/5 rounded-lg">
+                            <p class="text-xs text-gray-400 leading-relaxed">
+                                <span class="text-orange-400 font-medium">
+                                    ¿Qué es?
+                                </span>{" "}
+                                Son las calorías mínimas que tu cuerpo necesita
+                                en reposo completo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-white/10">
+                        <div class="flex items-center gap-2 mb-3">
+                            <>
+                                <span class="text-2xl">⚡</span>
+                                <h3 class="text-gray-400 text-sm font-medium">
+                                    Gasto Total (TDEE)
+                                </h3>
+                            </>
+                        </div>
+                        <div class="flex items-baseline gap-2 mb-3">
+                            <>
+                                <span class="text-4xl font-bold text-white">
+                                    {tdee || "--"}
+                                </span>
+                                <span class="text-gray-500">kcal/día</span>
+                            </>
+                        </div>
+                        <p class="text-xs text-gray-400 leading-relaxed">
+                            Calorías que necesitas según tu nivel de actividad
+                            física diaria.
+                        </p>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-orange-500/30 bg-orange-500/5">
+                        <div class="flex items-center gap-2 mb-3">
+                            <>
+                                <span class="text-2xl">🎯</span>
+                                <h3 class="text-orange-400 text-sm font-medium">
+                                    Tu Objetivo
+                                </h3>
+                            </>
+                        </div>
+                        <div class="flex items-baseline gap-2 mb-3">
+                            <>
+                                <span class="text-5xl font-bold text-orange-400">
+                                    {caloriasObjetivo?.calorias || "--"}
+                                </span>
+                                <span class="text-gray-400">kcal/día</span>
+                            </>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-medium">
+                                {caloriasObjetivo?.tipo || "Sin objetivo"}
+                            </span>
+                            <p class="text-xs text-gray-400">
+                                {profile?.objetivo === "tonificar"
+                                    ? "Déficit para perder grasa"
+                                    : profile?.objetivo === "ganar_fuerza"
+                                      ? "Superávit para ganar músculo"
+                                      : "Mantenimiento"}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
+        {
+            profile && (
+                <div class="glass-panel p-6 rounded-2xl border border-white/10">
+                    <h3 class="text-lg font-bold text-white mb-6">Tus Datos</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="p-4 bg-white/5 rounded-xl text-center">
+                            <>
+                                <div class="text-2xl mb-1">⚖️</div>
+                                <div class="text-gray-400 text-sm">Peso</div>
+                                <div class="text-2xl font-bold text-white">
+                                    {profile?.peso_actual || "--"}{" "}
+                                    <span class="text-sm font-normal text-gray-500">
+                                        kg
+                                    </span>
+                                </div>
+                            </>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-xl text-center">
+                            <>
+                                <div class="text-2xl mb-1">📏</div>
+                                <div class="text-gray-400 text-sm">Altura</div>
+                                <div class="text-2xl font-bold text-white">
+                                    {profile?.altura || "--"}{" "}
+                                    <span class="text-sm font-normal text-gray-500">
+                                        cm
+                                    </span>
+                                </div>
+                            </>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-xl text-center">
+                            <>
+                                <div class="text-2xl mb-1">🎂</div>
+                                <div class="text-gray-400 text-sm">Edad</div>
+                                <div class="text-2xl font-bold text-white">
+                                    {edad !== null ? edad : "--"}{" "}
+                                    <span class="text-sm font-normal text-gray-500">
+                                        años
+                                    </span>
+                                </div>
+                            </>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-xl text-center">
+                            <>
+                                <div class="text-2xl mb-1">📉</div>
+                                <div class="text-gray-400 text-sm">IMC</div>
+                                <div class="text-2xl font-bold text-green-400">
+                                    {imc ? imc.toFixed(1) : "--"}
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    {categoriaIMC}
+                                </div>
+                            </>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+    </div>
+</DashboardLayout>
+
+<style>
+    .glass-panel {
+        background: rgba(20, 20, 20, 0.8);
+        backdrop-filter: blur(16px);
+    }
+</style>

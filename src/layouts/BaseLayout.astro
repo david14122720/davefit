@@ -1,0 +1,234 @@
+---
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+
+interface Props {
+  title: string;
+  description?: string;
+  showNav?: boolean;
+}
+
+const {
+  title,
+  description = "Tu entrenador personal inteligente. Entrena en casa o en el gimnasio con rutinas personalizadas.",
+  showNav = true,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="es" class="scroll-smooth" transition:animate="none">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#0a0e1a" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Resource hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://insforge.tesh.online" />
+
+    <!-- Critical font loading -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} | DaveFit</title>
+
+    <!-- Ultra-fast critical CSS -->
+    <style is:inline>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+      }
+      body {
+        margin: 0;
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: #0a0a0a;
+        color: #fff;
+        min-height: 100vh;
+        line-height: 1.5;
+      }
+
+      /* FAST View Transitions - 150ms total */
+      @view-transition {
+        navigation: auto;
+      }
+
+      ::view-transition-old(root) {
+        animation: fade-out 0.08s ease-out forwards;
+      }
+
+      ::view-transition-new(root) {
+        animation: fade-in 0.15s ease-out forwards;
+      }
+
+      @keyframes fade-out {
+        to {
+          opacity: 0;
+        }
+      }
+
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+          transform: scale(0.99);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* Fast page entrance */
+      .page-content {
+        animation: fadeIn 0.2s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      ::selection {
+        background: rgba(249, 115, 22, 0.3);
+        color: white;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+
+    <ClientRouter />
+  </head>
+  <body class="bg-[var(--color-bg-dark)] text-white min-h-screen antialiased">
+    {
+      showNav && (
+        <nav
+          class="fixed top-0 w-full z-50 transition-all duration-200"
+          id="main-nav"
+          transition:persist
+        >
+          <div
+            class="absolute inset-0 bg-[var(--color-bg-dark)]/80 backdrop-blur-xl border-b border-white/5 opacity-0 transition-opacity duration-200"
+            id="nav-bg"
+          />
+          <div class="container mx-auto px-4 h-16 flex items-center justify-between relative z-10">
+            <a href="/" class="text-2xl font-bold tracking-tighter group">
+              Dave<span class="text-[var(--color-primary)]">Fit</span>
+            </a>
+            <div class="flex items-center gap-3">
+              <a
+                href="/login"
+                class="text-sm font-medium text-gray-300 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5"
+              >
+                Iniciar Sesión
+              </a>
+              <a
+                href="/register"
+                class="hidden sm:inline-flex px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-sm font-medium rounded-lg transition-all hover:scale-105"
+              >
+                Registro
+              </a>
+            </div>
+          </div>
+        </nav>
+      )
+    }
+
+    <main class="page-content">
+      <slot />
+    </main>
+
+    <script>
+      import { insforge } from "../lib/insforge";
+
+      // Optimized scroll handler
+      let ticking = false;
+      const navBg = document.getElementById("nav-bg");
+
+      window.addEventListener(
+        "scroll",
+        () => {
+          if (!ticking && navBg) {
+            requestAnimationFrame(() => {
+              navBg.classList.toggle("opacity-0", window.scrollY <= 50);
+              navBg.classList.toggle("opacity-100", window.scrollY > 50);
+              ticking = false;
+            });
+            ticking = true;
+          }
+        },
+        { passive: true },
+      );
+
+      // InsForge Session Sync
+      async function syncSession() {
+        try {
+          const { data, error } = await insforge.auth.getCurrentSession();
+
+          if (error) {
+            if (document.cookie.includes("if-access-token=")) {
+              document.cookie =
+                "if-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            }
+            return;
+          }
+
+          if (data?.session?.accessToken) {
+            const cookies = document.cookie.split("; ");
+            const currentToken = cookies
+              .find((row) => row.startsWith("if-access-token="))
+              ?.split("=")[1];
+
+            if (currentToken !== data.session.accessToken) {
+              document.cookie = `if-access-token=${data.session.accessToken}; path=/; max-age=604800; SameSite=Lax`;
+            }
+          } else if (document.cookie.includes("if-access-token=")) {
+            document.cookie =
+              "if-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          }
+        } catch (e) {
+          // Silent catch
+        }
+      }
+
+      // Only attempt sync if we might have a session
+      const hasPossibleSession = () =>
+        document.cookie.includes("if-access-token=") ||
+        window.location.hash.includes("access_token=");
+
+      if (hasPossibleSession()) {
+        syncSession();
+      }
+
+      document.addEventListener("astro:page-load", () => {
+        if (hasPossibleSession()) {
+          syncSession();
+        }
+      });
+    </script>
+  </body>
+</html>

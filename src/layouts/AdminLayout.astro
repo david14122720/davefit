@@ -1,0 +1,251 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import { insforge } from "../lib/insforge";
+import { logger } from "../lib/logger";
+import { Image } from "astro:assets";
+
+const { title } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+const links = [
+    {
+        href: "/admin",
+        label: "Dashboard",
+        icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>`,
+    },
+    {
+        href: "/admin/ejercicios",
+        label: "Ejercicios",
+        icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>`,
+    },
+    {
+        href: "/admin/crear-ejercicio",
+        label: "Crear Ejercicio",
+        icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>`,
+    },
+];
+
+const { cookies } = Astro;
+const accessToken = cookies.get("if-access-token")?.value;
+
+// Obtener usuario de InsForge
+let user = null;
+let profile = null;
+
+if (accessToken) {
+    try {
+        const { data: sessionData } = await insforge.auth.getCurrentSession();
+        user = sessionData?.session?.user || null;
+
+        if (user) {
+            profile = user.profile || null;
+        }
+    } catch (e) {
+        logger.error("Error obteniendo usuario:", e);
+    }
+}
+
+const avatarUrl = profile?.avatar_url || null;
+const userName = String(
+    profile?.nombre_completo ||
+        profile?.name ||
+        user?.email?.split("@")[0] ||
+        "Admin",
+);
+const userInitial = userName.charAt(0) || "A";
+---
+
+<BaseLayout title={`Admin - ${title}`} showNav={false}>
+    <div class="flex min-h-screen bg-[#1e1c1a] text-[#e0e0e0]">
+        <!-- Admin Sidebar -->
+        <aside
+            class="hidden md:flex flex-col w-64 bg-[#2b2623] border-r border-white/5 h-screen sticky top-0"
+        >
+            <div class="p-6">
+                <a href="/admin" class="flex items-center gap-2 group">
+                    <svg
+                        class="w-8 h-8 text-orange-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span
+                        class="text-xl font-bold tracking-tight text-orange-500"
+                        >ADMIN</span
+                    >
+                </a>
+            </div>
+
+            <nav class="flex-1 px-4 space-y-1">
+                {
+                    links.map((link) => {
+                        const isActive =
+                            currentPath === link.href ||
+                            (link.href !== "/admin" &&
+                                currentPath.startsWith(link.href));
+                        return (
+                            <a
+                                href={link.href}
+                                class={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-sm font-medium ${
+                                    isActive
+                                        ? "bg-orange-500/10 text-orange-500 border border-orange-500/20"
+                                        : "text-gray-400 hover:text-white hover:bg-white/5"
+                                }`}
+                            >
+                                <span class="flex-shrink-0">
+                                    <Fragment set:html={link.icon} />
+                                </span>
+                                {link.label}
+                            </a>
+                        );
+                    })
+                }
+            </nav>
+
+            <div class="p-4 border-t border-white/5 space-y-2">
+                <!-- Back to Dashboard -->
+                <a
+                    href="/dashboard"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all text-sm font-medium"
+                >
+                    <svg
+                        class="w-5 h-5 flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    <span>Volver al Panel</span>
+                </a>
+
+                <!-- User Info -->
+                <div class="flex items-center gap-3 px-4 py-3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm border border-orange-500/30 overflow-hidden flex-shrink-0"
+                    >
+                        {
+                            avatarUrl ? (
+                                <Image
+                                    src={avatarUrl}
+                                    alt={userName}
+                                    width={40}
+                                    height={40}
+                                    class="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <span>{userInitial}</span>
+                            )
+                        }
+                    </div>
+                    <div class="overflow-hidden flex-1">
+                        <p class="text-sm font-medium text-white truncate">
+                            {userName}
+                        </p>
+                        <p class="text-xs text-gray-500 truncate">
+                            {user?.email}
+                        </p>
+                    </div>
+                </div>
+
+                <button
+                    id="admin-logout"
+                    class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-500 hover:text-orange-500 transition-colors rounded-lg hover:bg-white/5"
+                >
+                    <svg
+                        class="w-5 h-5 flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                        ></path>
+                    </svg>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col min-w-0 bg-[#1e1c1a]">
+            <!-- Breadcrumbs / Top Bar -->
+            <header
+                class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-[#1e1c1a]"
+            >
+                <div
+                    class="flex items-center text-xs text-gray-500 uppercase tracking-widest font-bold gap-2"
+                >
+                    <span>ADMIN</span>
+                    <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 5l7 7-7 7"></path>
+                    </svg>
+                    <span class="text-orange-500">{title}</span>
+                </div>
+                <div class="flex gap-4">
+                    <a
+                        href="/admin/crear-ejercicio"
+                        class="px-4 py-2 text-sm font-bold text-black bg-orange-500 hover:bg-orange-400 rounded-lg shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all flex items-center gap-2"
+                    >
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Nuevo Ejercicio</span>
+                    </a>
+                </div>
+            </header>
+
+            <main class="flex-1 p-8 overflow-y-auto">
+                <slot />
+            </main>
+        </div>
+    </div>
+</BaseLayout>
+
+<script>
+    document
+        .getElementById("admin-logout")
+        ?.addEventListener("click", async () => {
+            try {
+                const response = await fetch("/api/logout", { method: "POST" });
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    window.location.href = "/login";
+                }
+            } catch {
+                window.location.href = "/api/logout";
+            }
+        });
+</script>

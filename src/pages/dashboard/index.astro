@@ -1,0 +1,518 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import ProgressChart from "../../components/dashboard/ProgressChart";
+import { insforge } from "../../lib/insforge";
+import { logger } from "../../lib/logger";
+
+// Obtener datos reales del usuario
+const { cookies } = Astro;
+const accessToken = cookies.get("if-access-token");
+
+// En InsForge, el middleware ya debería haber validado esto,
+// pero podemos obtener el usuario actual desde la sesión.
+const { data: sessionData } = await insforge.auth.getCurrentSession();
+const user = sessionData?.session?.user;
+
+// Obtener perfil del usuario
+let perfil = user?.profile || null;
+
+// Obtener estadísticas reales (con manejo de errores)
+let historial: any[] = [];
+try {
+    const { data } = await insforge.database
+        .from("historial_entrenamientos")
+        .select("*")
+        .eq("usuario_id", user?.id)
+        .order("fecha", { ascending: false })
+        .limit(10);
+    historial = data || [];
+} catch (e) {
+    logger.log("Error cargando historial:", e);
+}
+
+// Obtener rutinas (con manejo de errores)
+let rutinas: any[] = [];
+try {
+    const { data } = await insforge.database
+        .from("rutinas")
+        .select("*")
+        .limit(5);
+    rutinas = data || [];
+} catch (e) {
+    logger.log("Error cargando rutinas:", e);
+}
+
+// Si no hay rutinas, mostrar ejercicios como alternativa
+let ejercicios: any[] = [];
+if (rutinas.length === 0) {
+    try {
+        const { data } = await insforge.database
+            .from("ejercicios")
+            .select("*")
+            .limit(5);
+        ejercicios = data || [];
+    } catch (e) {
+        logger.log("Error cargando ejercicios:", e);
+    }
+}
+
+// Calcular estadísticas
+const totalEntrenamientos = historial?.length || 0;
+const totalMinutos =
+    historial?.reduce(
+        (acc: number, h: any) => acc + (h.duracion_minutos || 0),
+        0,
+    ) || 0;
+const totalCalorias =
+    historial?.reduce(
+        (acc: number, h: any) => acc + (h.calorias_quemadas || 0),
+        0,
+    ) || 0;
+
+// Último entrenamiento
+const ultimoEntrenamiento = historial?.[0];
+
+// Obtener saludo según hora
+const hora = new Date().getHours();
+let saludo = "Buenos días";
+if (hora >= 12 && hora < 20) saludo = "Buenas tardes";
+else if (hora >= 20) saludo = "Buenas noches";
+
+const userName =
+    user?.profile?.name?.split(" ")[0] ||
+    user?.email?.split("@")[0] ||
+    "Usuario";
+---
+
+<DashboardLayout title="Panel de Control">
+    <!-- Welcome Header con glow -->
+    <div
+        class="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-4 animate-fade-in"
+    >
+        <div>
+            <h1
+                class="text-4xl font-extrabold text-white mb-2 drop-shadow-[0_0_15px_rgba(249,115,22,0.3)]"
+            >
+                {saludo}, {userName}
+            </h1>
+            <p class="text-gray-400">¿Listo para entrenar hoy?</p>
+        </div>
+        <a
+            href="/dashboard/rutinas"
+            class="btn-primary flex items-center gap-2 shadow-[0_0_25px_rgba(249,115,22,0.4)] hover:shadow-[0_0_35px_rgba(249,115,22,0.6)] transition-all"
+        >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                    clip-rule="evenodd"></path>
+            </svg>
+            Entrenar Ahora
+        </a>
+    </div>
+
+    <!-- Stats Cards Row con sombras mejoradas -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Objetivo Actual -->
+        <div
+            class="p-6 rounded-2xl bg-[#141414] border border-white/5 relative overflow-hidden group animate-fade-in hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all"
+            style="animation-delay: 0.1s"
+        >
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <p
+                        class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1"
+                    >
+                        Tu Objetivo
+                    </p>
+                    <h3
+                        class="text-2xl font-bold text-white capitalize drop-shadow-[0_0_10px_rgba(249,115,22,0.2)]"
+                    >
+                        {
+                            String(perfil?.objetivo || "").replace("_", " ") ||
+                                "Por definir"
+                        }
+                    </h3>
+                </div>
+                <div
+                    class="w-10 h-10 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center shadow-[0_0_15px_rgba(249,115,22,0.3)]"
+                >
+                    <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="flex justify-between text-xs font-medium mb-2">
+                    <span class="text-orange-500"
+                        >Nivel {perfil?.nivel || "No definido"}</span
+                    >
+                    <span class="text-gray-500 capitalize"
+                        >{perfil?.preferencia_lugar || "Casa"}</span
+                    >
+                </div>
+                <div class="h-2 bg-gray-800 rounded-full overflow-hidden">
+                    <div
+                        class="h-full bg-gradient-to-r from-orange-500 to-orange-400 w-3/4 transition-all duration-1000 shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+                    >
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Último Entrenamiento -->
+        <div
+            class="p-6 rounded-2xl bg-[#141414] border border-white/5 group animate-fade-in hover:border-yellow-500/30 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)] transition-all"
+            style="animation-delay: 0.2s"
+        >
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <p
+                        class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1"
+                    >
+                        Último Entreno
+                    </p>
+                    <h3 class="text-2xl font-bold text-white">
+                        {ultimoEntrenamiento ? "Completado" : "Sin entrenos"}
+                    </h3>
+                </div>
+                <div
+                    class="w-10 h-10 rounded-full bg-yellow-500/10 text-yellow-500 flex items-center justify-center shadow-[0_0_15px_rgba(234,179,8,0.3)]"
+                >
+                    <svg
+                        class="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+            {
+                ultimoEntrenamiento ? (
+                    <div class="flex items-center gap-4 text-sm text-gray-400 mt-6">
+                        <span class="flex items-center gap-1">
+                            <svg
+                                class="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                            </svg>
+                            {ultimoEntrenamiento.duracion_minutos || 0} min
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <svg
+                                class="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"
+                                />
+                            </svg>
+                            {ultimoEntrenamiento.calorias_quemadas || 0} kcal
+                        </span>
+                    </div>
+                ) : (
+                    <p class="text-sm text-gray-500 mt-4">
+                        Comienza tu primer entrenamiento
+                    </p>
+                )
+            }
+        </div>
+
+        <!-- Estadísticas Totales -->
+        <div
+            class="p-6 rounded-2xl bg-[#141414] border border-white/5 group animate-fade-in hover:border-red-500/30 hover:shadow-[0_0_30px_rgba(239,68,68,0.15)] transition-all"
+            style="animation-delay: 0.3s"
+        >
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <p
+                        class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1"
+                    >
+                        Total Entrenos
+                    </p>
+                    <div class="flex items-baseline gap-2">
+                        <h3
+                            class="text-2xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+                        >
+                            {totalEntrenamientos}
+                        </h3>
+                        <span class="text-gray-500 text-sm">sesiones</span>
+                    </div>
+                </div>
+                <div
+                    class="w-10 h-10 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+                >
+                    <svg
+                        class="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 mt-4">
+                {totalMinutos} minutos totales
+            </p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Chart Section - Solo mostrar si hay datos -->
+        {
+            totalEntrenamientos > 0 && (
+                <div
+                    class="lg:col-span-2 p-6 rounded-2xl bg-[#141414] border border-white/5 animate-fade-in hover:border-orange-500/20 hover:shadow-[0_0_40px_rgba(249,115,22,0.1)] transition-all"
+                    style="animation-delay: 0.4s"
+                >
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-white mb-1">
+                                Actividad Semanal
+                            </h2>
+                            <div class="flex items-center gap-2">
+                                <span class="text-3xl font-bold text-white drop-shadow-[0_0_10px_rgba(249,115,22,0.3)]">
+                                    {totalMinutos}
+                                </span>
+                                <span class="text-orange-500 text-sm font-medium">
+                                    minutos
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h-64">
+                        <ProgressChart client:visible />
+                    </div>
+                </div>
+            )
+        }
+
+        <!-- Mensaje cuando no hay entrenamientos -->
+        {
+            totalEntrenamientos === 0 && (
+                <div
+                    class="lg:col-span-2 p-6 rounded-2xl bg-[#141414] border border-white/5 animate-fade-in"
+                    style="animation-delay: 0.4s"
+                >
+                    <div class="text-center py-12">
+                        <div class="text-6xl mb-4">📊</div>
+                        <h2 class="text-xl font-bold text-white mb-2">
+                            Sin actividad registrada
+                        </h2>
+                        <p class="text-gray-400 mb-6">
+                            Completa tu primer entrenamiento para ver tu
+                            progreso aquí
+                        </p>
+                        <a
+                            href="/dashboard/rutinas"
+                            class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-black font-bold rounded-lg hover:bg-orange-400 transition-colors"
+                        >
+                            Ver Rutinas
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                                />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            )
+        }
+
+        <!-- Rutinas o Ejercicios Disponibles -->
+        <div class="animate-fade-in" style="animation-delay: 0.5s">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-white">
+                    {rutinas.length > 0 ? "Rutinas" : "Ejercicios"} Disponibles
+                </h2>
+                <a
+                    href={rutinas.length > 0
+                        ? "/dashboard/rutinas"
+                        : "/admin/ejercicios"}
+                    class="text-sm text-orange-500 hover:text-orange-400 font-bold hover:shadow-[0_0_10px_rgba(249,115,22,0.3)] transition-all"
+                >
+                    Ver todas →
+                </a>
+            </div>
+
+            {
+                rutinas.length > 0 || ejercicios.length > 0 ? (
+                    <div class="space-y-4">
+                        {(rutinas.length > 0 ? rutinas : ejercicios)
+                            .slice(0, 3)
+                            .map((item: any, index: number) => (
+                                <a
+                                    href={`/dashboard/${rutinas.length > 0 ? "rutinas" : "ejercicios"}/${item.id}`}
+                                    class="block p-4 rounded-xl bg-[#141414] border border-white/5 hover:border-orange-500/30 hover:shadow-[0_0_20px_rgba(249,115,22,0.15)] transition-all cursor-pointer group animate-slide-in"
+                                    style={`animation-delay: ${0.1 * index}s`}
+                                >
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(249,115,22,0.2)] group-hover:shadow-[0_0_25px_rgba(249,115,22,0.4)] transition-all">
+                                            {index === 0
+                                                ? "🔥"
+                                                : index === 1
+                                                  ? "💪"
+                                                  : "🧘"}
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-bold text-white group-hover:text-orange-500 transition-colors line-clamp-1">
+                                                {item.nombre}
+                                            </h4>
+                                            <p class="text-xs text-gray-500 capitalize">
+                                                {item.nivel} •{" "}
+                                                {item.duracion_estimada || 30}{" "}
+                                                min
+                                            </p>
+                                        </div>
+                                        <button class="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 hover:border-orange-500/30 transition-all flex-shrink-0">
+                                            <svg
+                                                class="w-4 h-4"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path
+                                                    fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                                    clip-rule="evenodd"
+                                                />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </a>
+                            ))}
+                    </div>
+                ) : (
+                    <div class="p-8 rounded-2xl bg-[#141414] border border-white/5 text-center">
+                        <div class="text-4xl mb-4">📋</div>
+                        <p class="text-gray-400 mb-4">
+                            No hay contenido disponible
+                        </p>
+                        <a
+                            href="/admin/crear-ejercicio"
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-black font-bold rounded-lg hover:bg-orange-400 transition-colors text-sm"
+                        >
+                            <svg
+                                class="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 4v16m8-8H4"
+                                />
+                            </svg>
+                            Crear Ejercicio
+                        </a>
+                    </div>
+                )
+            }
+        </div>
+    </div>
+
+    <!-- Historial Reciente - Solo mostrar si hay datos -->
+    {
+        historial && historial.length > 0 && (
+            <div class="mt-8 animate-fade-in" style="animation-delay: 0.6s">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-white">
+                        Historial Reciente
+                    </h2>
+                    <a
+                        href="/dashboard/historial"
+                        class="text-sm text-orange-500 hover:text-orange-400 font-bold hover:shadow-[0_0_10px_rgba(249,115,22,0.3)] transition-all"
+                    >
+                        Ver todo →
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {historial
+                        .slice(0, 3)
+                        .map((entrada: any, index: number) => (
+                            <div class="p-4 rounded-xl bg-[#141414] border border-white/5 hover:border-green-500/30 hover:shadow-[0_0_20px_rgba(34,197,94,0.15)] transition-all flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.3)] flex-shrink-0">
+                                    <svg
+                                        class="w-6 h-6"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M5 13l4 4L19 7"
+                                        />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-medium text-white truncate">
+                                        {new Date(
+                                            entrada.fecha,
+                                        ).toLocaleDateString("es-ES", {
+                                            weekday: "short",
+                                            day: "numeric",
+                                            month: "short",
+                                        })}
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        {entrada.duracion_minutos || 0} min •{" "}
+                                        {entrada.calorias_quemadas || 0} kcal
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                </div>
+            </div>
+        )
+    }
+</DashboardLayout>
+
+<style>
+    .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>

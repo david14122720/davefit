@@ -1,0 +1,211 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    /* Brand Colors - Orange Theme */
+    --color-primary: #ff6b00;
+    --color-primary-light: #ff8533;
+    --color-primary-dark: #e65100;
+    --color-primary-glow: rgba(255, 107, 0, 0.3);
+    --color-secondary: #ffffff;
+
+    /* Backgrounds */
+    --color-bg-dark: #0a0a0a;
+    --color-bg-darker: #050505;
+    --color-bg-card: #141414;
+    --color-bg-surface: #1e1e1e;
+    --color-bg-elevated: #252525;
+    --color-bg-glass: rgba(20, 20, 20, 0.8);
+
+    /* Text */
+    --color-text: #ffffff;
+    --color-text-main: #ffffff;
+    --color-text-muted: #9ca3af;
+    --color-text-subtle: #6b7280;
+    --color-text-inverted: #000000;
+
+    /* Borders */
+    --color-border: rgba(255, 255, 255, 0.08);
+    --color-border-hover: rgba(255, 107, 0, 0.3);
+
+    /* UI Feedback */
+    --color-success: #10b981;
+    --color-error: #ef4444;
+    --color-warning: #f59e0b;
+    --color-info: #3b82f6;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px var(--color-primary-glow);
+
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@layer base {
+    html {
+        font-family: 'Inter', system-ui, sans-serif;
+        background-color: var(--color-bg-dark);
+        color: var(--color-text-main);
+    }
+
+    body {
+        @apply antialiased min-h-screen text-base;
+    }
+
+    ::selection {
+        background-color: rgba(249, 115, 22, 0.3);
+        color: white;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-bold tracking-tight;
+    }
+}
+
+@layer components {
+    /* Button Styles */
+    .btn-primary {
+        @apply px-6 py-3 font-bold rounded-lg transition-all duration-300;
+        background-color: var(--color-primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--color-primary-light);
+    }
+
+    .btn-primary:focus {
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2);
+    }
+
+    .btn-primary:active {
+        transform: scale(0.95);
+    }
+
+    .btn-secondary {
+        @apply px-6 py-3 font-medium rounded-lg transition-all duration-300;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        backdrop-filter: blur(4px);
+    }
+
+    .btn-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Card Styles */
+    .card-premium {
+        @apply rounded-2xl p-6;
+        background-color: var(--color-bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .glass-panel {
+        backdrop-filter: blur(24px);
+        background-color: var(--color-bg-glass);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Form Elements */
+    .input-field {
+        @apply w-full px-4 py-3 rounded-lg transition-all;
+        background-color: var(--color-bg-surface);
+        border: 1px solid var(--color-border);
+        color: white;
+    }
+
+    .input-field::placeholder {
+        color: var(--color-text-subtle);
+    }
+
+    .input-field:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 1px var(--color-primary);
+    }
+}
+
+@layer utilities {
+    .text-gradient {
+        @apply bg-clip-text text-transparent;
+        background-image: linear-gradient(to right, #fb923c, #ef4444);
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .animate-slide-in {
+        animation: slideIn 0.5s ease-out forwards;
+    }
+
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .animate-pulse-slow {
+        animation: pulse 3s ease-in-out infinite;
+    }
+}
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: var(--color-bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-primary);
+}
+
+/* Input autofill fix for dark mode */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-text-fill-color: white;
+    -webkit-box-shadow: 0 0 0px 1000px var(--color-bg-surface) inset;
+    transition: background-color 5000s ease-in-out 0s;
+}

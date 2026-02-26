@@ -1,0 +1,595 @@
+---
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import { createClient } from "@insforge/sdk";
+import { logger } from "../../../lib/logger";
+
+const INSFORGE_URL = import.meta.env.PUBLIC_INSFORGE_URL;
+const INSFORGE_ANON_KEY = import.meta.env.PUBLIC_INSFORGE_ANON_KEY;
+
+// Obtener token de la cookie
+const accessToken = Astro.cookies.get("if-access-token")?.value;
+
+if (!accessToken) {
+    return Astro.redirect("/login");
+}
+
+// Decodificar JWT para obtener datos básicos del usuario
+let userId = "";
+let userEmail = "";
+let userName = "Usuario";
+
+try {
+    const payloadBase64 = accessToken.split(".")[1];
+    const payload = JSON.parse(Buffer.from(payloadBase64, "base64").toString());
+    userId = payload.sub || payload.id || "";
+    userEmail = payload.email || "";
+    userName = payload.name || userEmail?.split("@")[0] || "Usuario";
+} catch (e) {
+    console.error("Error decodificando token:", e);
+    return Astro.redirect("/login");
+}
+
+if (!userId) {
+    return Astro.redirect("/login");
+}
+
+// Crear cliente de InsForge
+const insforge = createClient({
+    baseUrl: INSFORGE_URL,
+    anonKey: INSFORGE_ANON_KEY,
+    headers: {
+        Authorization: `Bearer ${accessToken}`,
+    },
+});
+
+// Función para obtener perfil con reintentos
+async function obtenerPerfil(userId: string, maxIntentos = 3): Promise<any> {
+    for (let intento = 1; intento <= maxIntentos; intento++) {
+        try {
+            const { data, error } = await insforge.database
+                .from("perfiles")
+                .select("*")
+                .eq("id", userId)
+                .maybeSingle();
+
+            if (error) {
+                logger.error(`Error en intento ${intento}:`, error.message);
+                if (intento < maxIntentos) {
+                    await new Promise((resolve) => setTimeout(resolve, 500));
+                    continue;
+                }
+                return null;
+            }
+            return data;
+        } catch (e: any) {
+            logger.error(`Excepción en intento ${intento}:`, e.message);
+            if (intento < maxIntentos) {
+                await new Promise((resolve) => setTimeout(resolve, 500));
+                continue;
+            }
+            return null;
+        }
+    }
+    return null;
+}
+
+// Obtener perfil del usuario
+let profile = await obtenerPerfil(userId);
+
+// Si tenemos perfil, actualizar el nombre
+if (profile?.nombre_completo) {
+    userName = profile.nombre_completo;
+}
+
+// Valores por defecto para el formulario
+const formData = {
+    nombre_completo: profile?.nombre_completo || "",
+    genero: profile?.genero || "",
+    fecha_nacimiento: profile?.fecha_nacimiento || "",
+    peso_actual: profile?.peso_actual || "",
+    altura: profile?.altura || "",
+    objetivo: profile?.objetivo || "mantener_forma",
+    nivel: profile?.nivel || "principiante",
+    dias_entrenamiento_semana: profile?.dias_entrenamiento_semana || 3,
+    avatar_url: profile?.avatar_url || null,
+};
+---
+
+<DashboardLayout title="Editar Perfil">
+    <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+            <a
+                href="/dashboard/perfil"
+                class="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4"
+            >
+                <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Volver al perfil
+            </a>
+            <h1 class="text-3xl font-bold text-white">Editar Perfil</h1>
+            <p class="text-gray-400 mt-1">Actualiza tu información personal</p>
+        </div>
+
+        <!-- Formulario -->
+        <form id="profile-form" class="space-y-6" enctype="multipart/form-data">
+            <!-- Foto de Perfil -->
+            <div class="bg-[#141414] p-6 rounded-2xl border border-white/10">
+                <h3 class="text-lg font-bold text-white mb-4">
+                    Foto de Perfil
+                </h3>
+                <div class="flex items-center gap-6">
+                    <div class="relative">
+                        <div
+                            id="avatar-preview"
+                            class="w-24 h-24 rounded-full bg-orange-500/20 flex items-center justify-center text-3xl border-4 border-[#141414] overflow-hidden"
+                        >
+                            {
+                                formData.avatar_url ? (
+                                    <img
+                                        src={formData.avatar_url}
+                                        alt="Avatar"
+                                        class="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <span>
+                                        {(formData.nombre_completo ||
+                                            userEmail ||
+                                            "U")[0].toUpperCase()}
+                                    </span>
+                                )
+                            }
+                        </div>
+                        <label
+                            for="avatar-input"
+                            class="absolute -bottom-2 -right-2 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-orange-400 transition-colors shadow-lg"
+                        >
+                            <svg
+                                class="w-4 h-4 text-black"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                                ></path>
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </label>
+                        <input
+                            type="file"
+                            id="avatar-input"
+                            name="avatar"
+                            accept="image/*"
+                            class="hidden"
+                        />
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-400 mb-2">
+                            Sube una foto desde tu dispositivo
+                        </p>
+                        <p class="text-xs text-gray-500">
+                            Formatos: JPG, PNG. Máximo 2MB
+                        </p>
+                        <p
+                            id="file-name"
+                            class="text-xs text-orange-400 mt-1 hidden"
+                        >
+                        </p>
+                        <p
+                            id="upload-status"
+                            class="text-xs text-green-400 mt-1 hidden"
+                        >
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información Personal -->
+            <div class="bg-[#141414] p-6 rounded-2xl border border-white/10">
+                <h3 class="text-lg font-bold text-white mb-4">
+                    Información Personal
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label
+                            class="block text-sm font-medium text-gray-300 mb-2"
+                            >Nombre completo</label
+                        >
+                        <input
+                            type="text"
+                            name="nombre_completo"
+                            value={formData.nombre_completo}
+                            class="w-full px-4 py-3 rounded-xl bg-[#0a0a0a] border border-white/10 text-white placeholder-gray-500 focus:border-orange-500 focus:outline-none transition-colors"
+                            placeholder="Tu nombre"
+                        />
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-300 mb-2"
+                                >Género</label
+                            >
+                            <select
+                                name="genero"
+                                class="w-full px-4 py-3 rounded-xl bg-[#0a0a0a] border border-white/10 text-white focus:border-orange-500 focus:outline-none transition-colors"
+                            >
+                                <option value="">Seleccionar</option>
+                                <option
+                                    value="masculino"
+                                    selected={formData.genero === "masculino"}
+                                    >Masculino</option
+                                >
+                                <option
+                                    value="femenino"
+                                    selected={formData.genero === "femenino"}
+                                    >Femenino</option
+                                >
+                                <option
+                                    value="otro"
+                                    selected={formData.genero === "otro"}
+                                    >Otro</option
+                                >
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-300 mb-2"
+                                >Fecha de nacimiento</label
+                            >
+                            <input
+                                type="date"
+                                name="fecha_nacimiento"
+                                value={formData.fecha_nacimiento}
+                                class="w-full px-4 py-3 rounded-xl bg-[#0a0a0a] border border-white/10 text-white focus:border-orange-500 focus:outline-none transition-colors"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métricas Corporales -->
+            <div class="bg-[#141414] p-6 rounded-2xl border border-white/10">
+                <h3 class="text-lg font-bold text-white mb-4">
+                    Métricas Corporales
+                </h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            class="block text-sm font-medium text-gray-300 mb-2"
+                            >Peso (kg)</label
+                        >
+                        <input
+                            type="number"
+                            name="peso_actual"
+                            step="0.1"
+                            value={formData.peso_actual}
+                            class="w-full px-4 py-3 rounded-xl bg-[#0a0a0a] border border-white/10 text-white placeholder-gray-500 focus:border-orange-500 focus:outline-none transition-colors"
+                            placeholder="70.5"
+                        />
+                    </div>
+                    <div>
+                        <label
+                            class="block text-sm font-medium text-gray-300 mb-2"
+                            >Altura (cm)</label
+                        >
+                        <input
+                            type="number"
+                            name="altura"
+                            value={formData.altura}
+                            class="w-full px-4 py-3 rounded-xl bg-[#0a0a0a] border border-white/10 text-white placeholder-gray-500 focus:border-orange-500 focus:outline-none transition-colors"
+                            placeholder="175"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Objetivo y Nivel -->
+            <div class="bg-[#141414] p-6 rounded-2xl border border-white/10">
+                <h3 class="text-lg font-bold text-white mb-4">
+                    Objetivo y Actividad
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label
+                            class="block text-sm font-medium text-gray-300 mb-2"
+                            >Objetivo principal</label
+                        >
+                        <select
+                            name="objetivo"
+                            class="w-full px-4 py-3 rounded-xl bg-[#0a0a0a] border border-white/10 text-white focus:border-orange-500 focus:outline-none transition-colors"
+                        >
+                            <option value="">Seleccionar objetivo</option>
+                            <option
+                                value="mantener_forma"
+                                selected={formData.objetivo ===
+                                    "mantener_forma"}>Mantener forma</option
+                            >
+                            <option
+                                value="tonificar"
+                                selected={formData.objetivo === "tonificar"}
+                                >Tonificar / Bajar grasa</option
+                            >
+                            <option
+                                value="ganar_fuerza"
+                                selected={formData.objetivo === "ganar_fuerza"}
+                                >Ganar fuerza / Músculo</option
+                            >
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-300 mb-2"
+                                >Nivel actual</label
+                            >
+                            <select
+                                name="nivel"
+                                class="w-full px-4 py-3 rounded-xl bg-[#0a0a0a] border border-white/10 text-white focus:border-orange-500 focus:outline-none transition-colors"
+                            >
+                                <option value="">Seleccionar</option>
+                                <option
+                                    value="principiante"
+                                    selected={formData.nivel === "principiante"}
+                                    >Principiante</option
+                                >
+                                <option
+                                    value="intermedio"
+                                    selected={formData.nivel === "intermedio"}
+                                    >Intermedio</option
+                                >
+                                <option
+                                    value="avanzado"
+                                    selected={formData.nivel === "avanzado"}
+                                    >Avanzado</option
+                                >
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-300 mb-2"
+                                >Días de entrenamiento</label
+                            >
+                            <select
+                                name="dias_entrenamiento_semana"
+                                class="w-full px-4 py-3 rounded-xl bg-[#0a0a0a] border border-white/10 text-white focus:border-orange-500 focus:outline-none transition-colors"
+                            >
+                                {
+                                    [1, 2, 3, 4, 5, 6, 7].map((num) => (
+                                        <option
+                                            value={num}
+                                            selected={
+                                                formData.dias_entrenamiento_semana ===
+                                                    num ||
+                                                (num === 3 &&
+                                                    !formData.dias_entrenamiento_semana)
+                                            }
+                                        >
+                                            {num} día{num > 1 ? "s" : ""}
+                                        </option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-4">
+                <button
+                    type="submit"
+                    id="save-btn"
+                    class="flex-1 py-4 bg-orange-500 text-black font-bold rounded-xl hover:bg-orange-400 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <span id="save-text">Guardar cambios</span>
+                    <svg
+                        id="save-icon"
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <svg
+                        id="loading-icon"
+                        class="w-5 h-5 animate-spin hidden"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                    >
+                        <circle
+                            class="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            stroke-width="4"></circle>
+                        <path
+                            class="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                    </svg>
+                </button>
+                <a
+                    href="/dashboard/perfil"
+                    class="px-6 py-4 bg-white/5 text-white font-medium rounded-xl hover:bg-white/10 transition-colors"
+                >
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modal de éxito -->
+    <div
+        id="success-modal"
+        class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+    >
+        <div
+            class="glass-panel p-8 rounded-2xl border border-green-500/30 max-w-sm w-full text-center"
+        >
+            <div
+                class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center"
+            >
+                <svg
+                    class="w-8 h-8 text-green-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">
+                ¡Guardado exitoso!
+            </h3>
+            <p class="text-gray-400 mb-6">
+                Tus cambios han sido guardados correctamente.
+            </p>
+            <button
+                id="close-modal"
+                class="w-full py-3 bg-green-500 text-black font-bold rounded-xl hover:bg-green-400 transition-colors"
+            >
+                Aceptar
+            </button>
+        </div>
+    </div>
+</DashboardLayout>
+
+<script>
+    const form = document.getElementById("profile-form") as HTMLFormElement;
+    const avatarInput = document.getElementById(
+        "avatar-input",
+    ) as HTMLInputElement;
+    const avatarPreview = document.getElementById(
+        "avatar-preview",
+    ) as HTMLDivElement;
+    const saveBtn = document.getElementById("save-btn") as HTMLButtonElement;
+    const saveText = document.getElementById("save-text") as HTMLSpanElement;
+    const saveIcon = document.getElementById("save-icon") as HTMLElement;
+    const loadingIcon = document.getElementById("loading-icon") as HTMLElement;
+    const successModal = document.getElementById(
+        "success-modal",
+    ) as HTMLDivElement;
+    const closeModal = document.getElementById(
+        "close-modal",
+    ) as HTMLButtonElement;
+    const fileNameDisplay = document.getElementById(
+        "file-name",
+    ) as HTMLParagraphElement;
+    const uploadStatus = document.getElementById(
+        "upload-status",
+    ) as HTMLParagraphElement;
+
+    let selectedAvatar: File | null = null;
+
+    // Preview de avatar cuando se selecciona archivo
+    avatarInput?.addEventListener("change", (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) {
+            selectedAvatar = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                avatarPreview.innerHTML = `<img src="${e.target?.result}" alt="Preview" class="w-full h-full object-cover" />`;
+            };
+            reader.readAsDataURL(file);
+
+            if (fileNameDisplay) {
+                fileNameDisplay.textContent = `📄 ${file.name} (se subirá al guardar)`;
+                fileNameDisplay.classList.remove("hidden");
+            }
+            if (uploadStatus) {
+                uploadStatus.textContent = "✅ Listo para subir";
+                uploadStatus.classList.remove("hidden");
+            }
+        }
+    });
+
+    // Guardar perfil
+    form?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        saveBtn.disabled = true;
+        saveText.textContent = selectedAvatar
+            ? "Subiendo foto y guardando..."
+            : "Guardando...";
+        saveIcon.classList.add("hidden");
+        loadingIcon.classList.remove("hidden");
+
+        const formData = new FormData(form);
+        if (selectedAvatar) {
+            formData.append("avatar", selectedAvatar);
+        }
+
+        try {
+            const response = await fetch("/api/update-profile", {
+                method: "POST",
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                successModal.classList.remove("hidden");
+                successModal.classList.add("flex");
+            } else {
+                throw new Error(result.error || "Error desconocido");
+            }
+        } catch (err: any) {
+            console.error("Error completo:", err);
+            alert("Error guardando: " + (err.message || "Error de conexión"));
+        } finally {
+            saveBtn.disabled = false;
+            saveText.textContent = "Guardar cambios";
+            saveIcon.classList.remove("hidden");
+            loadingIcon.classList.add("hidden");
+        }
+    });
+
+    closeModal?.addEventListener("click", () => {
+        window.location.href = "/dashboard/perfil";
+    });
+
+    successModal?.addEventListener("click", (e) => {
+        if (e.target === successModal) {
+            window.location.href = "/dashboard/perfil";
+        }
+    });
+</script>
+
+<style>
+    .glass-panel {
+        background: rgba(20, 20, 20, 0.8);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+    }
+</style>

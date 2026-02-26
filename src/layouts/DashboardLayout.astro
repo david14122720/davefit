@@ -1,0 +1,161 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import Sidebar from "../components/dashboard/Sidebar.astro";
+import { Image } from "astro:assets";
+
+interface Props {
+    title: string;
+}
+
+const { title } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+// Get user data from cookies (already validated by middleware)
+const { cookies } = Astro;
+const userName = cookies.get("user_name")?.value || "Usuario";
+const userInitial = userName.charAt(0).toUpperCase();
+const avatarUrl = cookies.get("user_avatar")?.value;
+const isAdmin = cookies.get("user_rol")?.value === "admin";
+
+// Format date once
+const today = new Date().toLocaleDateString("es-ES", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+});
+---
+
+<BaseLayout title={title} showNav={false}>
+    <div
+        class="flex min-h-screen bg-[var(--color-bg-dark)] relative"
+        transition:animate="slide"
+    >
+        <!-- Optimized background effects -->
+        <div class="fixed inset-0 pointer-events-none overflow-hidden">
+            <div
+                class="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[150px] will-change-transform"
+            >
+            </div>
+            <div
+                class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-400/5 rounded-full blur-[120px] will-change-transform"
+            >
+            </div>
+        </div>
+
+        <Sidebar currentPath={currentPath} transition:persist />
+
+        <div class="flex-1 flex flex-col min-w-0 relative z-10">
+            <!-- Header -->
+            <header
+                class="sticky top-0 z-30 bg-[var(--color-bg-dark)]/80 backdrop-blur-xl border-b border-white/5 shadow-lg"
+                transition:persist
+            >
+                <div
+                    class="flex items-center justify-between px-4 md:px-8 h-16 md:h-20"
+                >
+                    <!-- Page Title -->
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-bold text-white">
+                            {title}
+                        </h1>
+                        <p class="hidden md:block text-sm text-gray-500">
+                            {today}
+                        </p>
+                    </div>
+
+                    <!-- User Menu -->
+                    <div class="flex items-center gap-4">
+                        <!-- Notifications -->
+                        <button
+                            class="relative p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5"
+                            aria-label="Notificaciones"
+                        >
+                            <svg
+                                class="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                                ></path>
+                            </svg>
+                            <span
+                                class="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full"
+                            ></span>
+                        </button>
+
+                        <!-- User Profile -->
+                        <a
+                            href="/dashboard/perfil"
+                            class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-orange-500/50 rounded-full pr-2"
+                        >
+                            <div class="text-right hidden md:block">
+                                <p class="text-sm font-medium text-white">
+                                    {userName}
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    {isAdmin ? "Admin" : "Miembro"}
+                                </p>
+                            </div>
+                            <div
+                                class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center font-bold text-white text-lg overflow-hidden ring-2 ring-transparent group-hover:ring-orange-400 transition-all"
+                            >
+                                {
+                                    avatarUrl ? (
+                                        <Image
+                                            src={avatarUrl}
+                                            alt={userName}
+                                            width={40}
+                                            height={40}
+                                            class="w-full h-full object-cover"
+                                            loading="eager"
+                                        />
+                                    ) : (
+                                        <span>{userInitial}</span>
+                                    )
+                                }
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+                <div transition:animate="fade">
+                    <slot />
+                </div>
+            </main>
+        </div>
+    </div>
+</BaseLayout>
+
+<style>
+    /* Smooth page transitions */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

@@ -1,0 +1,408 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { Image } from "astro:assets";
+---
+
+<BaseLayout title="Entrenamientos en Casa para Estudiantes">
+  <!-- Hero Section con efectos lumínicos mejorados -->
+  <section
+    class="relative min-h-screen flex items-center pt-16 overflow-hidden"
+  >
+    <!-- Fondos animados con glow -->
+    <div class="absolute inset-0 z-0">
+      <!-- Gradient overlay -->
+      <div
+        class="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent z-10"
+      >
+      </div>
+      <!-- Imagen de fondo -->
+      <Image
+        src="https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?q=80&w=2069&auto=format&fit=crop"
+        alt="Estudiante entrenando"
+        width={1920}
+        height={1080}
+        class="w-full h-full object-cover object-center"
+      />
+      <!-- Efectos lumínicos -->
+      <div
+        class="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/20 rounded-full blur-[120px] animate-pulse"
+      >
+      </div>
+      <div
+        class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-400/10 rounded-full blur-[100px] animate-pulse"
+        style="animation-delay: 1s;"
+      >
+      </div>
+    </div>
+
+    <div
+      class="container mx-auto px-4 relative z-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
+    >
+      <div class="max-w-xl">
+        <!-- Badge luminoso -->
+        <div
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-sm font-medium mb-6 shadow-[0_0_20px_rgba(249,115,22,0.3)]"
+        >
+          <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+          Para estudiantes ocupados
+        </div>
+
+        <h1
+          class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 drop-shadow-[0_0_30px_rgba(249,115,22,0.3)]"
+        >
+          Transforma Tu <br />
+          <span class="text-[var(--color-primary)]">Habitación</span> en Tu Gimnasio.
+        </h1>
+        <p class="text-xl text-gray-300 mb-8 leading-relaxed">
+          Entrenamientos accesibles y sin equipo diseñados específicamente para
+          estudiantes que viven en espacios pequeños.
+        </p>
+        <div class="flex items-center gap-4">
+          <a
+            href="/register"
+            class="btn-primary text-lg px-8 shadow-[0_0_30px_rgba(249,115,22,0.4)] hover:shadow-[0_0_40px_rgba(249,115,22,0.6)] transition-all"
+          >
+            Comenzar gratis
+          </a>
+          <a
+            href="#como-funciona"
+            class="px-8 py-3 bg-white/5 border border-white/10 rounded-lg font-bold hover:bg-white/10 hover:border-orange-500/30 transition-all backdrop-blur-sm"
+          >
+            Ver demo
+          </a>
+        </div>
+
+        <!-- Estadísticas con glow -->
+        <div class="flex gap-8 mt-12">
+          <div class="text-center">
+            <div
+              class="text-3xl font-bold text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+            >
+              500+
+            </div>
+            <div class="text-sm text-gray-400">Ejercicios</div>
+          </div>
+          <div class="text-center">
+            <div
+              class="text-3xl font-bold text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+            >
+              50k+
+            </div>
+            <div class="text-sm text-gray-400">Estudiantes</div>
+          </div>
+          <div class="text-center">
+            <div
+              class="text-3xl font-bold text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+            >
+              4.9★
+            </div>
+            <div class="text-sm text-gray-400">Valoración</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission Section con mejoras visuales -->
+  <section class="py-24 bg-[var(--color-bg-card)] relative overflow-hidden">
+    <!-- Efectos de fondo -->
+    <div
+      class="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[150px]"
+    >
+    </div>
+    <div
+      class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-400/5 rounded-full blur-[120px]"
+    >
+    </div>
+
+    <div class="container mx-auto px-4 relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <span
+            class="text-[var(--color-primary)] font-bold text-sm tracking-wider uppercase mb-2 block"
+            >Nuestra Misión</span
+          >
+          <h2 class="text-4xl font-bold mb-6">¿Qué es DaveFit?</h2>
+          <p class="text-gray-400 text-lg mb-8 leading-relaxed">
+            Somos una plataforma moderna de fitness dedicada a estudiantes.
+            Nuestra misión es proporcionar entrenamientos accesibles y sin
+            equipo que se adapten a tu agenda académica ocupada. Sin cuotas de
+            gimnasio, sin desplazamientos, solo resultados.
+          </p>
+
+          <ul class="space-y-4 mb-8">
+            <li class="flex items-center gap-3">
+              <div
+                class="w-6 h-6 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-black text-xs shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+              >
+                ✓
+              </div>
+              <span class="text-gray-300">Sin equipo caro requerido</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <div
+                class="w-6 h-6 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-black text-xs shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+              >
+                ✓
+              </div>
+              <span class="text-gray-300"
+                >Entrenamientos de menos de 30 minutos</span
+              >
+            </li>
+            <li class="flex items-center gap-3">
+              <div
+                class="w-6 h-6 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-black text-xs shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+              >
+                ✓
+              </div>
+              <span class="text-gray-300"
+                >Precios amigables para estudiantes</span
+              >
+            </li>
+          </ul>
+
+          <a
+            href="/about"
+            class="text-[var(--color-primary)] font-bold hover:text-orange-400 flex items-center gap-2 group"
+          >
+            Conoce más sobre nosotros
+            <span class="group-hover:translate-x-1 transition-transform">→</span
+            >
+          </a>
+        </div>
+
+        <div class="relative">
+          <div
+            class="rounded-2xl overflow-hidden border border-white/5 shadow-[0_0_40px_rgba(249,115,22,0.2)]"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=2070&auto=format&fit=crop"
+              alt="Sesión de yoga"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <!-- Decoración luminosa -->
+          <div
+            class="absolute -bottom-4 -right-4 w-32 h-32 bg-orange-500/20 rounded-full blur-[60px]"
+          >
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it Works con efectos mejorados -->
+  <section class="py-24 bg-[var(--color-bg-dark)] relative" id="como-funciona">
+    <!-- Fondo con gradiente sutil -->
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-transparent via-orange-500/5 to-transparent"
+    >
+    </div>
+
+    <div class="container mx-auto px-4 relative z-10">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold mb-4">Cómo funciona</h2>
+        <p class="text-gray-400">
+          Comienza tu viaje fitness en tres simples pasos
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Step 1 -->
+        <div
+          class="p-8 rounded-2xl bg-[var(--color-bg-card)] border border-white/5 hover:border-[var(--color-primary)]/50 transition-all hover:shadow-[0_0_30px_rgba(249,115,22,0.2)] group"
+        >
+          <div
+            class="w-12 h-12 rounded-full bg-[var(--color-primary)]/20 flex items-center justify-center text-[var(--color-primary)] mb-6 text-xl shadow-[0_0_15px_rgba(249,115,22,0.3)] group-hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] transition-all"
+          >
+            👤
+          </div>
+          <h3 class="text-xl font-bold mb-3">1. Crea tu perfil</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Regístrate en segundos usando tu correo de estudiante para
+            descuentos exclusivos.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div
+          class="p-8 rounded-2xl bg-[var(--color-bg-card)] border border-white/5 hover:border-[var(--color-primary)]/50 transition-all hover:shadow-[0_0_30px_rgba(249,115,22,0.2)] group"
+        >
+          <div
+            class="w-12 h-12 rounded-full bg-[var(--color-primary)]/20 flex items-center justify-center text-[var(--color-primary)] mb-6 text-xl shadow-[0_0_15px_rgba(249,115,22,0.3)] group-hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] transition-all"
+          >
+            🕒
+          </div>
+          <h3 class="text-xl font-bold mb-3">2. Selecciona tu tiempo</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Elige entre sesiones de 15, 30 o 45 minutos adaptadas a tus niveles
+            de energía.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div
+          class="p-8 rounded-2xl bg-[var(--color-bg-card)] border border-white/5 hover:border-[var(--color-primary)]/50 transition-all hover:shadow-[0_0_30px_rgba(249,115,22,0.2)] group"
+        >
+          <div
+            class="w-12 h-12 rounded-full bg-[var(--color-primary)]/20 flex items-center justify-center text-[var(--color-primary)] mb-6 text-xl shadow-[0_0_15px_rgba(249,115,22,0.3)] group-hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] transition-all"
+          >
+            ▶️
+          </div>
+          <h3 class="text-xl font-bold mb-3">3. Empieza a entrenar</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Sin esperas, solo acción. Transmite entrenamientos guiados de alta
+            calidad inmediatamente.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Grid con mejoras -->
+  <section
+    class="py-24 bg-[var(--color-bg-dark)] border-t border-white/5 relative"
+  >
+    <!-- Efecto de fondo -->
+    <div
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-500/5 rounded-full blur-[200px]"
+    >
+    </div>
+
+    <div class="container mx-auto px-4 relative z-10">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold mb-4">Beneficios</h2>
+        <p class="text-gray-400">
+          Por qué los estudiantes eligen DaveFit para su rutina diaria.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {
+          [
+            {
+              title: "Económico",
+              desc: "Precios que se adaptan al presupuesto de un estudiante.",
+              icon: "💸",
+            },
+            {
+              title: "Sin Equipo Necesario",
+              desc: "Todo lo que necesitas es un poco de espacio y tu propio peso corporal.",
+              icon: "🏠",
+            },
+            {
+              title: "Alivio del Estrés",
+              desc: "Despeja tu mente antes de los exámenes con fitness enfocado en mindfulness.",
+              icon: "🧘",
+            },
+            {
+              title: "Aumento de Energía",
+              desc: "Ráfagas cortas e intensas para despertarte antes de una clase a las 8am.",
+              icon: "⚡",
+            },
+            {
+              title: "Desafíos Comunitarios",
+              desc: "Compite con amigos y domina los tableros de clasificación.",
+              icon: "👥",
+            },
+            {
+              title: "Cualquier Dispositivo",
+              desc: "Laptop, tablet o teléfono. Lleva tu gimnasio donde vayas.",
+              icon: "📱",
+            },
+          ].map((item) => (
+            <div class="p-6 rounded-xl bg-[var(--color-bg-card)] border border-white/5 flex gap-4 hover:bg-white/5 hover:border-orange-500/30 transition-all hover:shadow-[0_0_20px_rgba(249,115,22,0.15)] group">
+              <div class="w-10 h-10 rounded-lg bg-[var(--color-primary)] flex items-center justify-center text-white font-bold flex-shrink-0 shadow-[0_0_15px_rgba(249,115,22,0.4)] group-hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] transition-all">
+                {item.icon}
+              </div>
+              <div>
+                <h4 class="font-bold mb-1">{item.title}</h4>
+                <p class="text-xs text-gray-400 leading-relaxed">{item.desc}</p>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-24 relative overflow-hidden">
+    <div
+      class="absolute inset-0 bg-gradient-to-r from-orange-500/10 via-transparent to-orange-500/10"
+    >
+    </div>
+    <div
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/20 rounded-full blur-[150px]"
+    >
+    </div>
+
+    <div class="container mx-auto px-4 relative z-10 text-center">
+      <h2
+        class="text-5xl md:text-6xl font-bold mb-6 drop-shadow-[0_0_30px_rgba(249,115,22,0.3)]"
+      >
+        ¿Listo para <span class="text-orange-500">transformarte</span>?
+      </h2>
+      <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+        Únete a miles de estudiantes que ya han cambiado su vida con DaveFit. Tu
+        primera semana es gratuita.
+      </p>
+      <a
+        href="/register"
+        class="inline-flex items-center gap-2 px-8 py-4 bg-orange-500 text-black font-bold rounded-xl hover:scale-105 transition-transform shadow-[0_0_40px_rgba(249,115,22,0.5)] hover:shadow-[0_0_60px_rgba(249,115,22,0.7)]"
+      >
+        Comenzar Mi Transformación
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+      </a>
+      <p class="mt-6 text-sm text-gray-500">
+        Sin compromisos. Cancela cuando quieras.
+      </p>
+    </div>
+  </section>
+
+  <!-- Footer Simple -->
+  <footer class="py-12 bg-black border-t border-white/10 text-xs text-gray-500">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-2">
+          <span class="text-[var(--color-primary)] font-bold text-lg">♦</span>
+          <span class="font-bold text-white text-lg">DaveFit</span>
+        </div>
+        <div class="flex gap-8">
+          <a
+            href="#"
+            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+            >Rutinas</a
+          >
+          <a
+            href="#"
+            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+            >Precios</a
+          >
+          <a
+            href="#"
+            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+            >Sobre Nosotros</a
+          >
+          <a
+            href="#"
+            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+            >Contacto</a
+          >
+        </div>
+        <div>© 2026 DaveFit. Todos los derechos reservados.</div>
+      </div>
+    </div>
+  </footer>
+</BaseLayout>

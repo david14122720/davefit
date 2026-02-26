@@ -1,0 +1,223 @@
+---
+import { logger } from "../../lib/logger";
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import { createClient } from '@insforge/sdk';
+
+const INSFORGE_URL = import.meta.env.PUBLIC_INSFORGE_URL;
+const INSFORGE_ANON_KEY = import.meta.env.PUBLIC_INSFORGE_ANON_KEY;
+
+// Obtener token de la cookie
+const accessToken = Astro.cookies.get("if-access-token")?.value;
+
+if (!accessToken) {
+    return Astro.redirect("/login");
+}
+
+// Decodificar JWT para obtener datos básicos del usuario
+let userId = "";
+
+try {
+    const payloadBase64 = accessToken.split('.')[1];
+    const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
+    userId = payload.sub || payload.id || "";
+} catch (e) {
+    logger.error("Error decodificando token:", e);
+    return Astro.redirect("/login");
+}
+
+if (!userId) {
+    return Astro.redirect("/login");
+}
+
+// Crear cliente de InsForge
+const insforge = createClient({
+    baseUrl: INSFORGE_URL,
+    anonKey: INSFORGE_ANON_KEY,
+    headers: {
+        'Authorization': `Bearer ${accessToken}`
+    }
+});
+
+// Función para obtener historial con reintentos
+async function obtenerHistorial(userId: string, maxIntentos = 3): Promise<any[]> {
+    for (let intento = 1; intento <= maxIntentos; intento++) {
+        try {
+            const { data, error } = await insforge.database
+                .from("historial_entrenamientos")
+                .select("*")
+                .eq("usuario_id", userId)
+                .order("fecha", { ascending: false })
+                .limit(50);
+            
+            if (error) {
+                logger.error(`Error en intento ${intento}:`, error.message);
+                if (intento < maxIntentos) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    continue;
+                }
+                return [];
+            }
+            return data || [];
+        } catch (e: any) {
+            logger.error(`Excepción en intento ${intento}:`, e.message);
+            if (intento < maxIntentos) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                continue;
+            }
+            return [];
+        }
+    }
+    return [];
+}
+
+// Obtener historial
+const historial = await obtenerHistorial(userId);
+
+// Calcular estadísticas
+const totalEntrenamientos = historial.length;
+const totalMinutos = historial.reduce((acc, h) => acc + (h.duracion_minutos || 0), 0);
+const totalCalorias = historial.reduce((acc, h) => acc + (h.calorias_quemadas || 0), 0);
+
+// Obtener mes actual
+const today = new Date();
+const currentMonth = today.toLocaleString("es-ES", { month: "long", year: "numeric" });
+const currentMonthCapitalized = currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1);
+
+// Generar días del calendario
+const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+const startDay = new Date(today.getFullYear(), today.getMonth(), 1).getDay();
+const calendarDays = Array.from({ length: 42 }, (_, i) => {
+    const dayNum = i - startDay + 1;
+    if (dayNum < 1 || dayNum > daysInMonth) return null;
+    return dayNum;
+});
+
+// Días activos desde el historial
+const activeDays = historial
+    ?.filter(h => {
+        const fecha = new Date(h.fecha);
+        return fecha.getMonth() === today.getMonth() && fecha.getFullYear() === today.getFullYear();
+    })
+    .map(h => new Date(h.fecha).getDate()) || [];
+---
+
+<DashboardLayout title="Historial de Actividad">
+    <div class="mb-8 animate-fade-in">
+        <h1 class="text-3xl font-bold text-white mb-2">Historial de Actividad</h1>
+        <p class="text-gray-400">Revisa tu progreso y mantén la constancia.</p>
+
+        {totalEntrenamientos > 0 && (
+            <div class="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-full text-orange-500 text-sm font-bold">
+                <span>🔥</span> {totalEntrenamientos} entrenamientos completados
+            </div>
+        )}
+    </div>
+
+    <!-- Stats Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fade-in" style="animation-delay: 0.1s">
+        <div class="bg-[#141414] p-6 rounded-2xl border border-white/5 text-center">
+            <div class="text-3xl font-bold text-orange-400">{totalEntrenamientos}</div>
+            <div class="text-sm text-gray-500">Total Entrenos</div>
+        </div>
+        <div class="bg-[#141414] p-6 rounded-2xl border border-white/5 text-center">
+            <div class="text-3xl font-bold text-yellow-400">{totalMinutos}</div>
+            <div class="text-sm text-gray-500">Minutos Totales</div>
+        </div>
+        <div class="bg-[#141414] p-6 rounded-2xl border border-white/5 text-center">
+            <div class="text-3xl font-bold text-red-400">{totalCalorias}</div>
+            <div class="text-sm text-gray-500">Calorías Quemadas</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Calendar Section -->
+        <div class="lg:col-span-1 bg-[#141414] border border-white/5 rounded-3xl p-6 animate-fade-in" style="animation-delay: 0.2s">
+            <div class="flex justify-between items-center mb-6">
+                <button class="text-gray-400 hover:text-white transition-colors">❮</button>
+                <h2 class="text-lg font-bold text-white capitalize">{currentMonthCapitalized}</h2>
+                <button class="text-gray-400 hover:text-white transition-colors">❯</button>
+            </div>
+
+            <div class="grid grid-cols-7 gap-2 mb-4 text-center">
+                {["D", "L", "M", "X", "J", "V", "S"].map((d) => (
+                    <span class="text-xs font-bold text-gray-500">{d}</span>
+                ))}
+            </div>
+
+            <div class="grid grid-cols-7 gap-2">
+                {calendarDays.map((day) => (
+                    <div class="aspect-square flex items-center justify-center relative">
+                        {day && (
+                            <button class={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${activeDays.includes(day) ? "bg-orange-500 text-[#141414] font-bold shadow-[0_0_10px_rgba(249,115,22,0.4)]" : "text-gray-400 hover:bg-white/5"}`}>
+                                {day}
+                            </button>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            <div class="mt-6 p-4 bg-white/5 rounded-xl flex gap-3">
+                <span class="text-orange-500">ℹ</span>
+                <p class="text-xs text-gray-400 leading-relaxed">Los círculos naranjas indican días con al menos 15 minutos de actividad.</p>
+            </div>
+        </div>
+
+        <!-- Recent Activity List -->
+        <div class="lg:col-span-2 animate-fade-in" style="animation-delay: 0.3s">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-white">Actividad Reciente</h2>
+            </div>
+
+            {historial && historial.length > 0 ? (
+                <div class="space-y-4" id="historial-lista">
+                    {historial.map((actividad, index) => (
+                        <div class="bg-[#141414] border border-white/5 rounded-2xl p-5 flex items-center justify-between group hover:border-white/10 transition-all" style={`animation-delay: ${0.05 * index}s`}>
+                            <div class="flex items-center gap-5">
+                                <div class="w-12 h-12 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center text-xl border border-orange-500/20">💪</div>
+                                <div>
+                                    <h3 class="font-bold text-white text-lg">Entrenamiento</h3>
+                                    <p class="text-sm text-gray-500">{new Date(actividad.fecha).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-bold text-white mb-1">{actividad.calorias_quemadas || 0} <span class="text-xs text-gray-500">kcal</span></div>
+                                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider">{actividad.duracion_minutos || 0} min</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div class="bg-[#141414] border border-white/5 rounded-2xl p-12 text-center">
+                    <div class="text-6xl mb-4">📊</div>
+                    <h3 class="text-xl font-bold text-white mb-2">Sin actividad registrada</h3>
+                    <p class="text-gray-400 mb-6">Comienza tu primer entrenamiento para ver tu progreso aquí.</p>
+                    <a href="/dashboard/rutinas" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-black font-bold rounded-lg hover:bg-orange-400 transition-colors">
+                        <span>▶</span> Comenzar Primera Rutina
+                    </a>
+                </div>
+            )}
+
+            {historial && historial.length > 0 && (
+                <div class="mt-8 animate-fade-in" style="animation-delay: 0.4s">
+                    <h3 class="text-sm font-bold text-white mb-2">Objetivo Mensual</h3>
+                    <div class="h-2 bg-[#141414] border border-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-orange-500 transition-all duration-1000 shadow-[0_0_10px_rgba(249,115,22,0.5)]" style={`width: ${Math.min((totalEntrenamientos / 20) * 100, 100)}%`}></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">{totalEntrenamientos} de 20 entrenamientos mensuales recomendados</p>
+                </div>
+            )}
+        </div>
+    </div>
+</DashboardLayout>
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease-out forwards;
+        opacity: 0;
+    }
+</style>

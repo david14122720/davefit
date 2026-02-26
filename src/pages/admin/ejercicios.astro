@@ -1,0 +1,116 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { insforge } from "../../lib/insforge";
+import { logger } from "../../lib/logger";
+
+// Obtener ejercicios de InsForge
+let ejercicios: any[] = [];
+try {
+    const { data, error } = await insforge.database
+        .from("ejercicios")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    if (!error) {
+        ejercicios = data || [];
+    }
+} catch (e) {
+    logger.error("Error cargando ejercicios:", e);
+}
+---
+
+<AdminLayout title="Gestionar Ejercicios">
+    <div class="glass-panel rounded-2xl border border-white/5 overflow-hidden">
+        <!-- Filters Bar -->
+        <div class="p-4 border-b border-white/5 flex gap-4">
+            <input
+                type="text"
+                placeholder="Buscar ejercicio..."
+                class="bg-[var(--color-bg-dark)] border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:border-orange-500 outline-none w-64"
+            />
+            <select
+                class="bg-[var(--color-bg-dark)] border border-white/10 rounded-lg px-4 py-2 text-white text-sm outline-none"
+            >
+                <option value="">Todos los Grupos</option>
+                <option value="pecho">Pecho</option>
+                <option value="espalda">Espalda</option>
+                <option value="piernas">Piernas</option>
+            </select>
+        </div>
+
+        <!-- Table -->
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr
+                    class="bg-black/20 text-gray-400 text-xs uppercase tracking-wider"
+                >
+                    <th class="p-4 font-medium">Imagen</th>
+                    <th class="p-4 font-medium">Nombre</th>
+                    <th class="p-4 font-medium">Grupo Muscular</th>
+                    <th class="p-4 font-medium">Nivel</th>
+                    <th class="p-4 font-medium">Lugar</th>
+                    <th class="p-4 font-medium text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-300 text-sm">
+                {
+                    ejercicios?.map((ejercicio: any) => (
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                            <td class="p-4">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden bg-white/5">
+                                    <img
+                                        src={ejercicio.imagen_url}
+                                        alt={ejercicio.nombre}
+                                        class="w-full h-full object-cover"
+                                    />
+                                </div>
+                            </td>
+                            <td class="p-4 font-medium text-white">
+                                {ejercicio.nombre}
+                            </td>
+                            <td class="p-4 capitalize">
+                                <span class="px-2 py-1 rounded-full bg-white/5 text-xs border border-white/10">
+                                    {ejercicio.grupo_muscular}
+                                </span>
+                            </td>
+                            <td class="p-4 capitalize">{ejercicio.nivel}</td>
+                            <td class="p-4 capitalize">
+                                {ejercicio.tipo_lugar}
+                            </td>
+                            <td class="p-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <button class="text-blue-400 hover:text-blue-300 transition-colors">
+                                        ✏️
+                                    </button>
+                                    <button class="text-red-400 hover:text-red-300 transition-colors">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    ))
+                }
+                {
+                    (!ejercicios || ejercicios.length === 0) && (
+                        <tr>
+                            <td
+                                colspan="6"
+                                class="p-8 text-center text-gray-500"
+                            >
+                                No hay ejercicios registrados. ¡Empieza creando
+                                uno!
+                            </td>
+                        </tr>
+                    )
+                }
+            </tbody>
+        </table>
+    </div>
+</AdminLayout>
+
+<style>
+    .glass-panel {
+        background: rgba(20, 20, 20, 0.8);
+        backdrop-filter: blur(16px);
+    }
+</style>
