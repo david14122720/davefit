@@ -73,7 +73,7 @@ export default function LoginForm() {
         try {
             await insforge.auth.signInWithOAuth({
                 provider: 'google',
-                redirectTo: window.location.origin + '/dashboard', // The SDK will handle the token on dashboard
+                redirectTo: window.location.origin + '/auth/callback', // Usamos callback para sincronizar cookies
             });
         } catch (err: any) {
             setError('Error al iniciar sesión con Google');

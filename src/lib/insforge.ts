@@ -7,3 +7,12 @@ export const insforge = createClient({
     baseUrl: insforgeUrl,
     anonKey: insforgeAnonKey
 });
+
+export function getInsforgeClient(token?: string) {
+    if (!token) return insforge;
+    return createClient({
+        baseUrl: insforgeUrl,
+        anonKey: insforgeAnonKey,
+        headers: { Authorization: `Bearer ${token}` }
+    });
+}
