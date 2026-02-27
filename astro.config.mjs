@@ -20,13 +20,6 @@ export default defineConfig({
         ],
     },
     output: 'static',
-    prefetch: {
-        prefetchAll: true,
-        defaultStrategy: 'hover'
-    },
-    experimental: {
-        clientPrerender: true,
-    },
     vite: {
         optimizeDeps: {
             include: [
