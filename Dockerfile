@@ -14,11 +14,11 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
+RUN apk add --no-cache nginx
+
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
-
-RUN apk add --no-cache nginx
 
 COPY nginx.conf /etc/nginx/http.d/default.conf
 
@@ -30,4 +30,4 @@ ENV PUBLIC_INSFORGE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMj
 
 EXPOSE 80
 
-CMD ["sh", "-c", "nginx && node dist/server/entry.mjs"]
+CMD ["sh", "-c", "nginx -g 'daemon off;' & node dist/server/entry.mjs"]
