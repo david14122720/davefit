@@ -127,22 +127,23 @@ const menuItems = [
 <script>
     import { insforge } from "../../lib/insforge";
 
-    document
-        .getElementById("logout-btn")
-        ?.addEventListener("click", async () => {
+    function setupLogout() {
+        const btn = document.getElementById("logout-btn");
+        if (!btn) return;
+        
+        btn.addEventListener("click", async (e) => {
+            e.preventDefault();
             try {
-                // 1. Limpiar sesión en el SDK
                 await insforge.auth.signOut();
-
-                // 2. Notificar al servidor para limpiar cookies
-                await fetch("/api/auth/logout", { method: "POST" });
-
-                // 3. Redirigir
+                await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
                 window.location.href = "/login";
-            } catch (e) {
-                console.error("Error signing out:", e);
-                // Fallback en caso de error de red
+            } catch (err) {
+                console.error("Error signing out:", err);
                 window.location.href = "/login";
             }
         });
+    }
+
+    setupLogout();
+    document.addEventListener("astro:page-load", setupLogout);
 </script>

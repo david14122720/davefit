@@ -78,10 +78,9 @@ let saludo = "Buenos días";
 if (hora >= 12 && hora < 20) saludo = "Buenas tardes";
 else if (hora >= 20) saludo = "Buenas noches";
 
-const userName =
-    user?.profile?.name?.split(" ")[0] ||
-    user?.email?.split("@")[0] ||
-    "Usuario";
+// Obtener nombre del usuario - primero de cookie, luego del perfil
+const cookieName = cookies.get("user_name")?.value;
+const userName = cookieName ? cookieName.split(" ")[0] : "Usuario";
 ---
 
 <DashboardLayout title="Panel de Control">

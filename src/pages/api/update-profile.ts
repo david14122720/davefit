@@ -94,17 +94,21 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
                 const fileExt = avatarFile.name.split('.').pop() || 'jpg';
                 const filePath = `avatars/${userId}-${Date.now()}.${fileExt}`;
 
-                logger.log('Subiendo avatar:', filePath);
-                const { error: uploadError } = await userClient.storage
-                    .from('profiles')
+                logger.log('Subiendo avatar:', filePath, 'Size:', avatarFile.size);
+                
+                // El método upload devuelve directamente la URL
+                const { data: uploadData, error: uploadError } = await userClient.storage
+                    .from('avatares')
                     .upload(filePath, avatarFile);
 
-                if (!uploadError) {
-                    const res = userClient.storage.from('profiles').getPublicUrl(filePath);
-                    avatarUrl = (res as any).data?.publicUrl || (res as any).publicUrl || null;
-                    if (avatarUrl) perfilesData.avatar_url = avatarUrl;
-                } else {
+                logger.log('Upload result:', { uploadData, uploadError });
+
+                if (uploadError) {
                     logger.error('Error subiendo avatar:', uploadError);
+                } else if (uploadData?.url) {
+                    avatarUrl = uploadData.url;
+                    logger.log('Avatar URL:', avatarUrl);
+                    if (avatarUrl) perfilesData.avatar_url = avatarUrl;
                 }
             } catch (e: any) {
                 logger.error('Excepción en avatar:', e.message);

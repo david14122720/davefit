@@ -133,24 +133,19 @@ if (!perfil) return Astro.redirect("/dashboard/perfil");
                             class="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all appearance-none cursor-pointer"
                         >
                             <option
-                                value="Perder peso"
-                                selected={perfil.objetivo === "Perder peso"}
+                                value="tonificar"
+                                selected={perfil.objetivo === "tonificar"}
                                 >Perder Peso</option
                             >
                             <option
-                                value="Ganar músculo"
-                                selected={perfil.objetivo === "Ganar músculo"}
+                                value="ganar_fuerza"
+                                selected={perfil.objetivo === "ganar_fuerza"}
                                 >Ganar Músculo</option
                             >
                             <option
-                                value="Mantenerse"
-                                selected={perfil.objetivo === "Mantenerse"}
+                                value="mantener_forma"
+                                selected={perfil.objetivo === "mantener_forma"}
                                 >Mantenerse</option
-                            >
-                            <option
-                                value="Salud General"
-                                selected={perfil.objetivo === "Salud General"}
-                                >Salud General</option
                             >
                         </select>
                     </div>

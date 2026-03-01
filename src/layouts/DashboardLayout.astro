@@ -32,8 +32,9 @@ if (accessToken) {
                 .maybeSingle();
 
             if (dbProfile) {
-                if (dbProfile.nombre_completo)
-                    userName = dbProfile.nombre_completo;
+                if (dbProfile.nombre_completo) {
+                    userName = dbProfile.nombre_completo.split(" ")[0];
+                }
                 if (dbProfile.avatar_url) avatarUrl = dbProfile.avatar_url;
                 if (dbProfile.rol) userRol = dbProfile.rol;
             }
