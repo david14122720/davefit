@@ -11,18 +11,11 @@ export default defineConfig({
         }),
         preact({
             compat: true,
-        }),
-        node({
-            mode: 'standalone',
         })
     ],
-    image: {
-        remotePatterns: [
-            { protocol: 'https', hostname: 'images.unsplash.com' },
-            { protocol: 'https', hostname: '**.insforge.net' },
-            { protocol: 'http', hostname: 'localhost' },
-        ],
-    },
+    adapter: node({
+        mode: 'standalone'
+    }),
     output: 'server',
     vite: {
         optimizeDeps: {
