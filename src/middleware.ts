@@ -40,17 +40,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // Obtener la respuesta
     const response = await next();
 
-    // Aplicar cabeceras de seguridad a todas las respuestas
-    // Solo aplicamos CSP si es una respuesta HTML para evitar problemas con APIs o recursos
+    // NO aplicar CSP a respuestas JSON (APIs)
     const contentType = response.headers.get('content-type');
     if (contentType?.includes('text/html')) {
         response.headers.set('Content-Security-Policy',
             "default-src 'self'; " +
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://fonts.googleapis.com; " +
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'unsafe-eval' data: https://cdn.jsdelivr.net https://fonts.googleapis.com; " +
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-            "font-src 'self' https://fonts.gstatic.com; " +
-            "img-src 'self' data: blob: https://*.unsplash.com https://images.unsplash.com https://insforge.tesh.online; " +
-            "connect-src 'self' https://insforge.tesh.online;"
+            "font-src 'self' https://fonts.gstatic.com data:; " +
+            "img-src 'self' data: blob: https://*.unsplash.com https://images.unsplash.com https://insforge.tesh.online https://*.googleusercontent.com; " +
+            "connect-src 'self' https://insforge.tesh.online http://localhost:4321 ws://localhost:4321; " +
+            "frame-src 'self' https://accounts.google.com;"
         );
     }
 
