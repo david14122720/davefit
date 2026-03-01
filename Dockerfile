@@ -3,11 +3,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Instalar dependencias primero para cachear mejor
 COPY package*.json ./
 RUN npm install
 
-# Copiar el resto del código y construir
 COPY . .
 RUN npm run build
 
@@ -16,17 +14,18 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Copiar solo lo necesario para producción (Astro SSR con Node Adapter)
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
-COPY package*.json ./
+COPY --from=builder /app/package.json ./
 
-# Configurar variables de entorno
+RUN apk add --no-cache nginx
+
+COPY nginx.conf /etc/nginx/http.d/default.conf
+
 ENV HOST=0.0.0.0
 ENV PORT=1412
 ENV NODE_ENV=production
 
-EXPOSE 1412
+EXPOSE 80
 
-# Iniciar el servidor de Astro
-CMD ["node", "./dist/server/entry.mjs"]
+CMD ["sh", "-c", "nginx && node dist/server/entry.mjs"]
