@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@insforge/sdk';
-import { jsonResponse, errorResponse, decodeJWT } from '../../lib/api-helpers';
+import { jsonResponse, errorResponse, successResponse, decodeJWT } from '../../lib/api-helpers';
 import { logger } from '../../lib/logger';
 import { checkRateLimit } from '../../lib/rate-limit';
 
@@ -132,7 +132,7 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
         if (nombre) cookies.set('user_name', nombre, cookieOpts);
         if (avatarUrl) cookies.set('user_avatar', avatarUrl, cookieOpts);
 
-        return jsonResponse({
+        return successResponse({
             message: '¡Perfil actualizado con éxito!',
             avatar_url: avatarUrl,
         });

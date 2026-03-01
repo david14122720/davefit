@@ -23,48 +23,56 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
 <script>
     import { insforge } from "../../lib/insforge";
+    import { AuthService } from "../../services/auth.service";
 
     async function handleCallback() {
         const statusText = document.getElementById("status-text");
 
-        try {
-            // 1. El SDK captura automáticamente el token de la URL si existe hash/query
-            const { data, error } = await insforge.auth.getCurrentSession();
+        // Pequeño retardo para asegurar que el SDK procese el fragmento de la URL
+        setTimeout(async () => {
+            try {
+                // 1. Obtener sesión del SDK (busca en fragmento/localStorage)
+                const { data, error } = await insforge.auth.getCurrentSession();
 
-            if (error) throw error;
+                if (error) throw error;
 
-            const session = data?.session;
-            if (session?.accessToken) {
-                // 2. Sincronizar con el servidor para establecer cookies httpOnly
-                const response = await fetch("/api/auth/set-session", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        accessToken: session.accessToken,
-                        user: session.user,
-                    }),
-                });
+                const session = (data as any)?.session || data;
+                const token = session?.access_token || session?.accessToken;
 
-                if (!response.ok)
-                    throw new Error("Error al sincronizar sesión");
+                if (token) {
+                    if (statusText)
+                        statusText.textContent = "Sincronizando perfil...";
 
-                // 3. Redirigir al dashboard
-                window.location.href = "/dashboard";
-            } else {
-                // Si no hay sesión, quizá ya expiró o el link es inválido
-                window.location.href = "/login?error=session_not_found";
+                    // 2. Sincronizar con el servidor (cookies)
+                    const user = session?.user;
+                    const success = await AuthService.syncSession(token, user);
+
+                    if (!success)
+                        throw new Error(
+                            "Error al sincronizar sesión en servidor",
+                        );
+
+                    // 3. Éxito
+                    if (statusText)
+                        statusText.textContent = "¡Bienvenido! Redirigiendo...";
+
+                    window.location.href = "/dashboard";
+                } else {
+                    console.warn("[Callback] No se encontró sesión en el SDK");
+                    window.location.href = "/login?error=no_session";
+                }
+            } catch (err: any) {
+                console.error("[Callback] Error:", err.message);
+                if (statusText)
+                    statusText.textContent = "Error: " + err.message;
+
+                setTimeout(() => {
+                    window.location.href = "/login?error=callback_failed";
+                }, 1500);
             }
-        } catch (err) {
-            console.error("Callback error:", err);
-            if (statusText)
-                statusText.textContent =
-                    "Error al iniciar sesión. Redirigiendo...";
-            setTimeout(() => {
-                window.location.href = "/login?error=auth_failed";
-            }, 2000);
-        }
+        }, 500);
     }
 
-    // Ejecutar al cargar
+    // Ejecutar inmediatamente
     handleCallback();
 </script>

@@ -1,24 +1,23 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
-import Sidebar from "../components/dashboard/Sidebar.astro";
-import { Image } from "astro:assets";
+import DashboardSidebar from "../components/layout/DashboardSidebar.astro";
+import DashboardHeader from "../components/layout/DashboardHeader.astro";
 import { getInsforgeClient } from "../lib/insforge";
 import { decodeJWT } from "../lib/api-helpers";
 
 interface Props {
-    title: string;
+    title?: string;
 }
 
-const { title } = Astro.props;
+const { title = "Dashboard" } = Astro.props;
 const currentPath = Astro.url.pathname;
 
-// Identificar al usuario
+// Identificar al usuario (Sincronización de Identidad Única)
 const accessToken = Astro.cookies.get("if-access-token")?.value;
 let userName = Astro.cookies.get("user_name")?.value || "Usuario";
-let avatarUrl = Astro.cookies.get("user_avatar")?.value;
+let avatarUrl = Astro.cookies.get("user_avatar")?.value || null;
 let userRol = Astro.cookies.get("user_rol")?.value || "usuario";
 
-// Sincronizar con la DB para evitar discrepancias (nombres dobles, imágenes faltantes)
 if (accessToken) {
     try {
         const payload = decodeJWT(accessToken);
@@ -40,14 +39,13 @@ if (accessToken) {
             }
         }
     } catch (e) {
-        console.error("Error cargando perfil en Layout:", e);
+        console.error("[DashboardLayout] Error syncing identity:", e);
     }
 }
 
-const userInitial = userName ? userName.charAt(0).toUpperCase() : "U";
+const userInitial = userName.charAt(0).toUpperCase() || "U";
 const isAdmin = userRol === "admin";
 
-// Format date once
 const today = new Date().toLocaleDateString("es-ES", {
     weekday: "long",
     year: "numeric",
@@ -58,138 +56,48 @@ const today = new Date().toLocaleDateString("es-ES", {
 
 <BaseLayout title={title} showNav={false}>
     <div
-        class="flex min-h-screen bg-[var(--color-bg-dark)] relative"
-        transition:animate="slide"
+        class="flex min-h-screen bg-[var(--color-bg-dark)] overflow-hidden"
+        transition:animate="fade"
     >
-        <!-- Optimized background effects -->
-        <div class="fixed inset-0 pointer-events-none overflow-hidden">
-            <div
-                class="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[150px] will-change-transform"
-            >
-            </div>
-            <div
-                class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-400/5 rounded-full blur-[120px] will-change-transform"
-            >
-            </div>
-        </div>
+        <!-- Sidebar (Externalized) -->
+        <DashboardSidebar currentPath={currentPath} transition:persist />
 
-        <Sidebar currentPath={currentPath} transition:persist />
-
-        <div class="flex-1 flex flex-col min-w-0 relative z-10">
-            <!-- Header -->
-            <header
-                class="sticky top-0 z-30 bg-[var(--color-bg-dark)]/80 backdrop-blur-xl border-b border-white/5 shadow-lg"
+        <!-- Main Content Area -->
+        <main
+            class="flex-1 flex flex-col min-w-0 bg-[var(--color-bg-dark)] overflow-hidden"
+        >
+            <!-- Header (Externalized) -->
+            <DashboardHeader
+                title={title}
+                today={today}
+                userName={userName}
+                userInitial={userInitial}
+                avatarUrl={avatarUrl}
+                isAdmin={isAdmin}
                 transition:persist
-            >
-                <div
-                    class="flex items-center justify-between px-4 md:px-8 h-16 md:h-20"
-                >
-                    <!-- Page Title -->
-                    <div>
-                        <h1 class="text-xl md:text-2xl font-bold text-white">
-                            {title}
-                        </h1>
-                        <p class="hidden md:block text-sm text-gray-500">
-                            {today}
-                        </p>
-                    </div>
+            />
 
-                    <!-- User Menu -->
-                    <div class="flex items-center gap-4">
-                        <!-- Notifications -->
-                        <button
-                            class="relative p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5"
-                            aria-label="Notificaciones"
-                        >
-                            <svg
-                                class="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                                ></path>
-                            </svg>
-                            <span
-                                class="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full"
-                            ></span>
-                        </button>
-
-                        <!-- User Profile -->
-                        <a
-                            href="/dashboard/perfil"
-                            class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-orange-500/50 rounded-full pr-2"
-                        >
-                            <div class="text-right hidden md:block">
-                                <p class="text-sm font-medium text-white">
-                                    {userName}
-                                </p>
-                                <p class="text-xs text-gray-500">
-                                    {isAdmin ? "Admin" : "Miembro"}
-                                </p>
-                            </div>
-                            <div
-                                class={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-lg overflow-hidden ring-2 ring-white/20 group-hover:ring-orange-400 transition-all ${
-                                    avatarUrl
-                                        ? ""
-                                        : "bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg shadow-orange-500/20"
-                                }`}
-                            >
-                                {
-                                    avatarUrl ? (
-                                        <img
-                                            src={avatarUrl}
-                                            alt={userName}
-                                            class="w-full h-full object-cover"
-                                            loading="eager"
-                                        />
-                                    ) : (
-                                        <span class="text-base">
-                                            {userInitial}
-                                        </span>
-                                    )
-                                }
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Main Content -->
-            <main class="flex-1 p-4 md:p-8 overflow-y-auto">
-                <div transition:animate="fade">
-                    <slot />
-                </div>
-            </main>
-        </div>
+            <!-- Page-Specific Content with Scroll -->
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+                <slot />
+            </div>
+        </main>
     </div>
 </BaseLayout>
 
-<style>
-    /* Smooth page transitions */
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateX(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
+<style is:global>
+    /* Global scrollbar for dashboard */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
     }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.1);
     }
 </style>

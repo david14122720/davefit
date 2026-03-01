@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import preact from '@astrojs/preact';
+import node from '@astrojs/node';
 
 // https://astro.build/config
 export default defineConfig({
@@ -10,6 +11,9 @@ export default defineConfig({
         }),
         preact({
             compat: true,
+        }),
+        node({
+            mode: 'standalone',
         })
     ],
     image: {
@@ -19,7 +23,7 @@ export default defineConfig({
             { protocol: 'http', hostname: 'localhost' },
         ],
     },
-    output: 'static',
+    output: 'server',
     vite: {
         optimizeDeps: {
             include: [

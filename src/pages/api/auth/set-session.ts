@@ -11,10 +11,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             return errorResponse('Token no proporcionado', 400);
         }
 
+        // Configuración de cookies (Permitimos HTTP para facilitar pruebas)
         const cookieOpts = {
             path: '/',
             httpOnly: true,
-            secure: false, // Forzamos false para evitar problemas en localhost
+            secure: false, // Permitimos http:// para evitar rechazo en VPS
             sameSite: 'lax' as const,
             maxAge: 604800, // 7 días
         };
