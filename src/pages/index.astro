@@ -6,7 +6,7 @@ import { Image } from "astro:assets";
 <BaseLayout title="Entrenamientos en Casa para Estudiantes">
   <!-- Hero Section con efectos lumínicos mejorados -->
   <section
-    class="relative min-h-screen flex items-center pt-16 overflow-hidden"
+    class="relative min-h-screen flex items-center pt-16 overflow-hidden bg-background-dark"
   >
     <!-- Fondos animados con glow -->
     <div class="absolute inset-0 z-0">
@@ -21,15 +21,15 @@ import { Image } from "astro:assets";
         alt="Estudiante entrenando"
         width={1920}
         height={1080}
-        class="w-full h-full object-cover object-center"
+        class="w-full h-full object-cover object-center opacity-40 md:opacity-100"
       />
       <!-- Efectos lumínicos -->
       <div
-        class="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/20 rounded-full blur-[120px] animate-pulse"
+        class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-pulse"
       >
       </div>
       <div
-        class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-400/10 rounded-full blur-[100px] animate-pulse"
+        class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/10 rounded-full blur-[100px] animate-pulse"
         style="animation-delay: 1s;"
       >
       </div>
@@ -38,45 +38,46 @@ import { Image } from "astro:assets";
     <div
       class="container mx-auto px-4 relative z-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
     >
-      <div class="max-w-xl">
+      <div class="max-w-xl text-center lg:text-left">
         <!-- Badge luminoso -->
         <div
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-sm font-medium mb-6 shadow-[0_0_20px_rgba(249,115,22,0.3)]"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 text-primary-light text-sm font-medium mb-6 shadow-[0_0_20px_rgba(255,107,0,0.3)] mx-auto lg:mx-0"
         >
-          <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+          <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
           Para estudiantes ocupados
         </div>
 
         <h1
-          class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 drop-shadow-[0_0_30px_rgba(249,115,22,0.3)]"
+          class="text-4xl sm:text-5xl md:text-7xl font-extrabold leading-tight mb-6 drop-shadow-[0_0_30px_rgba(255,107,0,0.3)]"
         >
           Transforma Tu <br />
-          <span class="text-[var(--color-primary)]">Habitación</span> en Tu Gimnasio.
+          <span class="text-primary">Habitación</span> en Tu Gimnasio.
         </h1>
-        <p class="text-xl text-gray-300 mb-8 leading-relaxed">
+        <p class="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0">
           Entrenamientos accesibles y sin equipo diseñados específicamente para
           estudiantes que viven en espacios pequeños.
         </p>
-        <div class="flex items-center gap-4">
+        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
           <a
             href="/register"
-            class="btn-primary text-lg px-8 shadow-[0_0_30px_rgba(249,115,22,0.4)] hover:shadow-[0_0_40px_rgba(249,115,22,0.6)] transition-all"
+            data-astro-reload
+            class="w-full sm:w-auto px-8 py-4 bg-primary hover:bg-primary-light text-white font-bold rounded-xl text-lg shadow-[0_0_30px_rgba(255,107,0,0.4)] hover:shadow-[0_0_40px_rgba(255,107,0,0.6)] transition-all hover:scale-105"
           >
             Comenzar gratis
           </a>
           <a
             href="#como-funciona"
-            class="px-8 py-3 bg-white/5 border border-white/10 rounded-lg font-bold hover:bg-white/10 hover:border-orange-500/30 transition-all backdrop-blur-sm"
+            class="w-full sm:w-auto px-8 py-4 bg-white/5 border border-white/10 rounded-xl font-bold hover:bg-white/10 hover:border-primary/30 transition-all backdrop-blur-sm"
           >
             Ver demo
           </a>
         </div>
 
         <!-- Estadísticas con glow -->
-        <div class="flex gap-8 mt-12">
+        <div class="flex justify-center lg:justify-start gap-8 mt-12">
           <div class="text-center">
             <div
-              class="text-3xl font-bold text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+              class="text-3xl font-bold text-primary drop-shadow-[0_0_10px_rgba(255,107,0,0.5)]"
             >
               500+
             </div>
@@ -84,7 +85,7 @@ import { Image } from "astro:assets";
           </div>
           <div class="text-center">
             <div
-              class="text-3xl font-bold text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+              class="text-3xl font-bold text-primary drop-shadow-[0_0_10px_rgba(255,107,0,0.5)]"
             >
               50k+
             </div>
@@ -92,7 +93,7 @@ import { Image } from "astro:assets";
           </div>
           <div class="text-center">
             <div
-              class="text-3xl font-bold text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+              class="text-3xl font-bold text-primary drop-shadow-[0_0_10px_rgba(255,107,0,0.5)]"
             >
               4.9★
             </div>
@@ -104,14 +105,14 @@ import { Image } from "astro:assets";
   </section>
 
   <!-- Mission Section con mejoras visuales -->
-  <section class="py-24 bg-[var(--color-bg-card)] relative overflow-hidden">
+  <section class="py-24 bg-background-card relative overflow-hidden">
     <!-- Efectos de fondo -->
     <div
-      class="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[150px]"
+      class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[150px]"
     >
     </div>
     <div
-      class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-400/5 rounded-full blur-[120px]"
+      class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[120px]"
     >
     </div>
 
@@ -119,10 +120,10 @@ import { Image } from "astro:assets";
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div>
           <span
-            class="text-[var(--color-primary)] font-bold text-sm tracking-wider uppercase mb-2 block"
+            class="text-primary font-bold text-sm tracking-wider uppercase mb-2 block"
             >Nuestra Misión</span
           >
-          <h2 class="text-4xl font-bold mb-6">¿Qué es DaveFit?</h2>
+          <h2 class="text-4xl font-bold mb-6 text-white">¿Qué es DaveFit?</h2>
           <p class="text-gray-400 text-lg mb-8 leading-relaxed">
             Somos una plataforma moderna de fitness dedicada a estudiantes.
             Nuestra misión es proporcionar entrenamientos accesibles y sin
@@ -133,7 +134,7 @@ import { Image } from "astro:assets";
           <ul class="space-y-4 mb-8">
             <li class="flex items-center gap-3">
               <div
-                class="w-6 h-6 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-black text-xs shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+                class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-black font-bold text-xs shadow-[0_0_10px_rgba(255,107,0,0.5)]"
               >
                 ✓
               </div>
@@ -141,7 +142,7 @@ import { Image } from "astro:assets";
             </li>
             <li class="flex items-center gap-3">
               <div
-                class="w-6 h-6 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-black text-xs shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+                class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-black font-bold text-xs shadow-[0_0_10px_rgba(255,107,0,0.5)]"
               >
                 ✓
               </div>
@@ -151,7 +152,7 @@ import { Image } from "astro:assets";
             </li>
             <li class="flex items-center gap-3">
               <div
-                class="w-6 h-6 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-black text-xs shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+                class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-black font-bold text-xs shadow-[0_0_10px_rgba(255,107,0,0.5)]"
               >
                 ✓
               </div>
@@ -163,7 +164,7 @@ import { Image } from "astro:assets";
 
           <a
             href="/about"
-            class="text-[var(--color-primary)] font-bold hover:text-orange-400 flex items-center gap-2 group"
+            class="text-primary font-bold hover:text-primary-light flex items-center gap-2 group"
           >
             Conoce más sobre nosotros
             <span class="group-hover:translate-x-1 transition-transform">→</span
@@ -173,7 +174,7 @@ import { Image } from "astro:assets";
 
         <div class="relative">
           <div
-            class="rounded-2xl overflow-hidden border border-white/5 shadow-[0_0_40px_rgba(249,115,22,0.2)]"
+            class="rounded-3xl overflow-hidden border border-white/5 shadow-[0_0_40px_rgba(255,107,0,0.2)]"
           >
             <img
               src="https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=2070&auto=format&fit=crop"
@@ -183,7 +184,7 @@ import { Image } from "astro:assets";
           </div>
           <!-- Decoración luminosa -->
           <div
-            class="absolute -bottom-4 -right-4 w-32 h-32 bg-orange-500/20 rounded-full blur-[60px]"
+            class="absolute -bottom-4 -right-4 w-32 h-32 bg-primary/20 rounded-full blur-[60px]"
           >
           </div>
         </div>
@@ -192,16 +193,16 @@ import { Image } from "astro:assets";
   </section>
 
   <!-- How it Works con efectos mejorados -->
-  <section class="py-24 bg-[var(--color-bg-dark)] relative" id="como-funciona">
+  <section class="py-24 bg-background-dark relative" id="como-funciona">
     <!-- Fondo con gradiente sutil -->
     <div
-      class="absolute inset-0 bg-gradient-to-b from-transparent via-orange-500/5 to-transparent"
+      class="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent"
     >
     </div>
 
     <div class="container mx-auto px-4 relative z-10">
       <div class="text-center mb-16">
-        <h2 class="text-4xl font-bold mb-4">Cómo funciona</h2>
+        <h2 class="text-4xl font-bold mb-4 text-white">Cómo funciona</h2>
         <p class="text-gray-400">
           Comienza tu viaje fitness en tres simples pasos
         </p>
@@ -210,14 +211,14 @@ import { Image } from "astro:assets";
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <!-- Step 1 -->
         <div
-          class="p-8 rounded-2xl bg-[var(--color-bg-card)] border border-white/5 hover:border-[var(--color-primary)]/50 transition-all hover:shadow-[0_0_30px_rgba(249,115,22,0.2)] group"
+          class="p-8 rounded-2xl bg-background-card border border-white/5 hover:border-primary/50 transition-all hover:shadow-[0_0_30px_rgba(255,107,0,0.2)] group"
         >
           <div
-            class="w-12 h-12 rounded-full bg-[var(--color-primary)]/20 flex items-center justify-center text-[var(--color-primary)] mb-6 text-xl shadow-[0_0_15px_rgba(249,115,22,0.3)] group-hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] transition-all"
+            class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-6 text-xl shadow-[0_0_15px_rgba(255,107,0,0.3)] group-hover:shadow-[0_0_25px_rgba(255,107,0,0.5)] transition-all"
           >
             👤
           </div>
-          <h3 class="text-xl font-bold mb-3">1. Crea tu perfil</h3>
+          <h3 class="text-xl font-bold mb-3 text-white">1. Crea tu perfil</h3>
           <p class="text-gray-400 text-sm leading-relaxed">
             Regístrate en segundos usando tu correo de estudiante para
             descuentos exclusivos.
@@ -226,14 +227,14 @@ import { Image } from "astro:assets";
 
         <!-- Step 2 -->
         <div
-          class="p-8 rounded-2xl bg-[var(--color-bg-card)] border border-white/5 hover:border-[var(--color-primary)]/50 transition-all hover:shadow-[0_0_30px_rgba(249,115,22,0.2)] group"
+          class="p-8 rounded-2xl bg-background-card border border-white/5 hover:border-primary/50 transition-all hover:shadow-[0_0_30px_rgba(255,107,0,0.2)] group"
         >
           <div
-            class="w-12 h-12 rounded-full bg-[var(--color-primary)]/20 flex items-center justify-center text-[var(--color-primary)] mb-6 text-xl shadow-[0_0_15px_rgba(249,115,22,0.3)] group-hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] transition-all"
+            class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-6 text-xl shadow-[0_0_15px_rgba(255,107,0,0.3)] group-hover:shadow-[0_0_25px_rgba(255,107,0,0.5)] transition-all"
           >
             🕒
           </div>
-          <h3 class="text-xl font-bold mb-3">2. Selecciona tu tiempo</h3>
+          <h3 class="text-xl font-bold mb-3 text-white">2. Selecciona tu tiempo</h3>
           <p class="text-gray-400 text-sm leading-relaxed">
             Elige entre sesiones de 15, 30 o 45 minutos adaptadas a tus niveles
             de energía.
@@ -242,14 +243,14 @@ import { Image } from "astro:assets";
 
         <!-- Step 3 -->
         <div
-          class="p-8 rounded-2xl bg-[var(--color-bg-card)] border border-white/5 hover:border-[var(--color-primary)]/50 transition-all hover:shadow-[0_0_30px_rgba(249,115,22,0.2)] group"
+          class="p-8 rounded-2xl bg-background-card border border-white/5 hover:border-primary/50 transition-all hover:shadow-[0_0_30px_rgba(255,107,0,0.2)] group"
         >
           <div
-            class="w-12 h-12 rounded-full bg-[var(--color-primary)]/20 flex items-center justify-center text-[var(--color-primary)] mb-6 text-xl shadow-[0_0_15px_rgba(249,115,22,0.3)] group-hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] transition-all"
+            class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-6 text-xl shadow-[0_0_15px_rgba(255,107,0,0.3)] group-hover:shadow-[0_0_25px_rgba(255,107,0,0.5)] transition-all"
           >
             ▶️
           </div>
-          <h3 class="text-xl font-bold mb-3">3. Empieza a entrenar</h3>
+          <h3 class="text-xl font-bold mb-3 text-white">3. Empieza a entrenar</h3>
           <p class="text-gray-400 text-sm leading-relaxed">
             Sin esperas, solo acción. Transmite entrenamientos guiados de alta
             calidad inmediatamente.
@@ -261,17 +262,17 @@ import { Image } from "astro:assets";
 
   <!-- Benefits Grid con mejoras -->
   <section
-    class="py-24 bg-[var(--color-bg-dark)] border-t border-white/5 relative"
+    class="py-24 bg-background-dark border-t border-white/5 relative"
   >
     <!-- Efecto de fondo -->
     <div
-      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-500/5 rounded-full blur-[200px]"
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[200px]"
     >
     </div>
 
     <div class="container mx-auto px-4 relative z-10">
       <div class="text-center mb-16">
-        <h2 class="text-4xl font-bold mb-4">Beneficios</h2>
+        <h2 class="text-4xl font-bold mb-4 text-white">Beneficios</h2>
         <p class="text-gray-400">
           Por qué los estudiantes eligen DaveFit para su rutina diaria.
         </p>
@@ -311,12 +312,12 @@ import { Image } from "astro:assets";
               icon: "📱",
             },
           ].map((item) => (
-            <div class="p-6 rounded-xl bg-[var(--color-bg-card)] border border-white/5 flex gap-4 hover:bg-white/5 hover:border-orange-500/30 transition-all hover:shadow-[0_0_20px_rgba(249,115,22,0.15)] group">
-              <div class="w-10 h-10 rounded-lg bg-[var(--color-primary)] flex items-center justify-center text-white font-bold flex-shrink-0 shadow-[0_0_15px_rgba(249,115,22,0.4)] group-hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] transition-all">
+            <div class="p-6 rounded-2xl bg-background-card border border-white/5 flex gap-4 hover:bg-white/5 hover:border-primary/30 transition-all hover:shadow-[0_0_20px_rgba(255,107,0,0.15)] group">
+              <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold flex-shrink-0 shadow-[0_0_15px_rgba(255,107,0,0.4)] group-hover:shadow-[0_0_25px_rgba(255,107,0,0.6)] transition-all">
                 {item.icon}
               </div>
               <div>
-                <h4 class="font-bold mb-1">{item.title}</h4>
+                <h4 class="font-bold mb-1 text-white">{item.title}</h4>
                 <p class="text-xs text-gray-400 leading-relaxed">{item.desc}</p>
               </div>
             </div>
@@ -327,29 +328,30 @@ import { Image } from "astro:assets";
   </section>
 
   <!-- CTA Section -->
-  <section class="py-24 relative overflow-hidden">
+  <section class="py-24 relative overflow-hidden bg-background-dark">
     <div
-      class="absolute inset-0 bg-gradient-to-r from-orange-500/10 via-transparent to-orange-500/10"
+      class="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10"
     >
     </div>
     <div
-      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/20 rounded-full blur-[150px]"
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[150px]"
     >
     </div>
 
     <div class="container mx-auto px-4 relative z-10 text-center">
       <h2
-        class="text-5xl md:text-6xl font-bold mb-6 drop-shadow-[0_0_30px_rgba(249,115,22,0.3)]"
+        class="text-4xl md:text-6xl font-bold mb-6 drop-shadow-[0_0_30px_rgba(255,107,0,0.3)] text-white"
       >
-        ¿Listo para <span class="text-orange-500">transformarte</span>?
+        ¿Listo para <span class="text-primary">transformarte</span>?
       </h2>
-      <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+      <p class="text-lg md:text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
         Únete a miles de estudiantes que ya han cambiado su vida con DaveFit. Tu
         primera semana es gratuita.
       </p>
       <a
         href="/register"
-        class="inline-flex items-center gap-2 px-8 py-4 bg-orange-500 text-black font-bold rounded-xl hover:scale-105 transition-transform shadow-[0_0_40px_rgba(249,115,22,0.5)] hover:shadow-[0_0_60px_rgba(249,115,22,0.7)]"
+        data-astro-reload
+        class="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white font-bold rounded-xl hover:scale-105 transition-transform shadow-[0_0_40px_rgba(255,107,0,0.5)] hover:shadow-[0_0_60px_rgba(255,107,0,0.7)]"
       >
         Comenzar Mi Transformación
         <svg
@@ -376,32 +378,37 @@ import { Image } from "astro:assets";
     <div class="container mx-auto px-4">
       <div class="flex flex-col md:flex-row justify-between items-center gap-6">
         <div class="flex items-center gap-2">
-          <span class="text-[var(--color-primary)] font-bold text-lg">♦</span>
+          <span class="text-primary font-bold text-lg">♦</span>
           <span class="font-bold text-white text-lg">DaveFit</span>
         </div>
-        <div class="flex gap-8">
+        <div class="flex flex-wrap justify-center gap-8">
           <a
             href="#"
-            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(255,107,0,0.5)]"
             >Rutinas</a
           >
           <a
             href="#"
-            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(255,107,0,0.5)]"
             >Precios</a
           >
           <a
-            href="#"
-            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+            href="/about"
+            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(255,107,0,0.5)]"
             >Sobre Nosotros</a
           >
           <a
-            href="#"
-            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+            href="/faq"
+            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(255,107,0,0.5)]"
+            >FAQ</a
+          >
+          <a
+            href="mailto:hola@davefit.app"
+            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(255,107,0,0.5)]"
             >Contacto</a
           >
         </div>
-        <div>© 2026 DaveFit. Todos los derechos reservados.</div>
+        <div class="text-center md:text-right">© 2026 DaveFit. Todos los derechos reservados.</div>
       </div>
     </div>
   </footer>

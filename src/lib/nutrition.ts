@@ -1,13 +1,19 @@
 // Utilidades para cálculos nutricionales
 
 interface PerfilData {
-    peso_actual: number | null;
-    altura: number | null;
-    fecha_nacimiento: string | null;
-    genero: 'masculino' | 'femenino' | 'otro' | null;
-    nivel: 'principiante' | 'intermedio' | 'avanzado' | null;
-    objetivo: 'mantener_forma' | 'tonificar' | 'ganar_fuerza' | null;
-    dias_entrenamiento_semana: number;
+    id: string;
+    email?: string | null;
+    nombre_completo?: string | null;
+    avatar_url?: string | null;
+    fecha_nacimiento?: string | null;
+    genero?: string | null;
+    peso_actual?: number | null;
+    altura?: number | null;
+    objetivo?: string | null;
+    nivel?: string | null;
+    preferencia_lugar?: string | null;
+    rol?: string | null;
+    dias_entrenamiento_semana?: number | null;
 }
 
 // Factores de actividad según nivel
@@ -20,21 +26,23 @@ const factoresActividad: Record<string, number> = {
 };
 
 // Mapear nivel a factor de actividad
-function getFactorActividad(nivel: string | null, diasSemana: number): number {
-    // Primero consideramos los días de entrenamiento
-    if (diasSemana <= 1) return factoresActividad.sedentario;
-    if (diasSemana <= 3) return factoresActividad.ligero;
-    if (diasSemana <= 5) return factoresActividad.moderado;
-    if (diasSemana <= 7) return factoresActividad.activo;
+function getFactorActividad(nivel: string | null | undefined, diasSemana: number | null | undefined): number {
+    const d = diasSemana || 0;
+    if (d <= 1) return factoresActividad.sedentario;
+    if (d <= 3) return factoresActividad.ligero;
+    if (d <= 5) return factoresActividad.moderado;
+    if (d <= 7) return factoresActividad.activo;
     return factoresActividad.muy_activo;
 }
 
 // Calcular edad a partir de fecha de nacimiento
-function calcularEdad(fechaNacimiento: string | null): number | null {
+function calcularEdad(fechaNacimiento: string | null | undefined): number | null {
     if (!fechaNacimiento) return null;
     
     const hoy = new Date();
     const nacimiento = new Date(fechaNacimiento);
+    if (isNaN(nacimiento.getTime())) return null;
+
     let edad = hoy.getFullYear() - nacimiento.getFullYear();
     const mes = hoy.getMonth() - nacimiento.getMonth();
     
@@ -55,20 +63,17 @@ export function calcularBMR(perfil: PerfilData): number | null {
     }
     
     const edad = calcularEdad(fecha_nacimiento);
-    if (!edad || edad < 10 || edad > 100) {
+    if (edad === null || edad < 10 || edad > 100) {
         return null;
     }
     
     let bmr: number;
     
     if (genero === 'masculino') {
-        // Hombre: BMR = (10 × peso) + (6.25 × estatura) − (5 × edad) + 5
         bmr = (10 * peso_actual) + (6.25 * altura) - (5 * edad) + 5;
     } else if (genero === 'femenino') {
-        // Mujer: BMR = (10 × peso) + (6.25 × estatura) − (5 × edad) − 161
         bmr = (10 * peso_actual) + (6.25 * altura) - (5 * edad) - 161;
     } else {
-        // Para 'otro', usamos promedio entre hombre y mujer
         const bmrHombre = (10 * peso_actual) + (6.25 * altura) - (5 * edad) + 5;
         const bmrMujer = (10 * peso_actual) + (6.25 * altura) - (5 * edad) - 161;
         bmr = (bmrHombre + bmrMujer) / 2;
@@ -77,7 +82,7 @@ export function calcularBMR(perfil: PerfilData): number | null {
     return Math.round(bmr);
 }
 
-// Calcular TDEE (Total Daily Energy Expenditure)
+// Calcular TDEE
 export function calcularTDEE(perfil: PerfilData): number | null {
     const bmr = calcularBMR(perfil);
     if (!bmr) return null;
@@ -86,7 +91,7 @@ export function calcularTDEE(perfil: PerfilData): number | null {
     return Math.round(bmr * factorActividad);
 }
 
-// Calcular calorías objetivo según el objetivo del usuario
+// Calcular calorías objetivo
 export function calcularCaloriasObjetivo(perfil: PerfilData): {
     calorias: number | null;
     tipo: string;
@@ -106,6 +111,7 @@ export function calcularCaloriasObjetivo(perfil: PerfilData): {
     
     switch (objetivo) {
         case 'mantener_forma':
+        case 'mantener':
             return {
                 calorias: tdee,
                 tipo: 'Mantenimiento',
@@ -113,8 +119,6 @@ export function calcularCaloriasObjetivo(perfil: PerfilData): {
             };
         
         case 'tonificar':
-            // Tonificar generalmente implica definir (bajar grasa) o mantener
-            // Usamos déficit moderado de 400 calorías
             return {
                 calorias: tdee - 400,
                 tipo: 'Déficit moderado',
@@ -122,11 +126,17 @@ export function calcularCaloriasObjetivo(perfil: PerfilData): {
             };
         
         case 'ganar_fuerza':
-            // Ganar fuerza/músculo requiere superávit
             return {
                 calorias: tdee + 400,
                 tipo: 'Superávit calórico',
                 descripcion: 'Ganancia muscular óptima'
+            };
+        
+        case 'perder_peso':
+            return {
+                calorias: tdee - 500,
+                tipo: 'Déficit calórico',
+                descripcion: 'Pérdida de peso saludable'
             };
         
         default:
@@ -137,6 +147,7 @@ export function calcularCaloriasObjetivo(perfil: PerfilData): {
             };
     }
 }
+
 
 // Obtener información del nivel de actividad
 export function getInfoActividad(nivel: string | null, diasSemana: number): {

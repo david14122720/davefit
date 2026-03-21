@@ -1,37 +1,27 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
-import preact from '@astrojs/preact';
+import react from '@astrojs/react';
 import node from '@astrojs/node';
 
-// https://astro.build/config
 export default defineConfig({
+    output: 'server',
+    adapter: node({ mode: 'standalone' }),
     integrations: [
         tailwind({
             applyBaseStyles: false,
         }),
-        preact({
-            compat: true,
-        })
+        react(),
     ],
-    adapter: node({
-        mode: 'standalone'
-    }),
-    output: 'server',
     vite: {
         optimizeDeps: {
-            include: [
-                'preact',
-                'preact/hooks',
-                'preact/compat',
-                'chart.js'
-            ],
+            include: ['react', 'react-dom', 'react-router-dom', 'chart.js'],
         },
         build: {
             cssCodeSplit: true,
             rollupOptions: {
                 output: {
                     manualChunks: {
-                        'vendor': ['preact', 'preact/hooks', 'preact/compat'],
+                        'vendor-react': ['react', 'react-dom', 'react-router-dom'],
                         'insforge': ['@insforge/sdk'],
                     }
                 }

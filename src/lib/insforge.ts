@@ -3,16 +3,11 @@ import { createClient } from '@insforge/sdk';
 const insforgeUrl = import.meta.env.PUBLIC_INSFORGE_URL;
 const insforgeAnonKey = import.meta.env.PUBLIC_INSFORGE_ANON_KEY;
 
+/**
+ * Cliente InsForge singleton para toda la aplicación.
+ * El SDK maneja la persistencia de la sesión y los tokens automáticamente.
+ */
 export const insforge = createClient({
     baseUrl: insforgeUrl,
-    anonKey: insforgeAnonKey
+    anonKey: insforgeAnonKey,
 });
-
-export function getInsforgeClient(token?: string) {
-    if (!token) return insforge;
-    return createClient({
-        baseUrl: insforgeUrl,
-        anonKey: insforgeAnonKey,
-        headers: { Authorization: `Bearer ${token}` }
-    });
-}

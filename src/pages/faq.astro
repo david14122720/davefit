@@ -1,0 +1,39 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Preguntas Frecuentes">
+    <div class="pt-32 pb-20">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto">
+                <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-4 text-center">
+                    FAQ
+                </h1>
+                <p class="text-gray-400 text-center mb-16 text-lg">Todo lo que necesitas saber sobre DaveFit</p>
+
+                <div class="space-y-4">
+                    {[
+                        { q: "¿Es necesario equipo de gimnasio?", a: "No, nuestras rutinas están diseñadas para ser realizadas con el equipo mínimo posible, e incluso sin equipo. Selecciona tu nivel y lugar de entrenamiento y te daremos lo que necesitas." },
+                        { q: "¿DaveFit es gratuito?", a: "Ofrecemos una semana gratuita de prueba completa para que descubras todas nuestras funciones. Luego, tenemos planes diseñados para ajustarse a presupuestos de estudiantes." },
+                        { q: "¿Cómo guardo mis progresos?", a: "Al registrarte, DaveFit guarda automáticamente todas tus sesiones completadas y tus mejoras físicas de forma segura gracias a la tecnología de InsForge." },
+                        { q: "¿Puedo usarlo en mi celular?", a: "¡Absolutamente! DaveFit está optimizado como una aplicación web progresiva que funciona perfectamente en cualquier dispositivo móvil." },
+                    ].map(item => (
+                        <div class="bg-[#141414] border border-white/10 rounded-2xl p-6 sm:p-8 hover:border-primary/30 transition-all group">
+                            <h3 class="text-xl font-bold text-white mb-3 flex justify-between items-center">
+                                {item.q}
+                                <span class="text-primary group-hover:scale-110 transition-transform">?</span>
+                            </h3>
+                            <p class="text-gray-400 text-sm sm:text-base leading-relaxed">{item.a}</p>
+                        </div>
+                    ))}
+                </div>
+
+                <div class="mt-20 p-8 rounded-3xl bg-gradient-to-br from-primary/20 to-transparent border border-white/5 text-center">
+                    <h3 class="text-2xl font-bold text-white mb-4">¿Aún tienes dudas?</h3>
+                    <p class="text-gray-400 mb-8 max-w-md mx-auto">Nuestro equipo de soporte está listo para ayudarte en cualquier momento.</p>
+                    <a href="mailto:hola@davefit.app" class="px-8 py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors">Contactar Soporte</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</BaseLayout>
