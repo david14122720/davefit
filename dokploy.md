@@ -35,4 +35,31 @@ Una vez realizado el despliegue, la aplicación será accesible en:
 `http://192.168.101.133:[TU_PUERTO]`
 
 ---
-*Documento generado para David - Configuración Universal de Red Local.*
+
+## 📋 Notas para Aplicaciones Go
+
+Al desplegar aplicaciones Go en Dokploy, tener en cuenta los siguientes puntos importantes:
+
+### go.mod y go.sum
+- **go.mod**: Debe especificar una versión de Go que exista en Docker Hub. Usar `go 1.25.0` o inferior según la imagen base.
+- **go.sum**: **Es obligatorio** incluir este archivo en el repositorio. Sin él, el build fallará al hacer `COPY go.mod go.sum ./`.
+
+### Dockerfile para Go con CGO
+Si la aplicación usa CGO (necesario para FFmpeg u otras librerías C), el Dockerfile debe incluir:
+```dockerfile
+FROM golang:1.25-alpine AS builder
+RUN apk add --no-cache git ffmpeg gcc musl-dev linux-headers
+```
+
+### Errores comunes
+1. **`go.sum: not found`**: Agregar `go.sum` al repositorio.
+2. **`go.mod requires go >= 1.25.0 (running go 1.21)`**: Actualizar la versión de Go en el Dockerfile.
+3. **`gcc not found`**: Agregar `gcc musl-dev linux-headers` al comando `apk add`.
+
+### Notas adicionales
+- Usar imágenes `alpine` para reducir tamaño.
+- Para aplicaciones con FFmpeg, incluirlo tanto en el builder como en runtime.
+- Verificar que el puerto expuesto coincida con el configurado en Dokploy.
+
+---
+*Notas añadidas después del despliegue de StreamDaveFast - Marzo 2026*
