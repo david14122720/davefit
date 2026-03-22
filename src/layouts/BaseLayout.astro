@@ -121,7 +121,7 @@ const {
 
     <ClientRouter />
   </head>
-  <body class="bg-background-dark text-white min-h-screen antialiased selection:bg-orange-500/30 selection:text-white">
+  <body class="bg-background-dark text-white min-h-screen antialiased selection:bg-orange-500/30 selection:text-white overflow-x-hidden">
     {
       showNav && (
         <nav
@@ -187,6 +187,7 @@ const {
       // InsForge Session Sync
       async function syncSession() {
         try {
+          // @ts-expect-error local SDK types might be outdated but method exists
           const { data, error } = await insforge.auth.getCurrentSession();
 
           if (error) {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
 const navItems = [
@@ -142,8 +143,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </header>
 
                 {/* Page content */}
-                <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-                    {children}
+                <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={location.pathname}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2, ease: "easeInOut" }}
+                            className="h-full"
+                        >
+                            {children}
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
             </main>
         </div>

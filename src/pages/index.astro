@@ -176,9 +176,11 @@ import { Image } from "astro:assets";
           <div
             class="rounded-3xl overflow-hidden border border-white/5 shadow-[0_0_40px_rgba(255,107,0,0.2)]"
           >
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=2070&auto=format&fit=crop"
               alt="Sesión de yoga"
+              width={800}
+              height={600}
               class="w-full h-full object-cover"
             />
           </div>
@@ -193,7 +195,7 @@ import { Image } from "astro:assets";
   </section>
 
   <!-- How it Works con efectos mejorados -->
-  <section class="py-24 bg-background-dark relative" id="como-funciona">
+  <section class="py-24 bg-background-dark relative overflow-hidden" id="como-funciona">
     <!-- Fondo con gradiente sutil -->
     <div
       class="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent"
@@ -262,7 +264,7 @@ import { Image } from "astro:assets";
 
   <!-- Benefits Grid con mejoras -->
   <section
-    class="py-24 bg-background-dark border-t border-white/5 relative"
+    class="py-24 bg-background-dark border-t border-white/5 relative overflow-hidden"
   >
     <!-- Efecto de fondo -->
     <div

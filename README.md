@@ -1,42 +1,56 @@
-# DaveFit 💪
+# DaveFit
 
-Plataforma de entrenamiento inteligente construida con Astro, React y Supabase.
+Plataforma de entrenamiento inteligente para estudiantes. Construida con **Astro** (páginas estáticas) + **React SPA** (app interactiva) + **InsForge** (backend).
 
-## 🚀 Inicio Rápido
+## Inicio Rápido
 
-1.  **Instalar dependencias**:
-    ```bash
-    npm install
-    ```
+```bash
+npm install
+npm run dev
+```
 
-2.  **Configurar entorno**:
-    Crea un archivo `.env` en la raíz con tus credenciales de Supabase:
-    ```env
-    PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
-    PUBLIC_SUPABASE_ANON_KEY=tu-clave-anonima
-    ```
+Configura `.env`:
+```env
+PUBLIC_INSFORGE_URL=https://tu-backend.insforge.app
+PUBLIC_INSFORGE_ANON_KEY=tu-clave
+```
 
-3.  **Ejecutar desarrollo**:
-    ```bash
-    npm run dev
-    ```
+## Arquitectura
 
-## 🏗️ Estructura del Proyecto
+- **`/`** → Landing page (Astro, estático/SSR)
+- **`/app/*`** → App React SPA (cliente routing con React Router)
+- **`/about`**, **`/faq`** → Páginas estáticas Astro
 
--   `src/components`: Componentes reutilizables (Auth, Dashboard, UI)
--   `src/layouts`: Layouts principales (Base, Dashboard, Admin)
--   `src/pages`: Rutas de la aplicación
--   `src/lib`: Lógica de negocio (Supabase, Workout Engine)
--   `database`: Schema SQL para la base de datos
+### Estructura
 
-## 🔐 Roles y Permisos
+```
+src/
+├── app/
+│   ├── App.tsx              # Router principal
+│   ├── context/
+│   │   └── AuthContext.tsx  # Auth global (login, logout, perfil)
+│   ├── components/
+│   │   ├── AppLayout.tsx    # Sidebar + navbar
+│   │   └── ProtectedRoute.tsx
+│   └── pages/               # Páginas React
+│       ├── LoginPage.tsx
+│       ├── DashboardPage.tsx
+│       └── ...
+└── pages/
+    ├── index.astro          # Landing
+    ├── about.astro
+    └── app/[...slug].astro  # Shell que renderiza App.tsx
+```
 
--   **Usuario**: Acceso al Dashboard, Rutinas y Perfil.
--   **Admin**: Acceso al Panel de Administración para gestionar ejercicios.
-    -   Para hacer admin a un usuario, cambia su rol a `admin` en la tabla `perfiles` de Supabase.
+## Roles
 
-## 🧠 Características Clave
+- **Usuario**: Dashboard, Rutinas, Perfil, Historial
+- **Admin**: + Panel de administración (cambiar rol a `admin` en tabla `perfiles`)
 
--   **Workout Engine**: Algoritmo de recomendación basado en objetivos y fatiga.
--   **Dashboard Interactivo**: Gráficas de progreso y seguimiento.
--   **Modo Oscuro Premium**: Diseño moderno y motivador.
+## Optimizaciones de Rendimiento
+Para combatir la carga inicial de archivos grandes y hacer que la transición entre "apartados" de la aplicación sea instantánea o amigable:
+
+- **Code Splitting (Lazy Loading)**: Implementado en el enrutador de React (`App.tsx`) mediante `React.lazy()` y `Suspense`. Esto divide el bundle masivo inicial generado por Vite en pequeños fragmentos JavaScript, los cuales solo se descargan y procesan al momento exacto en el que el usuario va a visitar una ruta, acortando tiempos y eliminando bloqueos de rendering.
+- **Componente <Image /> de Astro**: Se modificaron las imágenes para usar la optimización nativa del motor de Astro en las *landing pages*, cargando automáticamente el formato webp comprimido en lugar de imágenes originales gigantes en megabytes. 
+- **Memoización con `useMemo`**: Utilizado en el derivado del cálculo del tablero (dashboard) para no iterar los números cada vez que React re-renderiza el componente al recibir retroalimentación visual o de mouse.
+- *Nota sobre peso en Entorno de Desarrollo*: Si se percibe un peso inusualmente grande en la pestaña *Network* (ej. 15MB) durante el desarrollo local, es el comportamiento normal y esperado de **Vite** cuando mapea todo el código original sin ofuscar ni minificar para ofrecer recarga en vivo (Hot Module Reload). Al construir para producción (`npm run build`), el proyecto pesará mínimos kilobytes de datos procesados.
