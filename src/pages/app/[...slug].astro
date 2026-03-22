@@ -1,0 +1,10 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import App from "../../app/App";
+---
+
+<BaseLayout title="DaveFit App" showNav={false}>
+    <div id="app-root">
+        <App client:only="react" />
+    </div>
+</BaseLayout>
