@@ -1,0 +1,186 @@
+===========================================
+  MEJORAS A FUTURO - DaveFit
+  Documento generado: 2026-02-27
+  Actualizado: 2026-03-20
+===========================================
+
+╔══════════════════════════════════════════════════════════════╗
+║  PRIORIDAD ALTA (HACER AHORA)                               ║
+╚══════════════════════════════════════════════════════════════╝
+
+[URGENTE-001] Seed de datos
+         - Agregar ejercicios de ejemplo a la base de datos
+         - Crear rutinas predefinidas para nuevos usuarios
+
+[URGENTE-002] README.md
+         - Actualizar documentación con la nueva estructura SPA
+
+
+╔══════════════════════════════════════════════════════════════╗
+║  PRIORIDAD MEDIA                                            ║
+╚══════════════════════════════════════════════════════════════╝
+
+[MED-001] Workflow n8n
+         - Recordatorios de entrenamiento por email
+         - Estadísticas semanales automáticas
+
+[MED-002] Deploy automático
+         - Configurar Dokploy para deploy desde GitHub
+
+[MED-003] Tests E2E
+         - Implementar tests con Playwright
+
+[MED-004] Funcionalidad pendiente
+         - Tablas sin uso: bienestar_mental, progreso_usuario, registro_calorias
+
+
+╔══════════════════════════════════════════════════════════════╗
+║  PRIORIDAD BAJA                                             ║
+╚══════════════════════════════════════════════════════════════╝
+
+1. PWA - Modo offline y notificaciones push
+2. Dark/Light mode - Toggle de tema
+3. Gráficos de progreso - Visualizaciones más detalladas
+4. Animaciones - Transiciones fluidas
+
+
+╔══════════════════════════════════════════════════════════════╗
+║  IDEAS A FUTURO                                             ║
+╚══════════════════════════════════════════════════════════════╝
+
+- Sistema de logros y gamificación
+- Chat con IA para consejos de nutrición (usar IA de InsForge)
+- Videos tutoriales para ejercicios
+- Integración con wearables (Apple Watch, Fitbit)
+- Tabla de clasificación entre usuarios
+- Comunidad social
+
+╔══════════════════════════════════════════════════════════════╗
+║  YOGA Y MEDITACIÓN                                         ║
+╚══════════════════════════════════════════════════════════════╝
+
+[YOGA-001] Sección de Yoga
+         - Rutinas de yoga por nivel (principiante, intermedio, avanzado)
+         - Rutinas por objetivo (flexibilidad, fuerza, relax)
+         - Posiciones con imágenes e instrucciones paso a paso
+         - Temporizador para mantener posturas
+         - Videos guía de YouTube embebidos
+
+[YOGA-002] Sección de Meditación
+         - Meditaciones guiadas por duración (5, 10, 15, 20 min)
+         - Meditaciones por objetivo (dormir, concentrarse, relax)
+         - Timer de meditación libre con campana de inicio/fin
+         - Sonidos ambientales (lluvia, naturaleza, ocean)
+         - Contador de sesiones y racha de meditación
+
+[YOGA-003] Bienestar Mental (usar tabla bienestar_mental)
+         - Registro de estado de ánimo diario
+         - Gráficos de bienestar a lo largo del tiempo
+         - Desafíos de mindfulness de 7/21/30 días
+         - Notas personales de gratitud
+         - Conexión yoga + meditación con ejercicios
+
+[YOGA-004] Integración con Entrenamiento
+         - Sugerencia de yoga como calentamiento/descanso
+         - Meditación post-entrenamiento recomendada
+         - Balance entre días intensos y días de yoga/meditación
+
+---
+
+VERSION ANTERIOR (IDEAS GENERALES):
+===================================
+
+1. SISTEMA DE NOTIFICACIONES PUSH
+   - Implementar notificaciones push con Web Push API
+   - Recordatorios de entrenamiento personalizados
+   - Alertas de progreso (metas alcanzadas, rachas de entrenamiento)
+   - Integración con Service Workers para notificaciones offline
+
+2. MÓDULO DE NUTRICIÓN COMPLETO
+   - Registro diario de comidas con búsqueda de alimentos
+   - Base de datos de alimentos con macro/micro nutrientes
+   - Planificador de comidas semanal inteligente basado en objetivos
+   - Scanner de código de barras para alimentos (vía cámara del móvil)
+   - Integración con la API de USDA FoodData Central
+
+3. INTELIGENCIA ARTIFICIAL PARA ENTRENAMIENTO
+   - Usar la IA disponible en InsForge para generar rutinas personalizadas
+   - Chatbot de fitness que responda preguntas sobre ejercicios y nutrición
+   - Análisis de progreso con recomendaciones automáticas
+   - Detección de patrones de sobre-entrenamiento o sub-entrenamiento
+   - Ajuste dinámico de intensidad basado en feedback de sensación
+
+4. PROGRESSIVE WEB APP (PWA)
+   - Configurar manifest.json y Service Worker completo
+   - Modo offline con caché de rutinas y ejercicios
+   - Instalación en pantalla de inicio (móvil y desktop)
+   - Sincronización diferida de datos cuando se recupere la conexión
+   - Background sync para registrar entrenamientos offline
+
+5. MODO ENTRENAMIENTO EN VIVO
+   - Timer/cronómetro integrado con series y descansos
+   - Registro de peso/reps en tiempo real durante el entrenamiento
+   - Reproducción de música de fondo integrada (Spotify API)
+   - Animaciones de ejercicios (GIFs o videos cortos)
+   - Vibración del dispositivo para indicar cambios de serie/ejercicio
+
+6. SISTEMA DE GAMIFICACIÓN
+   - Logros y badges por consistencia (racha de 7 días, 30 días, etc.)
+   - Sistema de puntos (XP) por entrenamientos completados
+   - Niveles de usuario (Novato → Intermedio → Avanzado → Élite)
+   - Desafíos semanales o mensuales
+   - Tabla de clasificación (leaderboard) entre usuarios
+
+7. COMUNIDAD Y SOCIAL
+   - Perfil público con stats compartibles
+   - Compartir rutinas y ejercicios entre usuarios
+   - Sistema de "me gusta" y comentarios en rutinas
+   - Grupos de entrenamiento
+   - Función de "compañero de entrenamiento" (buddy system)
+   - Feed social con actividad reciente de amigos
+
+8. ANALÍTICAS AVANZADAS
+   - Dashboard de progreso con gráficos interactivos (Chart.js ya integrado)
+   - Comparativas semana vs semana, mes vs mes
+   - Heatmap de actividad estilo GitHub
+   - Predicción de progreso (curvas de tendencia)
+   - Exportar datos a CSV/PDF para compartir con entrenador
+   - Métricas de rendimiento por grupo muscular
+
+9. SISTEMA DE ROLES Y PERMISOS AVANZADO
+   - Rol "Entrenador" con su propio dashboard
+   - Asignación de planes a usuarios por parte del entrenador
+   - Vista de progreso de alumnos
+   - Comunicación entrenador-alumno vía mensajes internos
+   - Monetización: planes de suscripción para entrenadores premium
+
+10. MEJORAS DE RENDIMIENTO E INFRAESTRUCTURA
+    - Implementar ISR (Incremental Static Regeneration) para páginas de contenido
+    - Edge Functions para las API routes más usadas
+    - CDN para imágenes de ejercicios (usando InsForge Storage optimizado)
+    - Lazy loading de componentes pesados (ProgressChart solo cuando es visible)
+    - Implementar Streaming SSR con Suspense boundaries
+    - Cache layer con Redis para consultas frecuentes a la BD
+    - Monitoreo con Sentry o similar para detectar errores en producción
+
+11. ACCESIBILIDAD (A11Y)
+    - Auditoría completa con Lighthouse
+    - Navegación por teclado completa
+    - Screen reader compatible con ARIA labels
+    - Modo alto contraste
+    - Tamaños de fuente ajustables
+    - Color-blind friendly color palette
+
+12. INTERNACIONALIZACIÓN (I18N)
+    - Soporte multilenguaje (Español, Inglés, Portugués)
+    - Detección automática del idioma del navegador
+    - Formato de fechas, números y unidades según locale
+    - Traducción de ejercicios y rutinas
+
+---
+
+PRIORIDADES SUGERIDAS:
+  Alta:   [4] PWA, [5] Modo Entrenamiento, [8] Analíticas
+  Media:  [1] Notificaciones, [3] IA, [6] Gamificación
+  Baja:   [2] Nutrición, [7] Comunidad, [9] Roles, [10] Rendimiento
+  Futura: [11] A11Y, [12] I18N

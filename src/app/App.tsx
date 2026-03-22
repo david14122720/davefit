@@ -15,6 +15,7 @@ const RoutinesPage = lazy(() => import('./pages/RoutinesPage'));
 const HistoryPage = lazy(() => import('./pages/HistoryPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const ExercisesAdminPage = lazy(() => import('./pages/ExercisesAdminPage'));
+const ComunidadPage = lazy(() => import('./pages/ComunidadPage'));
 
 // Fallback skeleton loader while routes chunk is being fetched
 const PageLoader = () => (
@@ -53,6 +54,11 @@ export default function App() {
                         <Route path="/historial" element={
                             <ProtectedRoute>
                                 <AppLayout><HistoryPage /></AppLayout>
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/comunidad" element={
+                            <ProtectedRoute>
+                                <AppLayout><ComunidadPage /></AppLayout>
                             </ProtectedRoute>
                         } />
 
