@@ -1,6 +1,33 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { Image } from "astro:assets";
+import { insforge } from "../lib/insforge";
+
+// Fetch suggestions and stats
+const [suggestionsResult, statsResult] = await Promise.all([
+    insforge.database
+        .from('suggestions')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5),
+    fetch(new URL('/api/stats', Astro.url)).then(r => r.json()).catch(() => ({
+        exercises: 0,
+        users: 0,
+        rating: 0,
+        reviews: 0
+    }))
+]);
+
+const suggestions = suggestionsResult.data || [];
+const stats = statsResult as { exercises: number; users: number; rating: number; reviews: number };
+
+// Format numbers
+const formatNumber = (num: number): string => {
+    if (num >= 1000) {
+        return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k+';
+    }
+    return num.toString() + '+';
+};
 ---
 
 <BaseLayout title="Entrenamientos en Casa para Estudiantes">
@@ -73,13 +100,13 @@ import { Image } from "astro:assets";
           </a>
         </div>
 
-        <!-- Estadísticas con glow -->
+        <!-- Estadísticas con glow (datos reales) -->
         <div class="flex justify-center lg:justify-start gap-8 mt-12">
           <div class="text-center">
             <div
               class="text-3xl font-bold text-primary drop-shadow-[0_0_10px_rgba(255,107,0,0.5)]"
             >
-              500+
+              {formatNumber(stats.exercises)}
             </div>
             <div class="text-sm text-gray-400">Ejercicios</div>
           </div>
@@ -87,7 +114,7 @@ import { Image } from "astro:assets";
             <div
               class="text-3xl font-bold text-primary drop-shadow-[0_0_10px_rgba(255,107,0,0.5)]"
             >
-              50k+
+              {formatNumber(stats.users)}
             </div>
             <div class="text-sm text-gray-400">Estudiantes</div>
           </div>
@@ -95,7 +122,7 @@ import { Image } from "astro:assets";
             <div
               class="text-3xl font-bold text-primary drop-shadow-[0_0_10px_rgba(255,107,0,0.5)]"
             >
-              4.9★
+              {stats.rating > 0 ? stats.rating.toFixed(1) : '4.9'}★
             </div>
             <div class="text-sm text-gray-400">Valoración</div>
           </div>
@@ -157,7 +184,7 @@ import { Image } from "astro:assets";
                 ✓
               </div>
               <span class="text-gray-300"
-                >Precios amigables para estudiantes</span
+                >100% gratis para todos los estudiantes</span
               >
             </li>
           </ul>
@@ -284,9 +311,9 @@ import { Image } from "astro:assets";
         {
           [
             {
-              title: "Económico",
-              desc: "Precios que se adaptan al presupuesto de un estudiante.",
-              icon: "💸",
+              title: "100% Gratis",
+              desc: "Sin costos, sin suscripciones. Acceso total para todos.",
+              icon: "🎁",
             },
             {
               title: "Sin Equipo Necesario",
@@ -375,6 +402,248 @@ import { Image } from "astro:assets";
     </div>
   </section>
 
+  <!-- Suggestions Section -->
+  <section class="py-24 bg-background-card relative overflow-hidden" id="sugerencias">
+    <div
+      class="absolute top-0 left-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[150px]"
+    >
+    </div>
+
+    <div class="container mx-auto px-4 relative z-10">
+      <div class="text-center mb-12">
+        <span
+          class="text-primary font-bold text-sm tracking-wider uppercase mb-2 block"
+          >Tu Opinión Importa</span
+        >
+        <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">
+          Sugerencias para Mejorar DaveFit
+        </h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">
+          Ayúdanos a mejorar. Comparte tus ideas, comentarios o cualquier
+          sugerencia que tengas para hacer DaveFit mejor.
+        </p>
+      </div>
+
+      <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Formulario -->
+        <div class="bg-background-dark rounded-2xl p-6 border border-white/10">
+          <form id="suggestion-form" class="space-y-4">
+            <!-- Rating con estrellas -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">
+                Tu valoración (opcional)
+              </label>
+              <div class="flex items-center gap-1" id="star-rating">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    type="button"
+                    data-star={star}
+                    class="star-btn text-2xl text-gray-500 hover:text-yellow-400 transition-colors"
+                  >
+                    ★
+                  </button>
+                ))}
+                <input type="hidden" name="rating" id="rating-input" value="0" />
+                <span class="text-sm text-gray-400 ml-2" id="rating-text">Sin valoración</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="suggestion" class="block text-sm font-medium text-gray-300 mb-2">
+                Tu sugerencia
+              </label>
+              <textarea
+                id="suggestion"
+                name="message"
+                rows="4"
+                maxlength="1000"
+                placeholder="Ej: Me gustaría que hubiera más rutinas de yoga..."
+                class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none"
+              ></textarea>
+              <p class="text-xs text-gray-500 mt-1">
+                <span id="char-count">0</span>/1000 caracteres
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full px-6 py-3 bg-primary hover:bg-primary-light text-white font-bold rounded-xl transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(255,107,0,0.4)] flex items-center justify-center gap-2"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+              </svg>
+              Enviar Sugerencia
+            </button>
+          </form>
+
+          <!-- Success/Error Message -->
+          <div id="form-message" class="hidden mt-4 p-4 rounded-xl text-center"></div>
+        </div>
+
+        <!-- Sugerencias recientes -->
+        <div class="bg-background-dark rounded-2xl p-6 border border-white/10">
+          <h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+            Sugerencias de la Comunidad
+          </h3>
+
+          <div id="suggestions-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+            {suggestions.length > 0 ? (
+              suggestions.map((s) => (
+                <div class="p-3 rounded-xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all">
+                  {s.rating > 0 && (
+                    <div class="flex items-center gap-1 mb-2">
+                      {[1,2,3,4,5].map((star) => (
+                        <span class={`text-sm ${star <= s.rating ? 'text-yellow-400' : 'text-gray-600'}`}>★</span>
+                      ))}
+                    </div>
+                  )}
+                  <p class="text-sm text-gray-300">{s.message}</p>
+                  <p class="text-xs text-gray-500 mt-2">
+                    {new Date(s.created_at).toLocaleDateString('es-ES', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div class="text-center py-8 text-gray-500">
+                <p>Sé el primero en dar una sugerencia 👆</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const form = document.getElementById('suggestion-form');
+    const textarea = document.getElementById('suggestion') as HTMLTextAreaElement;
+    const charCount = document.getElementById('char-count');
+    const formMessage = document.getElementById('form-message');
+    const ratingInput = document.getElementById('rating-input') as HTMLInputElement;
+    const ratingText = document.getElementById('rating-text');
+    const starButtons = document.querySelectorAll('.star-btn');
+
+    // Star rating handler
+    let currentRating = 0;
+    starButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const star = parseInt(btn.getAttribute('data-star') || '0');
+        currentRating = star;
+        ratingInput.value = star.toString();
+        
+        // Update stars appearance
+        starButtons.forEach((s, i) => {
+          const starBtn = s as HTMLElement;
+          starBtn.style.color = i < star ? '#fbbf24' : '#6b7280';
+        });
+        
+        ratingText!.textContent = star === 1 ? '1 estrella' : `${star} estrellas`;
+      });
+      
+      btn.addEventListener('mouseenter', () => {
+        const star = parseInt(btn.getAttribute('data-star') || '0');
+        starButtons.forEach((s, i) => {
+          const starBtn = s as HTMLElement;
+          starBtn.style.color = i < star ? '#fbbf24' : '#6b7280';
+        });
+      });
+      
+      btn.addEventListener('mouseleave', () => {
+        starButtons.forEach((s, i) => {
+          const starBtn = s as HTMLElement;
+          starBtn.style.color = i < currentRating ? '#fbbf24' : '#6b7280';
+        });
+      });
+    });
+
+    // Character counter
+    textarea?.addEventListener('input', () => {
+      charCount!.textContent = textarea.value.length.toString();
+    });
+
+    // Form submission
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const message = textarea.value.trim();
+      const rating = parseInt(ratingInput?.value || '0');
+      
+      if (!message) {
+        showMessage('Por favor escribe tu sugerencia', 'error');
+        return;
+      }
+
+      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Enviando...
+      `;
+
+      try {
+        const response = await fetch('/api/suggestions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message, rating })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showMessage(data.message || '¡Gracias por tu sugerencia!', 'success');
+          textarea.value = '';
+          charCount!.textContent = '0';
+          
+          // Add suggestion to list
+          const list = document.getElementById('suggestions-list');
+          if (list && data.suggestion) {
+            const newDiv = document.createElement('div');
+            newDiv.className = 'p-3 rounded-xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all animate-fade-in';
+            newDiv.innerHTML = `
+              <p class="text-sm text-gray-300">${data.suggestion.message}</p>
+              <p class="text-xs text-gray-500 mt-2">Recién enviado • Pendiente de aprobación</p>
+            `;
+            list.insertBefore(newDiv, list.firstChild);
+          }
+        } else {
+          showMessage(data.error || 'Error al enviar', 'error');
+        }
+      } catch (err) {
+        showMessage('Error de conexión', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+          </svg>
+          Enviar Sugerencia
+        `;
+      }
+    });
+
+    function showMessage(text: string, type: 'success' | 'error') {
+      if (!formMessage) return;
+      formMessage.className = `mt-4 p-4 rounded-xl text-center ${
+        type === 'success' 
+          ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+          : 'bg-red-500/20 text-red-400 border border-red-500/30'
+      }`;
+      formMessage.textContent = text;
+      formMessage.classList.remove('hidden');
+      setTimeout(() => formMessage.classList.add('hidden'), 5000);
+    }
+  </script>
+
   <!-- Footer Simple -->
   <footer class="py-12 bg-black border-t border-white/10 text-xs text-gray-500">
     <div class="container mx-auto px-4">
@@ -384,16 +653,6 @@ import { Image } from "astro:assets";
           <span class="font-bold text-white text-lg">DaveFit</span>
         </div>
         <div class="flex flex-wrap justify-center gap-8">
-          <a
-            href="#"
-            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(255,107,0,0.5)]"
-            >Rutinas</a
-          >
-          <a
-            href="#"
-            class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(255,107,0,0.5)]"
-            >Precios</a
-          >
           <a
             href="/about"
             class="hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(255,107,0,0.5)]"
