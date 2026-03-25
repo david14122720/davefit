@@ -7,9 +7,9 @@ import { Toaster } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
 // Lazy loaded pages for Code Splitting (optimizes bundle size and load time)
-const LoginPage = lazy(() => import('./pages/LoginPage'));
+import LoginPage from './pages/LoginPage';
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
-const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+import DashboardPage from './pages/DashboardPage';
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const RoutinesPage = lazy(() => import('./pages/RoutinesPage'));
 const HistoryPage = lazy(() => import('./pages/HistoryPage'));
@@ -19,8 +19,9 @@ const ComunidadPage = lazy(() => import('./pages/ComunidadPage'));
 
 // Fallback skeleton loader while routes chunk is being fetched
 const PageLoader = () => (
-    <div className="flex bg-[#0a0a0a] min-h-screen items-center justify-center">
+    <div className="flex bg-[#0a0a0a] min-h-screen items-center justify-center text-white flex-col gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-orange-500" />
+        <span className="text-sm font-medium animate-pulse">Iniciando aplicación...</span>
     </div>
 );
 

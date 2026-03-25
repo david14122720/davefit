@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { insforge } from '../../lib/insforge';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -138,11 +138,7 @@ export default function ComunidadPage() {
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadLeaderboard();
-  }, [filter]);
-
-  const loadLeaderboard = async () => {
+  const loadLeaderboard = useCallback(async () => {
     setLoading(true);
     try {
       const scoreColumn = filter === 'weekly' ? 'weekly_score' : filter === 'monthly' ? 'monthly_score' : 'total_score';
@@ -196,14 +192,20 @@ export default function ComunidadPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    loadLeaderboard();
+  }, [loadLeaderboard]);
 
   const top3 = useMemo(() => users.slice(0, 3), [users]);
   const rest = useMemo(() => users.slice(3), [users]);
 
+  const handleFilterChange = useCallback((type: FilterType) => setFilter(type), []);
+
   const FilterButton = ({ type, label }: { type: FilterType; label: string }) => (
     <button
-      onClick={() => setFilter(type)}
+      onClick={() => handleFilterChange(type)}
       className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
         filter === type
           ? 'bg-orange-500 text-black shadow-[0_0_15px_rgba(249,115,22,0.4)]'

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { insforge } from '../../lib/insforge';
 
 interface User {
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const isAdmin = perfil?.rol === 'admin';
+    const isAdmin = useMemo(() => perfil?.rol === 'admin', [perfil?.rol]);
 
     // Cargar perfil completo desde la tabla 'perfiles'
     const loadPerfil = useCallback(async (userId: string, token: string, sessionUser?: User) => {
@@ -266,12 +266,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const contextValue = useMemo(() => ({
+        user, perfil, accessToken, loading, isAdmin,
+        signIn, signUp, signInWithGoogle, signOut,
+        refreshPerfil, updatePerfil,
+    }), [user, perfil, accessToken, loading, isAdmin, signIn, signUp, signInWithGoogle, signOut, refreshPerfil, updatePerfil]);
+
     return (
-        <AuthContext.Provider value={{
-            user, perfil, accessToken, loading, isAdmin,
-            signIn, signUp, signInWithGoogle, signOut,
-            refreshPerfil, updatePerfil,
-        }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );
