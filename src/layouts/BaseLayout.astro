@@ -6,23 +6,53 @@ interface Props {
   title: string;
   description?: string;
   showNav?: boolean;
+  image?: string;
+  type?: string;
 }
 
 const {
   title,
-  description = "Tu entrenador personal inteligente. Entrena en casa o en el gimnasio con rutinas personalizadas.",
+  description = "DaveFit - Entrenamientos en casa gratuitos para estudiantes. Rutinas de fitness sin equipo, yoga, y ejercicios personalizados.",
   showNav = true,
+  image = "/og-image.png",
+  type = "website",
 } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const socialImageURL = new URL(image, Astro.site);
 ---
 
 <!doctype html>
 <html lang="es" class="scroll-smooth" transition:animate="none">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content={description} />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="theme-color" content="#0a0e1a" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0a" />
     <link rel="icon" type="image/x-icon" href="/davefitIMG.ico" />
+
+    <!-- SEO -->
+    <title>{title} | DaveFit</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content="fitness, entrenamiento, casa, estudiantes, gratuito, yoga, rutinas, ejercicios, sin equipo, gym, saludable" />
+    <meta name="author" content="DaveFit" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={`${title} | DaveFit`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={socialImageURL} />
+    <meta property="og:site_name" content="DaveFit" />
+    <meta property="og:locale" content="es_ES" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:title" content={`${title} | DaveFit`} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImageURL} />
 
     <!-- Resource hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -36,7 +66,6 @@ const {
     />
 
     <meta name="generator" content={Astro.generator} />
-    <title>{title} | DaveFit</title>
 
     <!-- Ultra-fast critical CSS -->
     <style is:inline>
