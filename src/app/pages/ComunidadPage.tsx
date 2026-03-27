@@ -137,6 +137,7 @@ export default function ComunidadPage() {
   const [filter, setFilter] = useState<FilterType>('all');
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = React.useTransition();
 
   const loadLeaderboard = useCallback(async () => {
     setLoading(true);
@@ -179,12 +180,8 @@ export default function ComunidadPage() {
             };
         });
 
-        // Sort dynamically based on filter column
         const sorted = leaderboardUsers.sort((a, b) => b.total_score - a.total_score);
-        
-        // Add ranks
         sorted.forEach((u, i) => { u.rank = i + 1; });
-        
         setUsers(sorted);
       }
     } catch (e) {
@@ -201,7 +198,11 @@ export default function ComunidadPage() {
   const top3 = useMemo(() => users.slice(0, 3), [users]);
   const rest = useMemo(() => users.slice(3), [users]);
 
-  const handleFilterChange = useCallback((type: FilterType) => setFilter(type), []);
+  const handleFilterChange = useCallback((type: FilterType) => {
+    startTransition(() => {
+      setFilter(type);
+    });
+  }, []);
 
   const FilterButton = ({ type, label }: { type: FilterType; label: string }) => (
     <button
@@ -245,7 +246,7 @@ export default function ComunidadPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="w-full"
+            className={`w-full ${isPending ? 'opacity-50' : ''}`}
         >
           {users.length > 0 ? (
             <div className="mb-12">
@@ -268,7 +269,7 @@ export default function ComunidadPage() {
                 <h2 className="text-xl font-extrabold text-white mb-4 pl-2">Clasificación General</h2>
                 <div className="flex flex-col gap-3">
                     <AnimatePresence>
-                        {rest.map((user) => (
+                        {rest.map((user: LeaderboardUser) => (
                         <LeaderboardRow key={user.user_id} user={user} />
                         ))}
                     </AnimatePresence>

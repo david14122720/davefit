@@ -12,14 +12,14 @@ export default function DashboardPage() {
     const [ejercicios, setEjercicios] = React.useState<any[]>([]);
     const [loaded, setLoaded] = React.useState(false);
 
-    const userName = perfil?.nombre_completo?.split(' ')[0] || user?.email?.split('@')[0] || 'Usuario';
+    const userName = useMemo(() => perfil?.nombre_completo?.split(' ')[0] || user?.email?.split('@')[0] || 'Usuario', [perfil, user]);
 
     const saludo = useMemo(() => {
         const hora = new Date().getHours();
         if (hora >= 12 && hora < 20) return 'Buenas tardes';
         if (hora >= 20) return 'Buenas noches';
         return 'Buenos días';
-    }, []);
+    }, []); // Computed once on mount
 
     React.useEffect(() => {
         if (!accessToken) return;
@@ -43,10 +43,17 @@ export default function DashboardPage() {
     }, [accessToken]);
 
     const totalEntrenamientos = historial.length;
-    const totalMinutos = useMemo(() => historial.reduce((acc, h) => acc + (h.duracion_minutos || 0), 0), [historial]);
+    const totalMinutos = useMemo(() => historial.reduce((acc, h) => acc + (h.duracion_real || 0), 0), [historial]);
     const ultimoEntrenamiento = historial[0];
     const items = rutinas.length > 0 ? rutinas : ejercicios;
 
+    // Memoize the chart "random" data so it doesn't jump on every re-render
+    const chartData = useMemo(() => 
+        ['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((day) => ({
+            day,
+            height: Math.random() * 80 + 20
+        }))
+    , [totalEntrenamientos]); // Only change if new training is added
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
         visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -145,7 +152,7 @@ export default function DashboardPage() {
                     </div>
                     {ultimoEntrenamiento ? (
                         <div className="flex items-center gap-4 text-sm font-medium mt-4">
-                            <span className="bg-white/5 px-3 py-1 rounded-full text-gray-300">{ultimoEntrenamiento.duracion_minutos || 0} min</span>
+                            <span className="bg-white/5 px-3 py-1 rounded-full text-gray-300">{ultimoEntrenamiento.duracion_real || 0} min</span>
                             <span className="bg-white/5 px-3 py-1 rounded-full text-gray-300">{ultimoEntrenamiento.calorias_quemadas || 0} kcal</span>
                         </div>
                     ) : (
@@ -183,15 +190,15 @@ export default function DashboardPage() {
                                 <span className="text-xl font-bold text-white bg-orange-500/10 px-2 py-1 rounded-lg text-orange-400">{totalMinutos} min</span>
                             </div>
                             <div className="h-48 flex items-end justify-around gap-2">
-                                {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((day, i) => (
-                                    <div key={day} className="flex-1 flex flex-col items-center gap-2">
+                                {chartData.map((data, i) => (
+                                    <div key={data.day} className="flex-1 flex flex-col items-center gap-2">
                                         <motion.div
                                             initial={{ height: 0 }}
-                                            animate={{ height: `${Math.random() * 80 + 20}%` }}
+                                            animate={{ height: `${data.height}%` }}
                                             transition={{ duration: 0.8, delay: i * 0.1, ease: "easeOut" }}
                                             className="w-full rounded-t-lg bg-gradient-to-t from-orange-500/20 to-orange-500/80 shadow-[0_-5px_15px_rgba(249,115,22,0.1)]"
                                         />
-                                        <span className="text-xs font-bold text-gray-500">{day}</span>
+                                        <span className="text-xs font-bold text-gray-500">{data.day}</span>
                                     </div>
                                 ))}
                             </div>

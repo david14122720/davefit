@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { insforge } from '../../lib/insforge';
 import { calcularBMR, calcularTDEE, calcularCaloriasObjetivo, calcularIMC, getCategoriaIMC } from '../../lib/nutrition';
@@ -18,17 +18,9 @@ const profileSchema = z.object({
     genero: z.enum(['masculino', 'femenino', 'otro', '']).optional(),
     objetivo: z.enum(['tonificar', 'ganar_fuerza', 'mantener_forma', 'perder_peso', '']).optional(),
     nivel: z.enum(['principiante', 'intermedio', 'avanzado', '']).optional(),
-}).transform(data => {
-    // Transform empty strings to undefined to accommodate optional numeric fields that shouldn't be cast as 0
-    return {
-        ...data,
-        peso_actual: data.peso_actual === '' ? undefined : data.peso_actual,
-        altura: data.altura === '' ? undefined : data.altura,
-        dias_entrenamiento_semana: data.dias_entrenamiento_semana === '' ? undefined : data.dias_entrenamiento_semana,
-    };
 });
 
-type ProfileFormValues = z.infer<typeof profileSchema>;
+type ProfileFormValues = z.input<typeof profileSchema>;
 
 export default function ProfilePage() {
     const { user, perfil, accessToken, updatePerfil } = useAuth();
@@ -41,6 +33,7 @@ export default function ProfilePage() {
         reset,
         formState: { errors, isSubmitting }
     } = useForm<ProfileFormValues>({
+        // @ts-ignore - Resolver issues with mixed types in input/output
         resolver: zodResolver(profileSchema),
         defaultValues: {
             nombre_completo: perfil?.nombre_completo || '',
@@ -72,30 +65,52 @@ export default function ProfilePage() {
     const userName = perfil?.nombre_completo || user?.email?.split('@')[0] || 'Usuario';
     const avatarUrl = perfil?.avatar_url || null;
 
-    let bmr = null, tdee = null, caloriasObjetivo: any = null, imc = null, categoriaIMC = '--', edad = null;
-    if (perfil) {
-        try {
-            bmr = calcularBMR(perfil);
-            tdee = calcularTDEE(perfil);
-            caloriasObjetivo = calcularCaloriasObjetivo(perfil);
-            imc = calcularIMC(perfil.peso_actual ?? null, perfil.altura ?? null);
-            categoriaIMC = getCategoriaIMC(imc);
-            if (perfil.fecha_nacimiento) {
-                const hoy = new Date();
-                const nac = new Date(perfil.fecha_nacimiento);
-                if (!isNaN(nac.getTime())) {
-                    edad = hoy.getFullYear() - nac.getFullYear();
-                    const m = hoy.getMonth() - nac.getMonth();
-                    if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+    const { bmr, tdee, caloriasObjetivo, imc, categoriaIMC, edad } = useMemo(() => {
+        let calculations = { 
+            bmr: null as number | null, 
+            tdee: null as number | null, 
+            caloriasObjetivo: null as any, 
+            imc: null as any, 
+            categoriaIMC: '--', 
+            edad: null as number | null 
+        };
+        if (perfil) {
+            try {
+                calculations.bmr = calcularBMR(perfil);
+                calculations.tdee = calcularTDEE(perfil);
+                calculations.caloriasObjetivo = calcularCaloriasObjetivo(perfil);
+                calculations.imc = calcularIMC(perfil.peso_actual ?? null, perfil.altura ?? null);
+                calculations.categoriaIMC = getCategoriaIMC(calculations.imc);
+                if (perfil.fecha_nacimiento) {
+                    const hoy = new Date();
+                    const nac = new Date(perfil.fecha_nacimiento);
+                    if (!isNaN(nac.getTime())) {
+                        let age = hoy.getFullYear() - nac.getFullYear();
+                        const m = hoy.getMonth() - nac.getMonth();
+                        if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) age--;
+                        calculations.edad = age;
+                    }
                 }
+            } catch (e) {
+                console.error('Error en cálculos:', e);
             }
-        } catch (e) { console.error('Error en cálculos:', e); }
-    }
+        }
+        return calculations;
+    }, [perfil]);
 
-    const datosCompletos = !!(perfil?.peso_actual && perfil?.altura && perfil?.fecha_nacimiento && perfil?.genero);
+    const datosCompletos = useMemo(() => !!(perfil?.peso_actual && perfil?.altura && perfil?.fecha_nacimiento && perfil?.genero), [perfil]);
 
     const onSubmit = async (data: ProfileFormValues) => {
-        const promise = updatePerfil(data);
+        // Clean empty values for numeric fields
+        const cleanedData = {
+            ...data,
+            peso_actual: data.peso_actual === '' ? null : data.peso_actual,
+            altura: data.altura === '' ? null : data.altura,
+            dias_entrenamiento_semana: data.dias_entrenamiento_semana === '' ? null : data.dias_entrenamiento_semana,
+        };
+        
+        // @ts-ignore - Partial type issues with combined schema/profile
+        const promise = updatePerfil(cleanedData);
         
         toast.promise(promise, {
             loading: 'Guardando perfil...',
@@ -251,10 +266,10 @@ export default function ProfilePage() {
                             <label className="text-sm text-gray-400">Objetivo</label>
                             <select {...register('objetivo')} className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white focus:ring-2 focus:ring-orange-500/50 outline-none">
                                 <option value="">Seleccionar</option>
-                                <option value="tonificar">Tonificar</option>
-                                <option value="ganar_fuerza">Ganar Fuerza</option>
-                                <option value="mantener_forma">Mantener Forma</option>
-                                <option value="perder_peso">Perder Peso</option>
+                                <option value="perder_peso">Bajar grasa (Perder peso)</option>
+                                <option value="tonificar">Bajar grasa (Tonificar)</option>
+                                <option value="ganar_fuerza">Ganar músculo (fuerza)</option>
+                                <option value="mantener_forma">Mantener peso</option>
                             </select>
                         </div>
 
@@ -280,11 +295,13 @@ export default function ProfilePage() {
             {datosCompletos && (
                 <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
                     <div className="bg-[#141414]/80 backdrop-blur-xl p-5 sm:p-6 rounded-2xl border border-white/10 shadow-lg hover:border-orange-500/20 transition-colors">
-                        <div className="flex items-center gap-2 mb-3"><span className="text-2xl">🔥</span><h3 className="text-gray-400 text-xs sm:text-sm font-medium">Metabolismo Basal (BMR)</h3></div>
+                        <div className="flex items-center gap-2 mb-1"><span className="text-2xl">🔥</span><h3 className="text-white text-sm sm:text-base font-bold">Metabolismo Basal</h3></div>
+                        <p className="text-gray-500 text-xs mb-3">Calorías que quemas en reposo (sin moverte)</p>
                         <div className="flex items-baseline gap-2"><span className="text-3xl sm:text-4xl font-bold text-white tracking-tight">{bmr || '--'}</span><span className="text-gray-500 text-sm font-medium">kcal/día</span></div>
                     </div>
                     <div className="bg-[#141414]/80 backdrop-blur-xl p-5 sm:p-6 rounded-2xl border border-white/10 shadow-lg hover:border-orange-500/20 transition-colors">
-                        <div className="flex items-center gap-2 mb-3"><span className="text-2xl">⚡</span><h3 className="text-gray-400 text-xs sm:text-sm font-medium">Gasto Total (TDEE)</h3></div>
+                        <div className="flex items-center gap-2 mb-1"><span className="text-2xl">⚡</span><h3 className="text-white text-sm sm:text-base font-bold">Gasto Total</h3></div>
+                        <p className="text-gray-500 text-xs mb-3">Lo que quemas en total (incluye ejercicio)</p>
                         <div className="flex items-baseline gap-2"><span className="text-3xl sm:text-4xl font-bold text-white tracking-tight">{tdee || '--'}</span><span className="text-gray-500 text-sm font-medium">kcal/día</span></div>
                     </div>
                     <div className="bg-gradient-to-br from-orange-500/10 to-orange-500/5 backdrop-blur-xl p-5 sm:p-6 rounded-2xl border border-orange-500/30 sm:col-span-2 md:col-span-1 shadow-lg shadow-orange-500/5 group relative overflow-hidden">
@@ -292,8 +309,28 @@ export default function ProfilePage() {
                             <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/></svg>
                         </div>
                         <div className="relative z-10">
-                            <div className="flex items-center gap-2 mb-3"><span className="text-2xl">🎯</span><h3 className="text-orange-400 text-xs sm:text-sm font-bold uppercase tracking-wider">Tu Objetivo</h3></div>
-                            <div className="flex items-baseline gap-2"><span className="text-4xl sm:text-5xl font-extrabold text-orange-400 tracking-tighter drop-shadow-sm">{caloriasObjetivo?.calorias || '--'}</span><span className="text-orange-500/70 text-sm font-medium">kcal/día</span></div>
+                            <div className="flex items-center gap-2 mb-2">
+                                {perfil?.objetivo === 'perder_peso' || perfil?.objetivo === 'tonificar' ? (
+                                    <span className="text-2xl">🎯</span>
+                                ) : perfil?.objetivo === 'ganar_fuerza' ? (
+                                    <span className="text-2xl">💪</span>
+                                ) : (
+                                    <span className="text-2xl">⚖️</span>
+                                )}
+                                <h3 className="text-orange-400 text-sm font-black uppercase tracking-wider">
+                                    {perfil?.objetivo === 'perder_peso' || perfil?.objetivo === 'tonificar' ? 'Bajar grasa' : 
+                                     perfil?.objetivo === 'ganar_fuerza' ? 'Ganar músculo' : 
+                                     'Mantener peso'}
+                                </h3>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-4xl sm:text-5xl font-black text-orange-400 tracking-tighter drop-shadow-sm">
+                                    {caloriasObjetivo?.calorias || '--'}
+                                </span>
+                                <span className="text-orange-500/70 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest leading-tight">
+                                    calorías recomendadas según <br/> tu perfil y objetivo
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
@@ -310,12 +347,13 @@ export default function ProfilePage() {
                             { emoji: '⚖️', label: 'Peso', value: perfil.peso_actual, unit: 'kg' },
                             { emoji: '📏', label: 'Altura', value: perfil.altura, unit: 'cm' },
                             { emoji: '🎂', label: 'Edad', value: edad, unit: 'años' },
-                            { emoji: '📉', label: 'IMC', value: imc?.toFixed(1), unit: categoriaIMC },
+                            { emoji: '📉', label: 'IMC', value: imc?.toFixed(1), unit: categoriaIMC, desc: 'Relación peso/altura' },
                         ].map(d => (
                             <div key={d.label} className="p-4 sm:p-5 bg-black/40 rounded-xl text-center border border-white/5 hover:bg-white/5 transition-colors">
                                 <div className="text-2xl sm:text-3xl mb-2">{d.emoji}</div>
                                 <div className="text-gray-400 text-xs sm:text-sm font-bold uppercase tracking-wide mb-1">{d.label}</div>
                                 <div className="text-2xl sm:text-3xl font-extrabold text-white">{d.value !== null && d.value !== undefined ? d.value : '--'} <span className="text-xs sm:text-sm font-medium text-gray-500">{d.unit}</span></div>
+                                {d.desc && <p className="text-gray-600 text-[10px] mt-1">{d.desc}</p>}
                             </div>
                         ))}
                     </div>

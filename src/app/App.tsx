@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { YogaProvider } from './context/YogaContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout';
 import { Toaster } from 'sonner';
@@ -16,6 +17,9 @@ const HistoryPage = lazy(() => import('./pages/HistoryPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const ExercisesAdminPage = lazy(() => import('./pages/ExercisesAdminPage'));
 const ComunidadPage = lazy(() => import('./pages/ComunidadPage'));
+const YogaPage = lazy(() => import('./pages/YogaPage'));
+const YogaPracticePage = lazy(() => import('./pages/YogaPracticePage'));
+const YogaPosicionesPage = lazy(() => import('./pages/YogaPosicionesPage'));
 
 // Fallback skeleton loader while routes chunk is being fetched
 const PageLoader = () => (
@@ -29,9 +33,10 @@ export default function App() {
     return (
         <BrowserRouter>
             <AuthProvider>
-                <Toaster theme="dark" position="top-right" />
-                <Suspense fallback={<PageLoader />}>
-                    <Routes>
+                <YogaProvider>
+                    <Toaster theme="dark" position="top-right" />
+                    <Suspense fallback={<PageLoader />}>
+                        <Routes>
                         {/* Auth routes (sin layout) */}
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/register" element={<RegisterPage />} />
@@ -75,11 +80,29 @@ export default function App() {
                             </ProtectedRoute>
                         } />
 
+                        {/* Yoga routes */}
+                        <Route path="/yoga" element={
+                            <ProtectedRoute>
+                                <AppLayout><YogaPage /></AppLayout>
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/yoga/practicar/:rutinaId" element={
+                            <ProtectedRoute>
+                                <YogaPracticePage />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/yoga/posiciones" element={
+                            <ProtectedRoute>
+                                <AppLayout><YogaPosicionesPage /></AppLayout>
+                            </ProtectedRoute>
+                        } />
+
                         {/* Default redirect */}
                         <Route path="/" element={<Navigate to="/dashboard" replace />} />
                         <Route path="*" element={<Navigate to="/dashboard" replace />} />
                     </Routes>
                 </Suspense>
+                </YogaProvider>
             </AuthProvider>
         </BrowserRouter>
     );
