@@ -1,27 +1,45 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useTransition } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useYoga } from '../context/YogaContext';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { 
   Play, Clock, Users, Sparkles, Heart, 
-  Activity, Zap, Filter, Search, Flower2
+  Activity, Zap, Search, Flower2, SlidersHorizontal
 } from 'lucide-react';
 
 type Nivel = 'principiante' | 'intermedio' | 'avanzado';
 type Objetivo = 'flexibilidad' | 'fuerza' | 'relajacion';
 
-const niveles: { value: Nivel; label: string; icon: React.ReactNode; color: string }[] = [
+const NIVELES: { value: Nivel; label: string; icon: React.ReactNode; color: string }[] = [
   { value: 'principiante', label: 'Principiante', icon: <Users className="w-5 h-5" />, color: 'from-green-500/20 to-emerald-500/20 border-green-500/30' },
   { value: 'intermedio', label: 'Intermedio', icon: <Activity className="w-5 h-5" />, color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30' },
   { value: 'avanzado', label: 'Avanzado', icon: <Zap className="w-5 h-5" />, color: 'from-purple-500/20 to-violet-500/20 border-purple-500/30' },
 ];
 
-const objetivos: { value: Objetivo; label: string; icon: React.ReactNode; color: string }[] = [
+const OBJETIVOS: { value: Objetivo; label: string; icon: React.ReactNode; color: string }[] = [
   { value: 'flexibilidad', label: 'Flexibilidad', icon: <Sparkles className="w-5 h-5" />, color: 'from-pink-500/20 to-rose-500/20 border-pink-500/30' },
   { value: 'fuerza', label: 'Fuerza', icon: <Heart className="w-5 h-5" />, color: 'from-red-500/20 to-orange-500/20 border-red-500/30' },
   { value: 'relajacion', label: 'Relajación', icon: <Flower2 className="w-5 h-5" />, color: 'from-indigo-500/20 to-purple-500/20 border-indigo-500/30' },
 ];
+
+const getNivelColor = (nivel: string): string => {
+  switch (nivel) {
+    case 'principiante': return 'text-green-400 bg-green-500/20';
+    case 'intermedio': return 'text-blue-400 bg-blue-500/20';
+    case 'avanzado': return 'text-purple-400 bg-purple-500/20';
+    default: return 'text-gray-400 bg-gray-500/20';
+  }
+};
+
+const getObjetivoLabel = (objetivo: string | null | undefined): string => {
+  switch (objetivo) {
+    case 'flexibilidad': return 'Flexibilidad';
+    case 'fuerza': return 'Fuerza';
+    case 'relajacion': return 'Relajación';
+    default: return objetivo ?? '';
+  }
+};
 
 export default function YogaPage() {
   const navigate = useNavigate();
@@ -29,26 +47,48 @@ export default function YogaPage() {
   const [nivelSeleccionado, setNivelSeleccionado] = useState<Nivel | null>(null);
   const [objetivoSeleccionado, setObjetivoSeleccionado] = useState<Objetivo | null>(null);
   const [busqueda, setBusqueda] = useState('');
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     fetchRutinas();
   }, [fetchRutinas]);
 
+  const handleSetNivel = useCallback((nivel: Nivel | null) => {
+    startTransition(() => {
+      setNivelSeleccionado(nivel);
+    });
+  }, []);
+
+  const handleSetObjetivo = useCallback((objetivo: Objetivo | null) => {
+    startTransition(() => {
+      setObjetivoSeleccionado(objetivo);
+    });
+  }, []);
+
+  const handleSetBusqueda = useCallback((value: string) => {
+    setBusqueda(value);
+  }, []);
+
+  const handlePracticar = useCallback((rutinaId: string) => {
+    navigate(`/yoga/practicar/${rutinaId}`);
+  }, [navigate]);
+
+  const handleNavigatePosiciones = useCallback(() => {
+    navigate('/yoga/posiciones');
+  }, [navigate]);
+
   const rutinasFiltradas = useMemo(() => {
     return rutinas.filter(rutina => {
       const matchesNivel = nivelSeleccionado ? rutina.nivel === nivelSeleccionado : true;
       const matchesObjetivo = objetivoSeleccionado ? rutina.objetivo === objetivoSeleccionado : true;
+      const searchLower = busqueda.toLowerCase();
       const matchesBusqueda = busqueda 
-        ? rutina.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-          rutina.descripcion?.toLowerCase().includes(busqueda.toLowerCase())
+        ? rutina.nombre.toLowerCase().includes(searchLower) ||
+          (rutina.descripcion?.toLowerCase().includes(searchLower) ?? false)
         : true;
       return matchesNivel && matchesObjetivo && matchesBusqueda;
     });
   }, [rutinas, nivelSeleccionado, objetivoSeleccionado, busqueda]);
-
-  const handlePracticar = (rutinaId: string) => {
-    navigate(`/yoga/practicar/${rutinaId}`);
-  };
 
   const getNivelColor = (nivel: string) => {
     switch (nivel) {
@@ -111,7 +151,7 @@ export default function YogaPage() {
               <div className="space-y-3 flex-1 min-w-[200px]">
                 <div className="flex items-center justify-between ml-1">
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                    <Filter className="w-3 h-3" /> Nivel
+                    <SlidersHorizontal className="w-3 h-3" /> Nivel
                   </label>
                   {nivelSeleccionado && (
                     <button 
@@ -123,10 +163,10 @@ export default function YogaPage() {
                   )}
                 </div>
                 <div className="flex gap-2">
-                  {niveles.map((nivel) => (
+                  {NIVELES.map((nivel) => (
                     <button
                       key={nivel.value}
-                      onClick={() => setNivelSeleccionado(nivelSeleccionado === nivel.value ? null : nivel.value)}
+                      onClick={() => handleSetNivel(nivelSeleccionado === nivel.value ? null : nivel.value)}
                       title={nivel.label}
                       className={`flex-1 flex items-center justify-center p-3 rounded-2xl border transition-all relative ${
                         nivelSeleccionado === nivel.value
@@ -156,10 +196,10 @@ export default function YogaPage() {
                   )}
                 </div>
                 <div className="flex gap-2">
-                  {objetivos.map((obj) => (
+                  {OBJETIVOS.map((obj) => (
                     <button
                       key={obj.value}
-                      onClick={() => setObjetivoSeleccionado(objetivoSeleccionado === obj.value ? null : obj.value)}
+                      onClick={() => handleSetObjetivo(objetivoSeleccionado === obj.value ? null : obj.value)}
                       title={obj.label}
                       className={`flex-1 flex items-center justify-center p-3 rounded-2xl border transition-all relative ${
                         objetivoSeleccionado === obj.value
@@ -180,8 +220,8 @@ export default function YogaPage() {
             <p className="text-sm text-gray-500">
               ¿Quieres aprender posiciones específicas?
             </p>
-            <button
-              onClick={() => navigate('/yoga/posiciones')}
+              <button
+              onClick={handleNavigatePosiciones}
               className="flex items-center gap-2 px-6 py-2 bg-orange-500/10 border border-orange-500/20 text-orange-500 rounded-xl text-sm font-bold hover:bg-orange-500 hover:text-black transition-all group"
             >
               Ver Biblioteca Posiciones

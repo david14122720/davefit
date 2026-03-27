@@ -83,7 +83,7 @@ export default function YogaPracticePage() {
     }
   }, [isResting, session.posicionIndex, totalPosiciones, session.rutina, nextPosition]);
 
-  const handleSiguiente = () => {
+  const handleSiguiente = useCallback(() => {
     setIsTimerRunning(false);
     setIsResting(false);
     
@@ -96,9 +96,9 @@ export default function YogaPracticePage() {
         setTiempoRestante(next.duracion_segundos ?? 30);
       }
     }
-  };
+  }, [session.posicionIndex, totalPosiciones, session.rutina, nextPosition]);
 
-  const handleAnterior = () => {
+  const handleAnterior = useCallback(() => {
     setIsTimerRunning(false);
     setIsResting(false);
     if (session.posicionIndex > 0) {
@@ -108,9 +108,9 @@ export default function YogaPracticePage() {
         setTiempoRestante(prev.duracion_segundos ?? 30);
       }
     }
-  };
+  }, [session.posicionIndex, session.rutina, prevPosition]);
 
-  const handleFinalizar = async () => {
+  const handleFinalizar = useCallback(async () => {
     setIsTimerRunning(false);
     const result = await completeSession();
     if (!result.error) {
@@ -118,12 +118,12 @@ export default function YogaPracticePage() {
     } else {
       toast.error('Error al guardar el progreso');
     }
-  };
+  }, [completeSession]);
 
-  const handleVolverInicio = () => {
+  const handleVolverInicio = useCallback(() => {
     resetSession();
     navigate('/yoga');
-  };
+  }, [resetSession, navigate]);
 
   if (loadingRutinas) {
     return (
