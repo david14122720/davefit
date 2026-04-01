@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useYoga } from '../context/YogaContext';
+import { useAuth } from '../context/AuthContext';
+import { useCelebration } from '../hooks/useCelebration';
+import { processWorkoutCompletion, calcularCalorias } from '../../lib/gamification';
 import YogaTimer from '../components/YogaTimer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { 
   ArrowLeft, Play, Pause, CheckCircle, XCircle,
   ChevronLeft, ChevronRight, Home, RotateCcw,
-  Sparkles, Flower2
+  Sparkles, Flower2, Star, Trophy
 } from 'lucide-react';
 
 const REST_TIME = 10; // seconds
@@ -15,6 +18,7 @@ const REST_TIME = 10; // seconds
 export default function YogaPracticePage() {
   const { rutinaId } = useParams<{ rutinaId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { 
     rutinaActual, 
     loadingRutinas, 
@@ -27,11 +31,13 @@ export default function YogaPracticePage() {
     completeSession,
     resetSession
   } = useYoga();
+  const { celebrateCompletion, celebrateLevelUp } = useCelebration();
   
   const [tiempoRestante, setTiempoRestante] = useState<number>(30);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [isResting, setIsResting] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [xpResult, setXpResult] = useState<{xp_ganado: number; nivel_nuevo: number; subio_nivel: boolean} | null>(null);
 
   useEffect(() => {
     if (rutinaId) {
@@ -114,11 +120,26 @@ export default function YogaPracticePage() {
     setIsTimerRunning(false);
     const result = await completeSession();
     if (!result.error) {
+      if (user && session.rutina && session.startTime) {
+        const duracionMin = Math.floor((Date.now() - session.startTime.getTime()) / 1000 / 60);
+        const xpResult = await processWorkoutCompletion(user.id, Math.max(duracionMin, 1), 'yoga');
+        if (xpResult.success) {
+          setXpResult({
+            xp_ganado: xpResult.calculation.xp_ganado,
+            nivel_nuevo: xpResult.calculation.nivel_nuevo,
+            subio_nivel: xpResult.calculation.subio_nivel,
+          });
+          celebrateCompletion();
+          if (xpResult.calculation.subio_nivel) {
+            setTimeout(celebrateLevelUp, 500);
+          }
+        }
+      }
       setShowCompletionModal(true);
     } else {
       toast.error('Error al guardar el progreso');
     }
-  }, [completeSession]);
+  }, [completeSession, user, session.rutina, session.startTime, celebrateCompletion, celebrateLevelUp]);
 
   const handleVolverInicio = useCallback(() => {
     resetSession();
@@ -378,14 +399,43 @@ export default function YogaPracticePage() {
               </div>
               
               <h2 className="text-3xl font-black text-white mb-2">¡Namasté!</h2>
-              <p className="text-gray-400 mb-8 leading-relaxed">
+              <p className="text-gray-400 mb-4 leading-relaxed">
                 Has completado <span className="text-white font-bold">{session.rutina?.nombre}</span> con éxito. Tu cuerpo y mente te lo agradecerán.
               </p>
+
+              {/* XP & Level Up Rewards */}
+              {xpResult && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="mb-6 p-4 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 rounded-2xl border border-orange-500/20"
+                >
+                  <div className="flex items-center justify-center gap-3 mb-3">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-orange-500/20 rounded-xl">
+                      <Star className="w-5 h-5 text-yellow-400" />
+                      <span className="text-white font-bold">+{xpResult.xp_ganado} XP</span>
+                    </div>
+                    {xpResult.subio_nivel && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.5, type: 'spring' }}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-xl"
+                      >
+                        <Trophy className="w-5 h-5 text-green-400" />
+                        <span className="text-green-400 font-bold">Nivel {xpResult.nivel_nuevo}!</span>
+                      </motion.div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
               
               <div className="grid grid-cols-1 gap-3">
                 <button
                   onClick={() => {
                     setShowCompletionModal(false);
+                    setXpResult(null);
                     resetSession();
                     if (rutinaId) fetchRutina(rutinaId);
                   }}

@@ -206,6 +206,8 @@ export function YogaProvider({ children }: { children: React.ReactNode }) {
             completado: true,
             fecha_completado: endTime.toISOString(),
             duracion_real_segundos: duracionTotal,
+            duracion_estimada: session.rutina.duracion_minutos,
+            calorias_estimadas: session.rutina.calorias_estimadas,
         });
 
         if (error) {

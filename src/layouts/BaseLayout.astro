@@ -8,6 +8,7 @@ interface Props {
   showNav?: boolean;
   image?: string;
   type?: string;
+  jsonLd?: object;
 }
 
 const {
@@ -16,11 +17,25 @@ const {
   showNav = true,
   image = "/og-image.png",
   type = "website",
+  jsonLd,
 } = Astro.props;
 
-const siteUrl = Astro.site || new URL('https://davefit.app');
+const siteUrl = Astro.site?.toString() || 'https://davefit.app';
 const canonicalURL = new URL(Astro.url.pathname, siteUrl);
 const socialImageURL = new URL(image, siteUrl);
+
+const defaultJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "DaveFit",
+  "url": siteUrl,
+  "description": description,
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": `${siteUrl}/search?q={search_term_string}`,
+    "query-input": "required name=search_term_string"
+  }
+};
 ---
 
 <!doctype html>
@@ -67,6 +82,10 @@ const socialImageURL = new URL(image, siteUrl);
     />
 
     <meta name="generator" content={Astro.generator} />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(defaultJsonLd)} />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
 
     <!-- Ultra-fast critical CSS -->
     <style is:inline>

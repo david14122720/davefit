@@ -1,11 +1,32 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const faqs = [
+    { q: "¿Es necesario equipo de gimnasio?", a: "No, nuestras rutinas están diseñadas para ser realizadas con el equipo mínimo posible, e incluso sin equipo. Selecciona tu nivel y lugar de entrenamiento y te daremos lo que necesitas." },
+    { q: "¿DaveFit es gratuito?", a: "Ofrecemos una semana gratuita de prueba completa para que descubras todas nuestras funciones. Luego, tenemos planes diseñados para ajustarse a presupuestos de estudiantes." },
+    { q: "¿Cómo guardo mis progresos?", a: "Al registrarte, DaveFit guarda automáticamente todas tus sesiones completadas y tus mejoras físicas de forma segura gracias a la tecnología de InsForge." },
+    { q: "¿Puedo usarlo en mi celular?", a: "¡Absolutamente! DaveFit está optimizado como una aplicación web progresiva que funciona perfectamente en cualquier dispositivo móvil." },
+];
+
+const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(item => ({
+        "@type": "Question",
+        "name": item.q,
+        "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.a
+        }
+    }))
+};
 ---
 
 <BaseLayout 
   title="Preguntas Frecuentes"
   description="Preguntas frecuentes sobre DaveFit. Respuestas sobre entrenamientos gratuitos, cómo empezar, rutinas de yoga, ejercicios sin equipo y más."
   image="/og-image.png"
+  jsonLd={faqSchema}
 >
     <div class="pt-32 pb-20">
         <div class="container mx-auto px-4">

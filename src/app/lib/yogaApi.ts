@@ -1,5 +1,6 @@
 import { insforge } from '../../lib/insforge';
 import { recordWorkoutCompletion } from '../../lib/stats';
+import { calcularCalorias } from '../../lib/gamification';
 
 // Types
 export interface PosicionYoga {
@@ -23,6 +24,7 @@ export interface RutinaYoga {
     nivel: 'principiante' | 'intermedio' | 'avanzado';
     objetivo?: 'flexibilidad' | 'fuerza' | 'relajacion' | null;
     duracion_minutos: number;
+    calorias_estimadas?: number;
     posiciones?: PosicionRutina[];
     created_at?: string;
     updated_at?: string;
@@ -163,6 +165,8 @@ export async function saveProgreso(data: {
     completado?: boolean;
     fecha_completado?: string;
     duracion_real_segundos?: number;
+    calorias_estimadas?: number;
+    duracion_estimada?: number;
 }): Promise<{ data: ProgresoYoga | null; error: string | null }> {
     try {
         const { data: result, error } = await insforge.database
@@ -184,14 +188,26 @@ export async function saveProgreso(data: {
         // 2. Registrar en el sistema de progreso global para puntos y rachas
         // Usamos un puntaje base de 15 puntos por sesión de yoga
         try {
+            const duracionMin = Math.max(Math.floor((data.duracion_real_segundos || 0) / 60), 1);
+            const duracionEst = data.duracion_estimada || 30;
+            const baseCals = data.calorias_estimadas || 0;
+            
+            let caloriasQuemadas = 0;
+            if (baseCals > 0) {
+                const factor = Math.min(duracionMin / duracionEst, 2);
+                caloriasQuemadas = Math.round(baseCals * factor);
+            } else {
+                caloriasQuemadas = calcularCalorias(duracionMin, 'yoga');
+            }
+            
             await recordWorkoutCompletion(data.user_id, `yoga_${data.rutina_id}`, 15);
             
             // 3. Unificar con el historial general de entrenamientos (para el Dashboard)
             await insforge.database.from('historial_entrenamientos').insert([{
                 usuario_id: data.user_id,
                 rutina_id: null, // No es una rutina de pesas, es de yoga
-                duracion_real: Math.floor((data.duracion_real_segundos || 0) / 60) || 15,
-                calorias_quemadas: Math.floor((data.duracion_real_segundos || 0) / 60) * 5 || 50, // Estimación simple
+                duracion_real: duracionMin,
+                calorias_quemadas: caloriasQuemadas,
                 notas: 'Sesión de Yoga completada',
                 fecha: data.fecha_completado || new Date().toISOString()
             }]);

@@ -1,16 +1,20 @@
 import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { insforge } from '../../lib/insforge';
 import { motion, type Variants } from 'framer-motion';
-import { Play, TrendingUp, CalendarCheck, Activity, Target } from 'lucide-react';
+import TimeSelector from '../components/TimeSelector';
+import XPBar from '../components/XPBar';
+import { Play, TrendingUp, CalendarCheck, Activity, Target, Zap } from 'lucide-react';
 
 export default function DashboardPage() {
     const { user, perfil, accessToken } = useAuth();
+    const navigate = useNavigate();
     const [historial, setHistorial] = React.useState<any[]>([]);
     const [rutinas, setRutinas] = React.useState<any[]>([]);
     const [ejercicios, setEjercicios] = React.useState<any[]>([]);
     const [loaded, setLoaded] = React.useState(false);
+    const [datosTotales, setDatosTotales] = React.useState({ count: 0, minutos: 0, calorias: 0 });
 
     const userName = useMemo(() => perfil?.nombre_completo?.split(' ')[0] || user?.email?.split('@')[0] || 'Usuario', [perfil, user]);
 
@@ -19,20 +23,36 @@ export default function DashboardPage() {
         if (hora >= 12 && hora < 20) return 'Buenas tardes';
         if (hora >= 20) return 'Buenas noches';
         return 'Buenos días';
-    }, []); // Computed once on mount
+    }, []);
 
     React.useEffect(() => {
         if (!accessToken) return;
         const loadData = async () => {
             try {
-                const [h, r, e] = await Promise.all([
-                    insforge.database.from('historial_entrenamientos').select('*').order('fecha', { ascending: false }).limit(10),
+                const [h, r, e, countRes, sumRes] = await Promise.all([
+                    insforge.database
+                        .from('historial_entrenamientos')
+                        .select('*, rutinas(nombre)')
+                        .order('fecha', { ascending: false })
+                        .limit(10),
                     insforge.database.from('rutinas').select('*').limit(5),
                     insforge.database.from('ejercicios').select('*').limit(5),
+                    // Obtener conteo real total
+                    insforge.database.from('historial_entrenamientos').select('*', { count: 'exact', head: true }),
+                    // Obtener sumas (usando rpc o calculando de una muestra mayor)
+                    insforge.database.from('historial_entrenamientos').select('duracion_real, calorias_quemadas')
                 ]);
+                
                 setHistorial(h.data || []);
                 setRutinas(r.data || []);
                 setEjercicios(e.data || []);
+                
+                const all = sumRes.data || [];
+                setDatosTotales({
+                    count: countRes.count || 0,
+                    minutos: all.reduce((acc, curr) => acc + (curr.duracion_real || 0), 0),
+                    calorias: all.reduce((acc, curr) => acc + (curr.calorias_quemadas || 0), 0)
+                });
             } catch (e) {
                 console.error('Error cargando dashboard:', e);
             } finally {
@@ -42,8 +62,9 @@ export default function DashboardPage() {
         loadData();
     }, [accessToken]);
 
-    const totalEntrenamientos = historial.length;
-    const totalMinutos = useMemo(() => historial.reduce((acc, h) => acc + (h.duracion_real || 0), 0), [historial]);
+    const totalEntrenamientos = datosTotales.count;
+    const totalMinutos = datosTotales.minutos;
+    const totalCalorias = datosTotales.calorias;
     const ultimoEntrenamiento = historial[0];
     const items = rutinas.length > 0 ? rutinas : ejercicios;
 
@@ -92,20 +113,28 @@ export default function DashboardPage() {
             animate="visible"
         >
             {/* Header */}
-            <motion.div variants={itemVariants} className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                    <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-2 drop-shadow-[0_0_15px_rgba(249,115,22,0.3)]">
+            <motion.div variants={itemVariants} className="flex flex-col md:flex-row justify-between items-start md:items-start mb-10 gap-8">
+                <div className="flex-1">
+                    <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-3 drop-shadow-[0_0_20px_rgba(249,115,22,0.3)] tracking-tight">
                         {saludo}, {userName}
                     </h1>
-                    <p className="text-gray-400 font-medium">¿Listo para destruir tus metas de hoy?</p>
+                    <p className="text-gray-400 font-medium text-lg">¿Listo para destruir tus metas de hoy?</p>
                 </div>
-                <Link
-                    to="/rutinas"
-                    className="w-full md:w-auto px-6 py-3.5 bg-orange-500 text-black font-extrabold tracking-wide uppercase rounded-xl shadow-[0_0_25px_rgba(249,115,22,0.4)] hover:shadow-[0_0_35px_rgba(249,115,22,0.6)] transition-all flex items-center justify-center gap-3 hover:bg-orange-400 group"
-                >
-                    <Play className="w-5 h-5 fill-current transition-transform group-hover:scale-110" />
-                    Entrenar Ahora
-                </Link>
+                
+                <div className="w-full md:w-auto -mt-2">
+                    <TimeSelector />
+                    <Link
+                        to="/rutinas"
+                        className="mt-4 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-orange-500 hover:text-orange-400 transition-colors ml-1"
+                    >
+                        Ver todas las rutinas →
+                    </Link>
+                </div>
+            </motion.div>
+
+            {/* XP & Streak Bar */}
+            <motion.div variants={itemVariants} className="mb-6">
+                <XPBar />
             </motion.div>
 
             {/* Stats Cards */}
@@ -137,13 +166,42 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Último Entrenamiento */}
+                {/* Especial: Quick Resume (US-072) */}
+                {ultimoEntrenamiento ? (
+                    <motion.div 
+                        variants={itemVariants}
+                        whileHover={{ scale: 1.02 }}
+                        className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-orange-600 to-orange-500 border border-orange-400/30 shadow-[0_10px_40px_rgba(249,115,22,0.3)] group cursor-pointer relative overflow-hidden"
+                        onClick={() => navigate(`/rutinas/practicar/${ultimoEntrenamiento.rutina_id}`)}
+                    >
+                        <div className="relative z-10">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-1">Continuar Misión</p>
+                            <h3 className="text-xl sm:text-2xl font-black text-white leading-tight mb-3">
+                                {ultimoEntrenamiento.rutinas?.nombre || 'Última Rutina'}
+                            </h3>
+                            <button className="px-4 py-2 bg-white text-black text-xs font-black uppercase tracking-widest rounded-lg transition-transform group-hover:scale-105 active:scale-95">
+                                Reanudar Ahora →
+                            </button>
+                        </div>
+                        <Play className="absolute -right-4 -bottom-4 w-32 h-32 text-white/10 rotate-12 group-hover:rotate-0 transition-transform duration-500" />
+                    </motion.div>
+                ) : (
+                    <div className="p-5 sm:p-6 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 flex flex-col justify-center items-center text-center space-y-2">
+                        <div className="w-12 h-12 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center">
+                            <Zap className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-white font-bold text-sm">Sin misiones activas</h3>
+                        <p className="text-gray-500 text-[10px]">Elige una rutina para empezar tu leyenda.</p>
+                    </div>
+                )}
+
+                {/* Último Entrenamiento Info */}
                 <div className="p-5 sm:p-6 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 hover:border-yellow-500/30 transition-all">
                     <div className="flex justify-between items-start mb-4">
                         <div>
-                            <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Último Entreno</p>
+                            <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Último Logro</p>
                             <h3 className="text-xl sm:text-2xl font-bold text-white">
-                                {ultimoEntrenamiento ? 'Completado' : 'Sin entrenos'}
+                                {ultimoEntrenamiento ? '🔥 Victoria' : 'Sin datos'}
                             </h3>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-yellow-500/10 text-yellow-500 flex items-center justify-center">
@@ -151,12 +209,17 @@ export default function DashboardPage() {
                         </div>
                     </div>
                     {ultimoEntrenamiento ? (
-                        <div className="flex items-center gap-4 text-sm font-medium mt-4">
-                            <span className="bg-white/5 px-3 py-1 rounded-full text-gray-300">{ultimoEntrenamiento.duracion_real || 0} min</span>
-                            <span className="bg-white/5 px-3 py-1 rounded-full text-gray-300">{ultimoEntrenamiento.calorias_quemadas || 0} kcal</span>
+                        <div className="flex flex-col gap-1 mt-4">
+                            <div className="flex items-center gap-2 text-sm font-medium">
+                                <span className="bg-white/5 px-3 py-1 rounded-full text-gray-300">{ultimoEntrenamiento.duracion_real || 0} min</span>
+                                <span className="bg-white/5 px-3 py-1 rounded-full text-gray-300 group-hover:text-yellow-400">{ultimoEntrenamiento.calorias_quemadas || 0} kcal</span>
+                            </div>
+                            <p className="text-[10px] text-gray-500 mt-2 uppercase tracking-widest font-bold">
+                                {new Date(ultimoEntrenamiento.fecha).toLocaleDateString()}
+                            </p>
                         </div>
                     ) : (
-                        <p className="text-sm text-gray-500 mt-4">Comienza tu primer entrenamiento.</p>
+                        <p className="text-sm text-gray-500 mt-4">Tus hazañas aparecerán aquí.</p>
                     )}
                 </div>
 
@@ -167,14 +230,17 @@ export default function DashboardPage() {
                             <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Actividad Total</p>
                             <div className="flex items-baseline gap-2">
                                 <h3 className="text-3xl font-bold text-white">{totalEntrenamientos}</h3>
-                                <span className="text-gray-500 text-sm font-medium">sesiones</span>
+                                <span className="text-gray-500 text-sm font-medium uppercase tracking-tighter">batallas</span>
                             </div>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center">
                             <Activity className="w-5 h-5" />
                         </div>
                     </div>
-                    <p className="text-sm text-gray-500 mt-4"><span className="text-red-400 font-bold">{totalMinutos}</span> minutos invertidos en tu salud</p>
+                    <p className="text-sm text-gray-500 mt-4 leading-relaxed">
+                        <span className="text-orange-400 font-bold">{totalMinutos}</span> min acumulados <br/>
+                        <span className="text-yellow-400 font-bold">{totalCalorias}</span> kcal quemadas
+                    </p>
                 </div>
             </motion.div>
 
@@ -185,9 +251,11 @@ export default function DashboardPage() {
                     {totalEntrenamientos > 0 ? (
                         <>
                             <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-orange-500"/> Frecuencia Semanal</h2>
-                            <div className="flex items-center gap-2 mb-6">
+                            <div className="flex items-center gap-2 mb-6 flex-wrap">
                                 <span className="text-gray-400 text-sm">Has acumulado</span>
                                 <span className="text-xl font-bold text-white bg-orange-500/10 px-2 py-1 rounded-lg text-orange-400">{totalMinutos} min</span>
+                                <span className="text-gray-400 text-sm">y</span>
+                                <span className="text-xl font-bold text-white bg-yellow-500/10 px-2 py-1 rounded-lg text-yellow-400">{totalCalorias} kcal</span>
                             </div>
                             <div className="h-48 flex items-end justify-around gap-2">
                                 {chartData.map((data, i) => (
@@ -235,6 +303,7 @@ export default function DashboardPage() {
                                 <motion.div 
                                     key={item.id} 
                                     whileHover={{ scale: 1.02, x: 5 }}
+                                    onClick={() => navigate(rutinas.length > 0 ? `/rutinas` : `/admin/ejercicios`)}
                                     className="p-4 rounded-xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 hover:border-orange-500/30 transition-all cursor-pointer group"
                                 >
                                     <div className="flex items-center gap-4">
@@ -253,9 +322,16 @@ export default function DashboardPage() {
                             ))}
                         </div>
                     ) : (
-                        <div className="p-8 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 text-center">
-                            <div className="text-4xl mb-4">📋</div>
-                            <p className="text-gray-400 mb-4 text-sm">No hay contenido disponible</p>
+                        <div className="p-8 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 text-center space-y-3">
+                            <div className="text-5xl">⚡</div>
+                            <h4 className="text-white font-bold">¡Arsenal vacío!</h4>
+                            <p className="text-gray-500 text-xs">Crea tu primera rutina o explora los ejercicios para empezar tu transformación.</p>
+                            <Link 
+                                to="/admin/rutinas"
+                                className="inline-block mt-2 text-xs font-bold text-orange-500 hover:text-orange-400"
+                            >
+                                Crear Rutina Ahora →
+                            </Link>
                         </div>
                     )}
                 </div>
@@ -280,7 +356,7 @@ export default function DashboardPage() {
                                     <p className="font-bold text-white truncate capitalize">
                                         {new Date(entrada.fecha).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}
                                     </p>
-                                    <p className="text-xs text-gray-500 font-medium"> <span className="text-green-400">{entrada.duracion_minutos || 0}m</span> • {entrada.calorias_quemadas || 0} kcal</p>
+                                    <p className="text-xs text-gray-500 font-medium"> <span className="text-green-400">{entrada.duracion_real || 0}m</span> • {entrada.calorias_quemadas || 0} kcal</p>
                                 </div>
                             </div>
                         ))}

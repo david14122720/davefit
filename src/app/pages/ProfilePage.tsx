@@ -7,7 +7,7 @@ import { motion, type Variants } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, UploadCloud, Edit3, X } from 'lucide-react';
+import { Loader2, UploadCloud, Edit3, X, Zap, Flame } from 'lucide-react';
 
 const profileSchema = z.object({
     nombre_completo: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -26,6 +26,17 @@ export default function ProfilePage() {
     const { user, perfil, accessToken, updatePerfil } = useAuth();
     const [editing, setEditing] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
+    const [userStats, setUserStats] = useState<any>(null);
+
+    useEffect(() => {
+        if (!user) return;
+        insforge.database
+            .from('user_stats')
+            .select('*')
+            .eq('user_id', user.id)
+            .maybeSingle()
+            .then(({ data }) => setUserStats(data));
+    }, [user]);
 
     const {
         register,
@@ -356,6 +367,46 @@ export default function ProfilePage() {
                                 {d.desc && <p className="text-gray-600 text-[10px] mt-1">{d.desc}</p>}
                             </div>
                         ))}
+                    </div>
+                </motion.div>
+            )}
+
+            {/* Gamificación - XP & Nivel */}
+            {userStats && (
+                <motion.div variants={itemVariants} className="bg-gradient-to-br from-orange-500/10 to-purple-500/10 backdrop-blur-xl p-5 sm:p-6 rounded-2xl border border-orange-500/20 shadow-lg">
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-orange-500" /> Progreso & Gamificación
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="p-4 bg-black/40 rounded-xl text-center border border-white/5">
+                            <div className="text-3xl mb-2">⭐</div>
+                            <div className="text-gray-400 text-xs font-bold uppercase tracking-wide mb-1">Nivel</div>
+                            <div className="text-3xl font-extrabold text-orange-400">{userStats.nivel || 1}</div>
+                        </div>
+                        <div className="p-4 bg-black/40 rounded-xl text-center border border-white/5 flex flex-col items-center justify-center">
+                            <div className="mb-2">
+                                <Flame className={`w-10 h-10 ${(userStats.dias_racha || 0) > 0 ? 'text-orange-500 fill-orange-500/20' : 'text-gray-600'}`} />
+                            </div>
+                            <div className="text-gray-400 text-xs font-bold uppercase tracking-wide mb-1">Racha</div>
+                            <div className="text-3xl font-extrabold text-white">{userStats.dias_racha || 0} <span className="text-xs font-medium text-gray-500">días</span></div>
+                        </div>
+                        <div className="p-4 bg-black/40 rounded-xl text-center border border-white/5">
+                            <div className="text-3xl mb-2">⚡</div>
+                            <div className="text-gray-400 text-xs font-bold uppercase tracking-wide mb-1">XP Total</div>
+                            <div className="text-3xl font-extrabold text-yellow-400">{(userStats.xp_total || 0).toLocaleString()}</div>
+                        </div>
+                    </div>
+                    <div className="mt-4 p-3 bg-black/40 rounded-xl">
+                        <div className="flex justify-between text-xs text-gray-500 mb-1">
+                            <span>Progreso al siguiente nivel</span>
+                        </div>
+                        <div className="h-3 bg-black/60 rounded-full overflow-hidden">
+                            <div 
+                                className="h-full bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full"
+                                style={{ width: `${Math.min(((userStats.xp_total || 0) % 100) / 100 * 100, 100)}%` }}
+                            />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1 text-right">{userStats.xp_total || 0} XP</p>
                     </div>
                 </motion.div>
             )}
