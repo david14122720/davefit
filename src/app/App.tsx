@@ -1,5 +1,5 @@
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { YogaProvider } from './context/YogaContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -33,6 +33,85 @@ const PageLoader = () => (
     </div>
 );
 
+// Meta tag updater component
+function MetaUpdater() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const metaConfig: Record<string, { title: string; description: string }> = {
+      '/dashboard': {
+        title: 'Dashboard',
+        description: 'Tu progreso fitness personalizado. Revisa tus estadísticas, avances y objetivos semanales en DaveFit.'
+      },
+      '/perfil': {
+        title: 'Mi Perfil',
+        description: 'Gestiona tu información personal, avatar, objetivos y preferencias de entrenamiento en DaveFit.'
+      },
+      '/rutinas': {
+        title: 'Rutinas de Ejercicios',
+        description: 'Explora y gestiona tus rutinas de fitness personalizadas. Entrenamientos sin equipo para estudiantes.'
+      },
+      '/historial': {
+        title: 'Historial de Entrenamientos',
+        description: 'Revisa tu historial completo de ejercicios y sesiones de yoga. Seguimiento de tu progreso fitness.'
+      },
+      '/comunidad': {
+        title: 'Comunidad DaveFit',
+        description: 'Conéctate con otros estudiantes, comparte logros y participa en desafíos fitness.'
+      },
+      '/yoga': {
+        title: 'Rutinas de Yoga',
+        description: 'Sesiones de yoga guiadas para estudiantes. Mejora tu flexibilidad, fuerza y bienestar mental.'
+      },
+      '/login': {
+        title: 'Iniciar Sesión',
+        description: 'Accede a tu cuenta de DaveFit para continuar tu viaje fitness.'
+      },
+      '/register': {
+        title: 'Registro',
+        description: 'Crea tu cuenta gratuita en DaveFit y comienza tu transformación fitness hoy mismo.'
+      },
+      '/admin': {
+        title: 'Panel de Administración',
+        description: 'Panel de control para administradores. Gestiona ejercicios, rutinas y contenido.'
+      }
+    };
+
+    const path = location.pathname;
+    let meta = metaConfig[path];
+
+    // Handle dynamic routes
+    if (!meta && path.startsWith('/yoga/practicar')) {
+      meta = { title: 'Practicar Yoga', description: 'Sigue una sesión de yoga en tiempo real con instrucciones paso a paso.' };
+    } else if (!meta && path.startsWith('/rutinas/practicar')) {
+      meta = { title: 'Practicar Rutina', description: 'Entrenamiento en progreso. Sigue los ejercicios de tu rutina personalizada.' };
+    } else if (!meta && path.startsWith('/admin/')) {
+      meta = { title: 'Administración', description: 'Panel de administración de DaveFit.' };
+    }
+
+    if (meta) {
+      document.title = `${meta.title} | DaveFit`;
+
+      const descriptionTag = document.querySelector('meta[name="description"]');
+      if (descriptionTag) {
+        descriptionTag.setAttribute('content', meta.description);
+      }
+
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      const ogDescription = document.querySelector('meta[property="og:description"]');
+      const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+      const twitterDescription = document.querySelector('meta[name="twitter:description"]');
+
+      if (ogTitle) ogTitle.setAttribute('content', `${meta.title} | DaveFit`);
+      if (ogDescription) ogDescription.setAttribute('content', meta.description);
+      if (twitterTitle) twitterTitle.setAttribute('content', `${meta.title} | DaveFit`);
+      if (twitterDescription) twitterDescription.setAttribute('content', meta.description);
+    }
+  }, [location]);
+
+  return null;
+}
+
 export default function App() {
     return (
         <BrowserRouter>
@@ -41,83 +120,83 @@ export default function App() {
                     <Toaster theme="dark" position="top-right" />
                     <Suspense fallback={<PageLoader />}>
                         <Routes>
-                        <Route path="/login" element={<LoginPage />} />
-                        <Route path="/register" element={<RegisterPage />} />
+                        <Route path="/login" element={<><MetaUpdater /><LoginPage /></>} />
+                        <Route path="/register" element={<><MetaUpdater /><RegisterPage /></>} />
 
                         <Route path="/dashboard" element={
                             <ProtectedRoute>
-                                <AppLayout><DashboardPage /></AppLayout>
+                                <><MetaUpdater /><AppLayout><DashboardPage /></AppLayout></>
                             </ProtectedRoute>
                         } />
                         <Route path="/perfil" element={
                             <ProtectedRoute>
-                                <AppLayout><ProfilePage /></AppLayout>
+                                <><MetaUpdater /><AppLayout><ProfilePage /></AppLayout></>
                             </ProtectedRoute>
                         } />
                         <Route path="/rutinas" element={
                             <ProtectedRoute>
-                                <AppLayout><RoutinesPage /></AppLayout>
+                                <><MetaUpdater /><AppLayout><RoutinesPage /></AppLayout></>
                             </ProtectedRoute>
                         } />
                         <Route path="/historial" element={
                             <ProtectedRoute>
-                                <AppLayout><HistoryPage /></AppLayout>
+                                <><MetaUpdater /><AppLayout><HistoryPage /></AppLayout></>
                             </ProtectedRoute>
                         } />
                         <Route path="/comunidad" element={
                             <ProtectedRoute>
-                                <AppLayout><ComunidadPage /></AppLayout>
+                                <><MetaUpdater /><AppLayout><ComunidadPage /></AppLayout></>
                             </ProtectedRoute>
                         } />
 
                         <Route path="/yoga" element={
                             <ProtectedRoute>
-                                <AppLayout><YogaPage /></AppLayout>
+                                <><MetaUpdater /><AppLayout><YogaPage /></AppLayout></>
                             </ProtectedRoute>
                         } />
                         <Route path="/yoga/practicar/:rutinaId" element={
                             <ProtectedRoute>
-                                <YogaPracticePage />
+                                <><MetaUpdater /><YogaPracticePage /></>
                             </ProtectedRoute>
                         } />
                         <Route path="/yoga/posiciones" element={
                             <ProtectedRoute>
-                                <AppLayout><YogaPosicionesPage /></AppLayout>
+                                <><MetaUpdater /><AppLayout><YogaPosicionesPage /></AppLayout></>
                             </ProtectedRoute>
                         } />
                         <Route path="/rutinas/practicar/:rutinaId" element={
                             <ProtectedRoute>
-                                <WorkoutPracticePage />
+                                <><MetaUpdater /><WorkoutPracticePage /></>
                             </ProtectedRoute>
                         } />
 
                         <Route path="/admin" element={
                             <ProtectedRoute adminOnly>
-                                <AdminLayout><AdminPage /></AdminLayout>
+                                <><MetaUpdater /><AdminLayout><AdminPage /></AdminLayout></>
                             </ProtectedRoute>
                         } />
                         <Route path="/admin/ejercicios" element={
                             <ProtectedRoute adminOnly>
-                                <AdminLayout><AdminEjerciciosPage /></AdminLayout>
+                                <><MetaUpdater /><AdminLayout><AdminEjerciciosPage /></AdminLayout></>
                             </ProtectedRoute>
                         } />
                         <Route path="/admin/rutinas" element={
                             <ProtectedRoute adminOnly>
-                                <AdminLayout><AdminRutinasPage /></AdminLayout>
+                                <><MetaUpdater /><AdminLayout><AdminRutinasPage /></AdminLayout></>
                             </ProtectedRoute>
                         } />
                         <Route path="/admin/yoga-posiciones" element={
                             <ProtectedRoute adminOnly>
-                                <AdminLayout><AdminYogaPosicionesPage /></AdminLayout>
+                                <><MetaUpdater /><AdminLayout><AdminYogaPosicionesPage /></AdminLayout></>
                             </ProtectedRoute>
                         } />
                         <Route path="/admin/yoga-rutinas" element={
                             <ProtectedRoute adminOnly>
-                                <AdminLayout><AdminYogaRutinasPage /></AdminLayout>
+                                <><MetaUpdater /><AdminLayout><AdminYogaRutinasPage /></AdminLayout></>
                             </ProtectedRoute>
                         } />
 
-                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/" element={<Navigate to="/" replace />} />
                         <Route path="*" element={<Navigate to="/dashboard" replace />} />
                     </Routes>
                 </Suspense>
