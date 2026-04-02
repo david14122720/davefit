@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { insforge } from '../../lib/insforge';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, X, Clock, Target, BarChart3, FilterX, Sparkles, ChevronRight, MonitorPlay } from 'lucide-react';
+import { Play, X, Clock, Target, BarChart3, Sparkles, ChevronRight, MonitorPlay, Search, SlidersHorizontal } from 'lucide-react';
 
 interface Rutina {
     id: string;
@@ -110,6 +110,21 @@ export default function RoutinesPage() {
         await loadEjerciciosRutina(rutina.id);
     };
 
+    const [busqueda, setBusqueda] = useState('');
+
+    const niveles = ['todos', 'principiante', 'intermedio', 'avanzado'];
+
+    const filtered = rutinas
+        .filter(r => filter === 'todos' ? true : r.nivel === filter)
+        .filter(r => durationFilter ? (r.duracion_estimada || 30) <= parseInt(durationFilter) : true)
+        .filter(r => {
+            if (!busqueda) return true;
+            const q = busqueda.toLowerCase();
+            return r.nombre.toLowerCase().includes(q) ||
+                (r.descripcion?.toLowerCase().includes(q) ?? false) ||
+                (r.objetivo?.toLowerCase().includes(q) ?? false);
+        });
+
     const handleCloseRutina = () => {
         setSelectedRutina(null);
         setEjercicios([]);
@@ -127,9 +142,6 @@ export default function RoutinesPage() {
         setSearchParams(newParams);
     };
 
-    const filtered = rutinas
-        .filter(r => filter === 'todos' ? true : r.nivel === filter)
-        .filter(r => durationFilter ? (r.duracion_estimada || 30) <= parseInt(durationFilter) : true);
 
     if (!loaded) return (
         <div className="w-full px-4 pb-20 pt-2 md:px-6">
@@ -173,21 +185,87 @@ export default function RoutinesPage() {
                     </div>
                 </div>
 
-                {/* Filter Tags */}
-                <div className="flex gap-2 mb-6 sm:mb-8 overflow-x-auto pb-1 scrollbar-none">
-                    {['todos', 'principiante', 'intermedio', 'avanzado'].map(f => (
-                        <button
-                            key={f}
-                            onClick={() => setFilter(f)}
-                            className={`shrink-0 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-[11px] sm:text-xs font-bold capitalize tracking-tight transition-all duration-300 border ${
-                                filter === f
-                                    ? 'bg-orange-500 text-black border-orange-500 shadow-[0_8px_20px_rgba(249,115,22,0.3)] scale-105'
-                                    : 'bg-[#141414] text-gray-500 border-white/5 hover:border-white/10'
-                            }`}
-                        >
-                            {f === 'todos' ? 'Todos' : f}
-                        </button>
-                    ))}
+                {/* Filter Panel */}
+                <div className="bg-[#111111] border border-white/5 rounded-3xl p-5 sm:p-6 mb-6 sm:mb-8 backdrop-blur-sm relative overflow-hidden">
+                    <div className="absolute -top-16 -right-16 w-40 h-40 bg-orange-500/5 blur-[80px] rounded-full pointer-events-none" />
+
+                    {/* Search & Filters */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-end relative z-10">
+                        {/* Search */}
+                        <div className="lg:col-span-4 space-y-2">
+                            <label className="text-xs font-bold text-gray-500 flex items-center gap-2 ml-1">
+                                <Search className="w-3 h-3" /> Buscador
+                            </label>
+                            <div className="relative group">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-orange-500 transition-colors" />
+                                <input
+                                    type="text"
+                                    placeholder="¿Qué rutina buscas?"
+                                    value={busqueda}
+                                    onChange={(e) => setBusqueda(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-3 bg-black/40 border border-white/10 rounded-2xl text-white text-sm placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-4 focus:ring-orange-500/5 transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Nivel Filter */}
+                        <div className="lg:col-span-8 space-y-2">
+                            <div className="flex items-center justify-between ml-1">
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                                    <SlidersHorizontal className="w-3 h-3" /> Nivel
+                                </label>
+                                {filter !== 'todos' && (
+                                    <button
+                                        onClick={() => setFilter('todos')}
+                                        className="text-[10px] text-orange-500/60 hover:text-orange-500 font-bold uppercase transition-colors"
+                                    >
+                                        Limpiar
+                                    </button>
+                                )}
+                            </div>
+                            <div className="flex gap-2">
+                                {niveles.map((n) => {
+                                    const isActive = filter === n;
+                                    const levelColor: Record<string, string> = {
+                                        todos: 'from-orange-500/20 to-orange-600/10 border-orange-500/30',
+                                        principiante: 'from-green-500/20 to-emerald-500/10 border-green-500/30',
+                                        intermedio: 'from-yellow-500/20 to-amber-500/10 border-yellow-500/30',
+                                        avanzado: 'from-red-500/20 to-orange-500/10 border-red-500/30',
+                                    };
+                                    return (
+                                        <button
+                                            key={n}
+                                            onClick={() => setFilter(n)}
+                                            className={`flex-1 py-2.5 sm:py-3 rounded-2xl border text-xs sm:text-[11px] font-bold capitalize transition-all relative ${
+                                                isActive
+                                                    ? `${levelColor[n]} text-white shadow-lg shadow-black/20`
+                                                    : 'bg-black/20 border-white/5 text-gray-500 hover:text-gray-300 hover:border-white/10'
+                                            }`}
+                                        >
+                                            {n === 'todos' ? 'Todos' : n}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Duration Filter pill */}
+                    {durationFilter && (
+                        <div className="mt-5 pt-5 border-t border-white/5 flex items-center justify-between">
+                            <p className="text-xs sm:text-sm text-gray-500">
+                                Filtro express activado
+                            </p>
+                            <motion.button
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                onClick={clearDurationFilter}
+                                className="shrink-0 flex items-center gap-2 px-4 py-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all"
+                            >
+                                ≤ {durationFilter}m <X className="w-3 h-3" />
+                            </motion.button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Routines Grid */}
@@ -282,9 +360,6 @@ export default function RoutinesPage() {
                         </motion.div>
                     )}
                 </AnimatePresence>
-
-            </div>
-        </div>
 
             {/* Modal Detail - Bottom Sheet on Mobile */}
             <AnimatePresence>
