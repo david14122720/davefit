@@ -29,3 +29,9 @@ src/app/pages/Admin*Page.tsx
 src/app/components/AdminLayout.tsx
 src/app/components/FileUpload.tsx
 src/app/lib/adminApi.ts
+
+# dev-only config (agents, skills, lock)
+.agent/
+.agents/
+CLAUDE.md
+skills-lock.json

@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { insforge } from '../../lib/insforge';
+import DOMPurify from 'dompurify';
 
 export const GET: APIRoute = async ({ url }) => {
     try {
@@ -30,8 +31,25 @@ export const GET: APIRoute = async ({ url }) => {
     }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+// Simple in-memory rate limit map (holds IP and timestamp of last request)
+const rateLimitMap = new Map<string, number>();
+const RATE_LIMIT_MS = 60000; // 1 minute
+
+export const POST: APIRoute = async ({ request, clientAddress }) => {
     try {
+        // Simple rate limiting by IP
+        const now = Date.now();
+        const lastRequest = rateLimitMap.get(clientAddress);
+        if (lastRequest && now - lastRequest < RATE_LIMIT_MS) {
+            return new Response(JSON.stringify({ 
+                error: 'Demasiadas solicitudes. Por favor espera un minuto.' 
+            }), {
+                status: 429,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        rateLimitMap.set(clientAddress, now);
+
         const body = await request.json();
         const { message, rating } = body;
 
@@ -49,17 +67,17 @@ export const POST: APIRoute = async ({ request }) => {
             });
         }
 
+        // Sanitizar mensaje para prevenir XSS
+        const cleanMessage = DOMPurify.sanitize(message.trim(), { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+
         const ratingValue = typeof rating === 'number' ? Math.min(5, Math.max(0, rating)) : 0;
 
-        const { data, error } = await insforge.database
+        const { error } = await insforge.database
             .from('suggestions')
-            .insert([{ 
-                message: message.trim(),
-                rating: ratingValue,
-                is_approved: true
-            }])
-            .select()
-            .single();
+            .insert([{
+                message: cleanMessage,
+                rating: ratingValue
+            }]);
 
         if (error) {
             console.error('Error guardando sugerencia:', error);
@@ -71,7 +89,6 @@ export const POST: APIRoute = async ({ request }) => {
 
         return new Response(JSON.stringify({ 
             success: true, 
-            suggestion: data,
             message: '¡Gracias por tu sugerencia! La revisaremos pronto.'
         }), {
             status: 201,

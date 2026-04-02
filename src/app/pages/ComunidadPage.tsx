@@ -12,8 +12,6 @@ interface LeaderboardUser {
   total_workouts: number;
 }
 
-type FilterType = 'weekly' | 'monthly' | 'all';
-
 const PODIUM_COLORS = {
   1: { bg: 'from-amber-400/20 to-amber-600/10', border: 'border-yellow-500', crown: 'text-yellow-400', text: 'text-yellow-400' },
   2: { bg: 'from-gray-400/20 to-gray-500/10', border: 'border-gray-400', crown: 'text-gray-300', text: 'text-gray-300' },
@@ -30,17 +28,6 @@ const Avatar = ({ src, name, size = 'md' }: { src?: string; name: string; size?:
   return (
     <div className={`${sizeClasses[size]} rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center font-bold text-black ring-2 ring-white/20`}>
       {(name || 'U').charAt(0).toUpperCase()}
-    </div>
-  );
-};
-
-const FlameIcon = ({ count, size = 'md' }: { count: number; size?: 'sm' | 'md' }) => {
-  const sizeClasses = size === 'sm' ? 'text-sm' : 'text-lg';
-  return (
-    <div className={`flex items-center gap-1 ${sizeClasses}`}>
-      <span className="text-orange-500">🔥</span>
-      <span className="font-bold text-white">{count}</span>
-      <span className="text-gray-400 text-xs">días</span>
     </div>
   );
 };
@@ -85,8 +72,6 @@ const PodiumCard = ({ user, position }: { user: LeaderboardUser; position: 1 | 2
         {user.username}
       </h3>
       
-      <FlameIcon count={user.streak_days} size={isFirst ? 'md' : 'sm'} />
-      
       <div className="mt-2 px-3 py-1 bg-orange-500/20 border border-orange-500/30 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.2)]">
         <span className="text-orange-400 font-bold text-sm">{user.total_score.toLocaleString()}</span>
         <span className="text-gray-400 text-[10px] ml-1 uppercase">pts</span>
@@ -123,8 +108,6 @@ const LeaderboardRow = ({ user }: { user: LeaderboardUser }) => {
         </div>
       </div>
       
-      <FlameIcon count={user.streak_days} size="sm" />
-      
       <div className="px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-xl group-hover:bg-orange-500/20 transition-colors">
         <span className="text-orange-400 font-bold">{user.total_score.toLocaleString()}</span>
       </div>
@@ -134,48 +117,47 @@ const LeaderboardRow = ({ user }: { user: LeaderboardUser }) => {
 
 
 export default function ComunidadPage() {
-  const [filter, setFilter] = useState<FilterType>('all');
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isPending, startTransition] = React.useTransition();
 
   const loadLeaderboard = useCallback(async () => {
     setLoading(true);
     try {
-      const scoreColumn = filter === 'weekly' ? 'weekly_score' : filter === 'monthly' ? 'monthly_score' : 'total_score';
-      
-      const { data, error } = await insforge.database
+      const { data: perfilesData, error: pError } = await insforge.database
         .from('perfiles')
-        .select(`
-          id,
-          nombre_completo,
-          avatar_url,
-          user_stats(
-            streak_days,
-            total_score,
-            total_workouts,
-            weekly_score,
-            monthly_score
-          )
-        `);
+        .select('id, nombre_completo, avatar_url');
 
-      if (error) {
-        console.error('Error loading leaderboard:', error);
+      if (pError) {
+        console.error('Error loading perfiles:', pError);
         return;
       }
 
-      if (data && data.length > 0) {
-        const leaderboardUsers: LeaderboardUser[] = data.map((profile: any) => {
-            const stats = Array.isArray(profile.user_stats) ? profile.user_stats[0] : profile.user_stats;
-            const score = stats?.[scoreColumn] || stats?.total_score || 0;
+      const { data: statsData, error: sError } = await insforge.database
+        .from('user_stats')
+        .select('*');
 
+      if (sError) {
+        console.error('Error loading stats:', sError);
+        return;
+      }
+
+      const statsMap = new Map();
+      if (statsData) {
+        statsData.forEach((stat: any) => {
+          statsMap.set(stat.user_id, stat);
+        });
+      }
+
+      if (perfilesData && perfilesData.length > 0) {
+        const leaderboardUsers: LeaderboardUser[] = perfilesData.map((profile: any) => {
+            const stats = statsMap.get(profile.id);
             return {
                 rank: 0,
                 user_id: profile.id,
                 username: profile.nombre_completo?.split(' ')[0] || 'Atleta',
                 avatar_url: profile.avatar_url,
                 streak_days: stats?.streak_days || 0,
-                total_score: score,
+                total_score: stats?.xp_total || 0,
                 total_workouts: stats?.total_workouts || 0,
             };
         });
@@ -189,7 +171,7 @@ export default function ComunidadPage() {
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, []);
 
   useEffect(() => {
     loadLeaderboard();
@@ -198,42 +180,17 @@ export default function ComunidadPage() {
   const top3 = useMemo(() => users.slice(0, 3), [users]);
   const rest = useMemo(() => users.slice(3), [users]);
 
-  const handleFilterChange = useCallback((type: FilterType) => {
-    startTransition(() => {
-      setFilter(type);
-    });
-  }, []);
-
-  const FilterButton = ({ type, label }: { type: FilterType; label: string }) => (
-    <button
-      onClick={() => handleFilterChange(type)}
-      className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
-        filter === type
-          ? 'bg-orange-500 text-black shadow-[0_0_15px_rgba(249,115,22,0.4)]'
-          : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
-      }`}
-    >
-      {label}
-    </button>
-  );
-
   return (
-    <div className="max-w-5xl mx-auto pb-20">
-      <header className="flex flex-col items-center justify-center gap-3 mb-10 text-center">
-        <div className="w-16 h-16 bg-orange-500/10 border border-orange-500/20 text-orange-500 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.2)]">
+    <div className="max-w-5xl mx-auto pb-20 px-4">
+      <header className="flex flex-col items-center justify-center gap-4 mb-10 text-center">
+        <div className="w-16 h-16 bg-orange-500/10 border border-orange-500/20 text-orange-500 rounded-[1.5rem] flex items-center justify-center shadow-[0_0_40px_rgba(249,115,22,0.15)] ring-1 ring-orange-500/20">
             <TrophyIcon />
         </div>
         <div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white drop-shadow-[0_0_15px_rgba(249,115,22,0.3)]">Comunidad DaveFit</h1>
-            <p className="text-gray-400 mt-2 font-medium">Compite, mejora e inspírate con otros estudiantes.</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">Comunidad <span className="text-orange-500">DaveFit</span></h1>
+            <p className="text-gray-400 mt-2 font-medium max-w-sm sm:max-w-none">Domina el ranking y alcanza la cima del Olimpo.</p>
         </div>
       </header>
-
-      <div className="flex flex-wrap justify-center gap-3 mb-12">
-        <FilterButton type="weekly" label="Esta Semana" />
-        <FilterButton type="monthly" label="Este Mes" />
-        <FilterButton type="all" label="Global" />
-      </div>
 
       {loading ? (
         <div className="flex justify-center py-20">
@@ -242,18 +199,17 @@ export default function ComunidadPage() {
       ) : (
         <AnimatePresence mode="wait">
         <motion.div 
-            key={filter}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className={`w-full ${isPending ? 'opacity-50' : ''}`}
+            className={`w-full`}
         >
           {users.length > 0 ? (
             <div className="mb-12">
-                <div className="flex justify-center items-end gap-2 sm:gap-6 mb-8 mt-10">
-                {top3[1] && <PodiumCard user={top3[1]} position={2} />}
-                {top3[0] && <PodiumCard user={top3[0]} position={1} />}
-                {top3[2] && <PodiumCard user={top3[2]} position={3} />}
+                <div className="flex flex-col sm:flex-row justify-center items-center sm:items-end gap-6 sm:gap-4 lg:gap-8 mb-8 mt-10">
+                    <div className="order-2 sm:order-1">{top3[1] && <PodiumCard user={top3[1]} position={2} />}</div>
+                    <div className="order-1 sm:order-2">{top3[0] && <PodiumCard user={top3[0]} position={1} />}</div>
+                    <div className="order-3 sm:order-3">{top3[2] && <PodiumCard user={top3[2]} position={3} />}</div>
                 </div>
                 
                 <div className="max-w-md mx-auto bg-gradient-to-r from-orange-500/0 via-orange-500/10 to-orange-500/0 p-4 text-center">
@@ -266,7 +222,7 @@ export default function ComunidadPage() {
 
           {rest.length > 0 ? (
             <div className="space-y-3 max-w-2xl mx-auto">
-                <h2 className="text-xl font-extrabold text-white mb-4 pl-2">Clasificación General</h2>
+                <h2 className="text-xl font-bold text-white mb-4 pl-2">Clasificación General</h2>
                 <div className="flex flex-col gap-3">
                     <AnimatePresence>
                         {rest.map((user: LeaderboardUser) => (
@@ -278,16 +234,6 @@ export default function ComunidadPage() {
           ) : users.length === 0 ? (
                 <div className="text-center py-12 text-gray-400 font-medium">No hay usuarios en la tabla.</div>
           ) : null}
-
-          <div className="mt-12 max-w-2xl mx-auto p-6 bg-[#141414]/90 backdrop-blur-xl border border-white/5 rounded-2xl text-center">
-            <p className="text-gray-400 text-sm font-medium">
-              Completa workouts para ganar puntos y subir en el ranking. Los puntos se actualizan automáticamente de forma segura mediante políticas en tiempo real.
-            </p>
-            <div className="inline-flex mt-4 items-center gap-2 px-4 py-2 bg-orange-500/10 rounded-xl border border-orange-500/20">
-                <span className="text-orange-500">🔥</span>
-                <span className="text-white font-bold text-sm">Cada workout finalizado = +10 puntos a tu racha</span>
-            </div>
-          </div>
         </motion.div>
         </AnimatePresence>
       )}

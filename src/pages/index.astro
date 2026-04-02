@@ -3,23 +3,29 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { Image } from "astro:assets";
 import { insforge } from "../lib/insforge";
 
-// Fetch suggestions and stats
+// Fetch suggestions and stats directly instead of using internal fetch (SSR stability)
 const [suggestionsResult, statsResult] = await Promise.all([
     insforge.database
         .from('suggestions')
         .select('*')
+        .eq('is_approved', true) // Only approved ones for the home page
         .order('created_at', { ascending: false })
         .limit(5),
-    fetch(new URL('/api/stats', Astro.url)).then(r => r.json()).catch(() => ({
-        exercises: 0,
-        users: 0,
-        rating: 0,
-        reviews: 0
-    }))
+    insforge.database
+        .from('site_stats')
+        .select('*')
+        .eq('id', 1)
+        .maybeSingle()
 ]);
 
 const suggestions = suggestionsResult.data || [];
-const stats = statsResult as { exercises: number; users: number; rating: number; reviews: number };
+const dbStats = statsResult.data || { exercises: 0, users: 0, rating: 0, reviews: 0 };
+const stats = {
+    exercises: dbStats.total_exercises || 0,
+    users: dbStats.total_users || 0,
+    rating: Number(dbStats.avg_rating) || 0,
+    reviews: dbStats.total_reviews || 0
+};
 
 // Format numbers
 const formatNumber = (num: number): string => {
@@ -47,11 +53,11 @@ const formatNumber = (num: number): string => {
       >
       </div>
       <!-- Imagen de fondo -->
-      <Image
+      <img
         src="https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?q=80&w=2069&auto=format&fit=crop"
-        alt="Estudiante entrenando"
-        width={1920}
-        height={1080}
+        alt="Estudiante realizando ejercicios de fitness en su habitación sin equipo, mostrando entrenamiento con peso corporal"
+        width="1920"
+        height="1080"
         class="w-full h-full object-cover object-center opacity-40 md:opacity-100"
       />
       <!-- Efectos lumínicos -->
@@ -105,7 +111,7 @@ const formatNumber = (num: number): string => {
         </div>
 
         <!-- Estadísticas con glow (datos reales) -->
-        <div class="flex justify-center lg:justify-start gap-8 mt-12">
+        <div class="flex justify-center lg:justify-start gap-4 sm:gap-8 mt-12">
           <div class="text-center">
             <div
               class="text-3xl font-bold text-primary drop-shadow-[0_0_10px_rgba(255,107,0,0.5)]"
@@ -207,11 +213,11 @@ const formatNumber = (num: number): string => {
           <div
             class="rounded-3xl overflow-hidden border border-white/5 shadow-[0_0_40px_rgba(255,107,0,0.2)]"
           >
-            <Image
+            <img
               src="https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=2070&auto=format&fit=crop"
-              alt="Sesión de yoga"
-              width={800}
-              height={600}
+              alt="Persona realizando sesión de yoga en habitación, postura de meditación con ambiente relajante"
+              width="800"
+              height="600"
               class="w-full h-full object-cover"
             />
           </div>
@@ -435,6 +441,7 @@ const formatNumber = (num: number): string => {
             <!-- Rating con estrellas -->
             <div>
               <label class="block text-sm font-medium text-gray-300 mb-2">
+
                 Tu valoración (opcional)
               </label>
               <div class="flex items-center gap-1" id="star-rating">
@@ -586,13 +593,9 @@ const formatNumber = (num: number): string => {
 
       const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
       submitBtn.disabled = true;
-      submitBtn.innerHTML = `
-        <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        Enviando...
-      `;
+      const originalContent = submitBtn.innerHTML;
+      submitBtn.textContent = 'Enviando...';
+
 
       try {
         const response = await fetch('/api/suggestions', {
@@ -613,10 +616,14 @@ const formatNumber = (num: number): string => {
           if (list && data.suggestion) {
             const newDiv = document.createElement('div');
             newDiv.className = 'p-3 rounded-xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all animate-fade-in';
-            newDiv.innerHTML = `
-              <p class="text-sm text-gray-300">${data.suggestion.message}</p>
-              <p class="text-xs text-gray-500 mt-2">Recién enviado • Pendiente de aprobación</p>
-            `;
+            const msgP = document.createElement('p');
+            msgP.className = 'text-sm text-gray-300';
+            msgP.textContent = data.suggestion.message;
+            const metaP = document.createElement('p');
+            metaP.className = 'text-xs text-gray-500 mt-2';
+            metaP.textContent = 'Enviado correctamente';
+            newDiv.appendChild(msgP);
+            newDiv.appendChild(metaP);
             list.insertBefore(newDiv, list.firstChild);
           }
         } else {
@@ -626,12 +633,7 @@ const formatNumber = (num: number): string => {
         showMessage('Error de conexión', 'error');
       } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = `
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-          </svg>
-          Enviar Sugerencia
-        `;
+        submitBtn.textContent = 'Enviar Sugerencia';
       }
     });
 

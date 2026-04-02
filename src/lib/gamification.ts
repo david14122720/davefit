@@ -1,4 +1,4 @@
-import { insforge } from './insforge';
+import { insforge, invokeRpc } from './insforge';
 
 export interface UserStats {
     id: string;
@@ -131,84 +131,42 @@ export async function processWorkoutCompletion(
     tipoRutina: 'ejercicio' | 'yoga' | 'meditacion'
 ): Promise<{ success: boolean; calculation: XpCalculation; error?: string }> {
     try {
-        const stats = await getOrCreateUserStats(userId);
-        if (!stats) {
-            return { success: false, calculation: { xp_ganado: 0, nivel_anterior: 1, nivel_nuevo: 1, subio_nivel: false, xp_para_siguiente_nivel: 100, xp_en_nivel_actual: 0 }, error: 'Error al obtener stats' };
+        // En lugar de calcular el XP en el cliente (lo cual era una vulnerabilidad),
+        // delegamos todo a la rutina segura de la base de datos (RPC).
+        const { data, error } = await invokeRpc('process_workout_completion', {
+            req_user_id: userId,
+            duracion_minutos: duracionMinutos
+        });
+
+        if (error) {
+            console.error('[Gamification] Error en RPC:', error);
+            return { 
+                success: false, 
+                calculation: { xp_ganado: 0, nivel_anterior: 1, nivel_nuevo: 1, subio_nivel: false, xp_para_siguiente_nivel: 100, xp_en_nivel_actual: 0 }, 
+                error: error.message 
+            };
         }
 
-        const hoy = new Date();
-        const hoyStr = hoy.toISOString().split('T')[0];
-        const ultimoEntreno = stats.ultimo_entreno ? new Date(stats.ultimo_entreno).toISOString().split('T')[0] : null;
-
-        let nuevoDiasRacha = stats.dias_racha;
-        let nuevoRachaBonus = stats.racha_bonus;
-
-        if (ultimoEntreno === hoyStr) {
-            console.log('[Gamification] Ya entrenó hoy, no se modifica racha');
-        } else if (ultimoEntreno) {
-            const diffDias = Math.floor((hoy.getTime() - new Date(ultimoEntreno).getTime()) / (1000 * 60 * 60 * 24));
-            if (diffDias === 1) {
-                nuevoDiasRacha += 1;
-                nuevoRachaBonus = calcularRachaBonus(nuevoDiasRacha);
-            } else if (diffDias > 1) {
-                nuevoDiasRacha = 1;
-                nuevoRachaBonus = 20;
-            }
-        } else {
-            nuevoDiasRacha = 1;
-            nuevoRachaBonus = 20;
-        }
-
-        const xpGanado = calcularXpAlCompletarRutina(duracionMinutos, nuevoDiasRacha);
-        // El objeto 'stats' inicial contiene la información necesaria (xp_total, nivel, etc)
-        // No necesitamos volver a consultarlo de forma redundante.
+        console.log(`[Gamification] XP procesado de forma segura en servidor.`);
         
-        let nuevoNivel = stats.nivel || 1;
-        let xpRestante = stats.xp_total + xpGanado;
-
-        // Limpiar el XP acumulado en niveles anteriores para calcular el nivel nuevo correctamente
-        let xpEnNivelActual = xpRestante;
-        for (let n = 1; n < nuevoNivel; n++) {
-            xpEnNivelActual -= calcularXpParaSiguienteNivel(n);
-        }
-
-        // Subir de nivel si excedemos el umbral
-        while (xpEnNivelActual >= calcularXpParaSiguienteNivel(nuevoNivel)) {
-            xpEnNivelActual -= calcularXpParaSiguienteNivel(nuevoNivel);
-            nuevoNivel++;
-        }
-
-        const calculation: XpCalculation = {
-            xp_ganado: xpGanado,
-            nivel_anterior: stats.nivel || 1,
-            nivel_nuevo: nuevoNivel,
-            subio_nivel: nuevoNivel > (stats.nivel || 1),
-            xp_para_siguiente_nivel: calcularXpParaSiguienteNivel(nuevoNivel),
-            xp_en_nivel_actual: xpEnNivelActual,
+        return { 
+            success: true, 
+            calculation: {
+                xp_ganado: data.xp_ganado,
+                nivel_anterior: data.nivel_anterior,
+                nivel_nuevo: data.nivel_nuevo,
+                subio_nivel: data.subio_nivel,
+                xp_para_siguiente_nivel: data.xp_para_siguiente_nivel,
+                xp_en_nivel_actual: data.xp_en_nivel_actual
+            }
         };
 
-        const { error: updateError } = await insforge.database
-            .from('user_stats')
-            .update({
-                xp_total: stats.xp_total + xpGanado,
-                nivel: nuevoNivel,
-                dias_racha: nuevoDiasRacha,
-                ultimo_entreno: hoyStr,
-                racha_bonus: nuevoRachaBonus,
-                updated_at: new Date().toISOString(),
-            })
-            .eq('user_id', userId);
-
-        if (updateError) {
-            console.error('[Gamification] Error updating stats:', updateError);
-            return { success: false, calculation, error: updateError.message };
-        }
-
-        console.log(`[Gamification] XP awarded: ${xpGanado}, New level: ${nuevoNivel}, Streak: ${nuevoDiasRacha}`);
-        return { success: true, calculation };
-
     } catch (e: any) {
-        console.error('[Gamification] Exception:', e);
-        return { success: false, calculation: { xp_ganado: 0, nivel_anterior: 1, nivel_nuevo: 1, subio_nivel: false, xp_para_siguiente_nivel: 100, xp_en_nivel_actual: 0 }, error: e.message };
+        console.error('[Gamification] Exception procesando RPC:', e);
+        return { 
+            success: false, 
+            calculation: { xp_ganado: 0, nivel_anterior: 1, nivel_nuevo: 1, subio_nivel: false, xp_para_siguiente_nivel: 100, xp_en_nivel_actual: 0 }, 
+            error: e.message 
+        };
     }
 }

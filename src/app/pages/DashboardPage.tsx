@@ -116,17 +116,17 @@ export default function DashboardPage() {
             {/* Header */}
             <motion.div variants={itemVariants} className="flex flex-col md:flex-row justify-between items-start md:items-start mb-10 gap-8">
                 <div className="flex-1">
-                    <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-3 drop-shadow-[0_0_20px_rgba(249,115,22,0.3)] tracking-tight">
+                    <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 drop-shadow-[0_0_20px_rgba(249,115,22,0.2)] tracking-tight">
                         {saludo}, {userName}
                     </h1>
-                    <p className="text-gray-400 font-medium text-lg">¿Listo para destruir tus metas de hoy?</p>
+                    <p className="text-gray-400 font-medium text-base sm:text-lg">¿Listo para destruir tus metas de hoy?</p>
                 </div>
                 
                 <div className="w-full md:w-auto -mt-2">
                     <TimeSelector />
                     <Link
                         to="/rutinas"
-                        className="mt-4 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-orange-500 hover:text-orange-400 transition-colors ml-1"
+                        className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-orange-500 hover:text-orange-400 transition-colors ml-1"
                     >
                         Ver todas las rutinas →
                     </Link>
@@ -144,9 +144,9 @@ export default function DashboardPage() {
             </motion.div>
 
             {/* Stats Cards */}
-            <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
+            <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
                 {/* Objetivo */}
-                <div className="p-5 sm:p-6 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all">
+                <div className="p-5 sm:p-6 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all sm:col-span-2 lg:col-span-1">
                     <div className="flex justify-between items-start mb-4">
                         <div>
                             <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Tu Objetivo</p>
@@ -283,7 +283,7 @@ export default function DashboardPage() {
                             <h2 className="text-xl font-bold text-white mb-2">Sin actividad registrada</h2>
                             <p className="text-gray-400 mb-6">Completa tu primer entrenamiento para ver tu gráfica aquí</p>
                             <Link to="/rutinas" className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 text-white font-bold rounded-lg hover:bg-white/10 transition-colors">
-                                Explorar Rutinas
+                                Explororar Rutinas
                             </Link>
                         </div>
                     )}

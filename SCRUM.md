@@ -22,7 +22,6 @@ DaveFit es el sistema definitivo para crear consistencia en el entrenamiento de 
 * [US-002] Selector Express de Tiempo (10/20/40 min) ✅
 * [US-049] Botón "Entrenar Ahora" (Modo Rápido) ✅
 * [US-041] Navegación Superior (Top Nav) ✅
-* [US-041B] Navegación Inferior (Bottom Tab Bar)
 
 ### 🧠 Epic 3: Inteligencia & Recomendacion
 * [US-016] Generación Automática de Rutina Diaria
@@ -99,4 +98,4 @@ DaveFit es el sistema definitivo para crear consistencia en el entrenamiento de 
 * [US-092] Modo “Apoyo Activo” (Impacto)
 
 ---
-**Total Historias Identificadas:** 73 (Backlog sincronizado).
+**Total Historias Identificadas:** 72 (Backlog sincronizado).

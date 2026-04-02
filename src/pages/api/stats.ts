@@ -5,7 +5,7 @@ export const GET: APIRoute = async () => {
     try {
         // Obtener conteos reales
         const [exercisesResult, usersResult, suggestionsResult] = await Promise.all([
-            insforge.database.from('exercises').select('id', { count: 'exact', head: true }),
+            insforge.database.from('ejercicios').select('id', { count: 'exact', head: true }),
             insforge.database.from('perfiles').select('id', { count: 'exact', head: true }),
             insforge.database.from('suggestions').select('rating')
         ]);
@@ -27,9 +27,9 @@ export const GET: APIRoute = async () => {
             reviews: totalReviews
         }), {
             status: 200,
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 'public, max-age=60' // Cache 1 minuto
+                'Cache-Control': 'public, max-age=300, s-maxage=600' // Cache 5 min client, 10 min CDN
             }
         });
     } catch (e: any) {

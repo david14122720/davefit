@@ -115,13 +115,13 @@ export default function YogaPage() {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="text-center mb-10"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-orange-500/20 to-purple-500/20 border border-orange-500/30 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-orange-500/20 to-purple-500/20 border border-orange-500/30 mb-5 shadow-[0_0_30px_rgba(249,115,22,0.15)]">
             <Flower2 className="w-8 h-8 text-orange-400" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Yoga</h1>
-          <p className="text-gray-400">Encuentra tu equilibrio con rutinas de yoga</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-tight">Yoga para la <span className="text-orange-500">Mente</span></h1>
+          <p className="text-gray-400 font-medium">Encuentra tu equilibrio y paz interior.</p>
         </motion.div>
 
         {/* Filter & Search Section */}
@@ -132,7 +132,9 @@ export default function YogaPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end relative z-10">
             {/* Search - Takes 5/12 columns on large screens */}
             <div className="lg:col-span-4 space-y-3">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Buscador</label>
+              <label className="text-xs font-bold text-gray-500 flex items-center gap-2 ml-1">
+                 <Search className="w-3 h-3" /> Buscador
+              </label>
               <div className="relative group">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-orange-500 transition-colors" />
                 <input
@@ -146,7 +148,7 @@ export default function YogaPage() {
             </div>
 
             {/* Filters Container - Takes 8/12 columns */}
-            <div className="lg:col-span-8 flex flex-col sm:flex-row gap-6 sm:gap-4 flex-wrap">
+            <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Nivel Filter */}
               <div className="space-y-3 flex-1 min-w-[200px]">
                 <div className="flex items-center justify-between ml-1">
@@ -183,7 +185,7 @@ export default function YogaPage() {
               {/* Objetivo Filter */}
               <div className="space-y-3 flex-1 min-w-[200px]">
                 <div className="flex items-center justify-between ml-1">
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                  <label className="text-xs font-bold text-gray-500 flex items-center gap-2">
                     <Heart className="w-3 h-3" /> Objetivo
                   </label>
                   {objetivoSeleccionado && (
