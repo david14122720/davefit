@@ -1,20 +1,18 @@
-import type { MiddlewareHandler } from 'astro';
+import { defineMiddleware } from 'astro:middleware';
 
-/**
- * Middleware mínimo.
- * La autenticación y protección de rutas ahora se maneja
- * completamente en el cliente con React + InsForge SDK.
- * 
- * Solo mantenemos headers de seguridad básicos.
- */
-export const onRequest: MiddlewareHandler = async (_context, next) => {
-    const response = await next();
+export const onRequest = defineMiddleware(async (context, next) => {
+  const response = await next();
 
-    // Headers de seguridad básicos
-    response.headers.set('X-Content-Type-Options', 'nosniff');
+  if (response && response.headers) {
     response.headers.set('X-Frame-Options', 'DENY');
-    response.headers.set('X-XSS-Protection', '1; mode=block');
+    response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
 
-    return response;
-};
+    if (import.meta.env.PROD) {
+      response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    }
+  }
+
+  return response;
+});

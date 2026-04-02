@@ -23,6 +23,9 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-# Admin panel (development only)
-src/admin/
-src/pages/admin/
+# Admin panel (development only - local only)
+src/app/pages/Admin*.tsx
+src/app/pages/Admin*Page.tsx
+src/app/components/AdminLayout.tsx
+src/app/components/FileUpload.tsx
+src/app/lib/adminApi.ts
