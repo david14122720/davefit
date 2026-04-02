@@ -31,7 +31,7 @@ Tablero de progreso técnico de nivel senior. Recontado y sincronizado: **52 His
 | [US-031] Multimedia (YouTube/GIF)      |   🧊    | 3  | React     | Gemini  |   |    | 🟢 |
 | **Epic 5: Gamificación & Datos**           |         |    |           |         |   |    |    |
 | [US-005A, B, C] Lógica & UI Rachas     |   🔥    | 5  | DB Sync   | Minimax |   |    | 🟢 |
-| [US-005D] Lógica de Reset de Racha     |    ⚡    | 3  | US-005A   | David   | ⚪ |    |    |
+| [US-005D] Lógica de Reset de Racha     |    ⚡    | 3  | US-005A   | David   |   |    | 🟢 |
 | [US-006] Sistema de XP & Niveles       |    ⚡    | 3  | US-005A   | Minimax |   |    | 🟢 |
 | [US-007] Leaderboard (Ranking)         |    ⚡    | 5  | DB Sync   | Gemini  |   |    | 🟢 |
 | [US-040] Perfil Métricas Clave         |    ⚡    | 3  | DB Perf.  | Gemini  |   |    | 🟢 |
