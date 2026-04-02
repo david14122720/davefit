@@ -35,7 +35,7 @@ Tablero de progreso técnico de nivel senior. Recontado y sincronizado: **52 His
 | [US-006] Sistema de XP & Niveles       |    ⚡    | 3  | US-005A   | Minimax |   |    | 🟢 |
 | [US-007] Leaderboard (Ranking)         |    ⚡    | 5  | DB Sync   | Gemini  |   |    | 🟢 |
 | [US-040] Perfil Métricas Clave         |    ⚡    | 3  | DB Perf.  | Gemini  |   |    | 🟢 |
-| [US-047] Metas Semanales               |    ⚡    | 3  | DB Stat   | David   | ⚪ |    |    |
+| [US-047] Metas Semanales               |    ⚡    | 3  | DB Stat   | David   |   |    | 🟢 |
 | [US-053] Historial Detallado           |    ⚡    | 5  | DB Hist.  | Minimax |   |    | 🟢 |
 | [US-054] Métricas Acumuladas           |    ⚡    | 3  | US-053    | Minimax |   |    | 🟢 |
 | **Epic 6: Administración & Contenido**     |         |    |           |         |   |    |    |
