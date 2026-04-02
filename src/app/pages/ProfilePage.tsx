@@ -1,13 +1,15 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { insforge } from '../../lib/insforge';
 import { calcularBMR, calcularTDEE, calcularCaloriasObjetivo, calcularIMC, getCategoriaIMC } from '../../lib/nutrition';
 import { toast } from 'sonner';
-import { motion, type Variants } from 'framer-motion';
+import { motion, type Variants, AnimatePresence } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, UploadCloud, Edit3, X, Zap, Flame } from 'lucide-react';
+import { Loader2, UploadCloud, Edit3, X, Zap, Flame, Check } from 'lucide-react';
+import Cropper from 'react-easy-crop';
+import getCroppedImg from '../../lib/cropImage';
 
 const profileSchema = z.object({
     nombre_completo: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -27,6 +29,12 @@ export default function ProfilePage() {
     const [editing, setEditing] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
     const [userStats, setUserStats] = useState<any>(null);
+
+    // Crop UI states
+    const [imageSrc, setImageSrc] = useState<string | null>(null);
+    const [crop, setCrop] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
 
     useEffect(() => {
         if (!user) return;
@@ -138,12 +146,32 @@ export default function ProfilePage() {
         const file = e.target.files?.[0];
         if (!file || !accessToken || !user) return;
 
-        setUploadingAvatar(true);
-        const toastId = toast.loading('Subiendo imagen...');
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+            setImageSrc(reader.result?.toString() || null);
+        });
+        reader.readAsDataURL(file);
+    };
 
+    const onCropComplete = useCallback((_croppedArea: any, croppedAreaPixels: any) => {
+        setCroppedAreaPixels(croppedAreaPixels);
+    }, []);
+
+    const processAndUploadCrop = async () => {
+        if (!imageSrc || !croppedAreaPixels || !user) return;
+
+        setUploadingAvatar(true);
+        const toastId = toast.loading('Optimizando y subiendo imagen...');
+        setImageSrc(null); // Ocultar el modal de recorte
+        
         try {
-            const ext = file.name.split('.').pop() || 'jpg';
+            const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+            if (!croppedBlob) throw new Error("No se pudo recortar la imagen");
+
+            const ext = 'jpeg';
             const path = `avatars/${user.id}-${Date.now()}.${ext}`;
+
+            const file = new File([croppedBlob], `avatar.${ext}`, { type: 'image/jpeg' });
 
             const { data, error } = await insforge.storage.from('avatares').upload(path, file);
             if (error) {
@@ -152,7 +180,7 @@ export default function ProfilePage() {
             if (data?.url) {
                 const res = await updatePerfil({ avatar_url: data.url });
                 if (res.error) throw new Error(res.error);
-                toast.success('Imagen de perfil actualizada', { id: toastId });
+                toast.success('Imagen de perfil actualizada y optimizada', { id: toastId });
             }
         } catch (err: any) {
             toast.error(`Error al subir imagen: ${err.message || 'Desconocido'}`, { id: toastId });
@@ -410,6 +438,65 @@ export default function ProfilePage() {
                     </div>
                 </motion.div>
             )}
+
+            {/* Modal de Recorte de Imagen (Crop UI) */}
+            <AnimatePresence>
+                {imageSrc && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+                    >
+                        <div className="relative w-full max-w-sm sm:max-w-md h-[400px] sm:h-[500px] bg-[#141414] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 flex flex-col">
+                            <div className="relative flex-1 bg-black/50">
+                                <Cropper
+                                    image={imageSrc}
+                                    crop={crop}
+                                    zoom={zoom}
+                                    aspect={1}
+                                    cropShape="round"
+                                    showGrid={false}
+                                    onCropChange={setCrop}
+                                    onCropComplete={onCropComplete}
+                                    onZoomChange={setZoom}
+                                />
+                            </div>
+                            <div className="p-4 sm:p-5 bg-[#1a1a1a] flex flex-col gap-4">
+                                <div>
+                                    <label className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-3 block text-center">Ajustar Tamaño</label>
+                                    <input
+                                        type="range"
+                                        value={zoom}
+                                        min={1}
+                                        max={3}
+                                        step={0.1}
+                                        aria-labelledby="Zoom"
+                                        onChange={(e) => setZoom(Number(e.target.value))}
+                                        className="w-full accent-orange-500 cursor-pointer"
+                                    />
+                                </div>
+                                <div className="flex justify-between gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setImageSrc(null)}
+                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold transition-colors active:scale-95"
+                                    >
+                                        <X className="w-5 h-5" /> Cancelar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={processAndUploadCrop}
+                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-orange-500 hover:bg-orange-400 text-black font-extrabold shadow-[0_4px_15px_rgba(249,115,22,0.3)] hover:shadow-[0_4px_25px_rgba(249,115,22,0.5)] transition-all active:scale-95"
+                                    >
+                                        <Check className="w-5 h-5" /> Confirmar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 }
