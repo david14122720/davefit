@@ -5,6 +5,7 @@ import { insforge } from '../../lib/insforge';
 import { motion, type Variants } from 'framer-motion';
 import TimeSelector from '../components/TimeSelector';
 import XPBar from '../components/XPBar';
+import WeeklyGoal from '../components/WeeklyGoal';
 import { Play, TrendingUp, CalendarCheck, Activity, Target, Zap } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -135,6 +136,11 @@ export default function DashboardPage() {
             {/* XP & Streak Bar */}
             <motion.div variants={itemVariants} className="mb-6">
                 <XPBar />
+            </motion.div>
+
+            {/* Weekly Goal */}
+            <motion.div variants={itemVariants} className="mb-6">
+                <WeeklyGoal />
             </motion.div>
 
             {/* Stats Cards */}

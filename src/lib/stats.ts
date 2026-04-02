@@ -136,3 +136,28 @@ export async function getUserRank(userId: string, filter: 'weekly' | 'monthly' |
     return null;
   }
 }
+
+export async function getWeeklyWorkoutCount(userId: string): Promise<number> {
+  try {
+    const hoy = new Date();
+    const inicioSemana = new Date(hoy);
+    inicioSemana.setDate(hoy.getDate() - hoy.getDay());
+    inicioSemana.setHours(0, 0, 0, 0);
+
+    const { data, error } = await insforge.database
+      .from('workout_completions')
+      .select('id')
+      .eq('user_id', userId)
+      .gte('completed_at', inicioSemana.toISOString());
+
+    if (error) {
+      console.error('[Stats] Error getting weekly workouts:', error);
+      return 0;
+    }
+
+    return data?.length || 0;
+  } catch (e) {
+    console.error('[Stats] Exception getting weekly workouts:', e);
+    return 0;
+  }
+}
