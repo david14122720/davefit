@@ -9,13 +9,13 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/node": "^9.5.4",
-    "@astrojs/react": "^5.0.0",
+    "@astrojs/node": "^9.5.5",
+    "@astrojs/react": "^4.4.2",
     "@astrojs/sitemap": "^3.7.2",
     "@astrojs/tailwind": "^6.0.2",
     "@hookform/resolvers": "^5.2.2",
     "@insforge/sdk": "^1.1.2",
-    "astro": "^5.4.1",
+    "astro": "^5.18.1",
     "canvas-confetti": "^1.9.4",
     "chart.js": "^4.5.1",
     "framer-motion": "^12.38.0",
