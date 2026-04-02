@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import { insforge } from '../../lib/insforge';
 import { getWeeklyWorkoutCount } from '../../lib/stats';
 import { useAuth } from '../context/AuthContext';
-import { useCelebration } from '../hooks/useCelebration';
 import { Target, Trophy, CheckCircle2 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 interface Perfil {
     id: string;
@@ -14,7 +14,6 @@ interface Perfil {
 
 export default function WeeklyGoal() {
     const { user, perfil } = useAuth();
-    const { celebrateLevelUp } = useCelebration();
     const [weeklyCount, setWeeklyCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const hasCelebratedRef = useRef(false);
@@ -38,9 +37,14 @@ export default function WeeklyGoal() {
                     const sessionKey = `meta_semanal_${user.id}_${new Date().toISOString().slice(0, 7)}`;
                     if (!sessionStorage.getItem(sessionKey)) {
                         setTimeout(() => {
-                            celebrateLevelUp();
+                            confetti({
+                                particleCount: 100,
+                                spread: 70,
+                                origin: { y: 0.6 },
+                                colors: ['#22c55e', '#10b981', '#f97316']
+                            });
                             sessionStorage.setItem(sessionKey, 'true');
-                        }, 1500);
+                        }, 1000);
                     }
                     hasCelebratedRef.current = true;
                 }
@@ -52,7 +56,7 @@ export default function WeeklyGoal() {
         };
 
         loadWeeklyCount();
-    }, [user, metaSemanal, celebrateLevelUp]);
+    }, [user, metaSemanal]);
 
     if (loading) {
         return (

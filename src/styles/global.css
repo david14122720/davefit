@@ -5,6 +5,17 @@
 @layer base {
     body {
         @apply bg-background-dark text-white font-sans antialiased min-h-screen selection:bg-orange-500/30 selection:text-white;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply tracking-tight font-bold;
+    }
+
+    p {
+        @apply leading-relaxed text-gray-400;
     }
 }
 

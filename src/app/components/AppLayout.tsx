@@ -148,7 +148,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </header>
 
                 {/* Page content */}
-                <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
+                <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden pb-24 lg:pb-8">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={location.pathname}
@@ -162,6 +162,46 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         </motion.div>
                     </AnimatePresence>
                 </div>
+
+                {/* Bottom Navigation (Mobile Only) */}
+                <nav className="lg:hidden fixed bottom-6 left-4 right-4 z-40">
+                    <div className="bg-[#141414]/80 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-2.5 px-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-between">
+                        {navItems.slice(0, 4).map(item => (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                className={`relative flex flex-col items-center gap-1.5 p-2 px-3 rounded-2xl transition-all duration-300 ${
+                                    isActive(item.path)
+                                        ? 'text-orange-500'
+                                        : 'text-gray-500 hover:text-white'
+                                }`}
+                            >
+                                <svg className={`w-6 h-6 transition-transform duration-300 ${isActive(item.path) ? 'scale-110 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]' : 'scale-100'}`} fill={isActive(item.path) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isActive(item.path) ? 1.5 : 2} d={item.icon} />
+                                </svg>
+                                <span className={`text-[10px] font-medium tracking-tight transition-all ${isActive(item.path) ? 'opacity-100 translate-y-0' : 'opacity-70'}`}>
+                                    {item.label.split(' ')[0]}
+                                </span>
+                                {isActive(item.path) && (
+                                    <motion.div 
+                                        layoutId="active-dot"
+                                        className="absolute -bottom-1 w-1 h-1 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,1)]" 
+                                    />
+                                )}
+                            </Link>
+                        ))}
+                        {/* More Menu (Sidebar Trigger) */}
+                        <button
+                            onClick={() => setSidebarOpen(true)}
+                            className="flex flex-col items-center gap-1.5 p-2 px-3 text-gray-500 hover:text-white transition-all"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                            <span className="text-[10px] font-medium tracking-tight opacity-70">Más</span>
+                        </button>
+                    </div>
+                </nav>
             </main>
         </div>
     );
