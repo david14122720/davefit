@@ -123,7 +123,6 @@ export default function ProfilePage() {
         const cleanedData = {
             ...data,
             genero: data.genero === '' ? null : data.genero,
-            nivel: data.nivel === '' ? null : data.nivel,
             peso_actual: data.peso_actual === '' ? null : data.peso_actual,
             altura: data.altura === '' ? null : data.altura,
             dias_entrenamiento_semana: data.dias_entrenamiento_semana === '' ? null : data.dias_entrenamiento_semana,
@@ -305,7 +304,6 @@ export default function ProfilePage() {
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Nivel</label>
                                 <select {...register('nivel')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-orange-500/50 outline-none">
-                                    <option value="">No especificar</option>
                                     <option value="principiante">Principiante</option>
                                     <option value="intermedio">Intermedio</option>
                                     <option value="avanzado">Avanzado</option>
