@@ -180,7 +180,7 @@ export default function WorkoutPracticePage() {
             key={currentEjercicio.id}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative w-full aspect-square sm:aspect-video rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.8)] bg-[#111111] group"
+            className="relative w-full aspect-square sm:aspect-video rounded-xl overflow-hidden border border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.8)] bg-[#111111] group"
           >
             {currentEjercicio.ejercicio?.video_url ? (
                <video ref={videoRef} src={currentEjercicio.ejercicio.video_url} className="w-full h-full object-cover brightness-[0.8] group-hover:brightness-100 transition-all duration-700" autoPlay loop muted={isMuted} playsInline />
@@ -219,12 +219,12 @@ export default function WorkoutPracticePage() {
 
           {/* Tactical Stats Block */}
           <div className="grid grid-cols-2 gap-4">
-             <div className="bg-[#141414]/80 backdrop-blur-3xl p-6 rounded-3xl border border-white/5 flex flex-col items-center justify-center gap-1 group overflow-hidden relative">
+             <div className="bg-[#141414]/80 backdrop-blur-3xl p-6 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-1 group overflow-hidden relative">
                 <div className="absolute -right-2 -top-2 w-16 h-16 bg-white/5 rounded-full blur-2xl group-hover:bg-orange-500/10 transition-colors"/>
                 <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] relative z-10">Series</span>
                 <span className="text-5xl font-black text-white relative z-10">{currentEjercicio.series}</span>
              </div>
-             <div className="bg-[#141414]/80 backdrop-blur-3xl p-6 rounded-3xl border border-white/5 flex flex-col items-center justify-center gap-1 group overflow-hidden relative">
+             <div className="bg-[#141414]/80 backdrop-blur-3xl p-6 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-1 group overflow-hidden relative">
                 <div className="absolute -right-2 -top-2 w-16 h-16 bg-white/5 rounded-full blur-2xl group-hover:bg-orange-500/10 transition-colors"/>
                 <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] relative z-10">Reps</span>
                 <span className="text-5xl font-black text-white relative z-10">{currentEjercicio.repeticiones}</span>
@@ -251,7 +251,7 @@ export default function WorkoutPracticePage() {
             </button>
             <button
                onClick={handleSiguiente}
-               className="col-span-3 h-20 bg-orange-500 text-black rounded-[2rem] flex items-center justify-center gap-4 shadow-[0_15px_40px_rgba(249,115,22,0.4)] active:scale-95 transition-all group"
+               className="col-span-3 h-20 bg-orange-500 text-black rounded-xl flex items-center justify-center gap-4 shadow-[0_15px_40px_rgba(249,115,22,0.4)] active:scale-95 transition-all group"
             >
                <span className="text-lg font-black uppercase tracking-[0.2em]">{currentIndex + 1 >= totalEjercicios ? 'Finalizar' : 'Continuar'}</span>
                <ChevronRight className="w-6 h-6 stroke-[3px] group-hover:translate-x-1 transition-transform" />
@@ -302,7 +302,7 @@ export default function WorkoutPracticePage() {
             <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="w-full max-w-sm text-center">
               <div className="relative inline-block mb-10">
                  <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 10, ease: "linear" }} className="absolute inset-0 bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-500 rounded-full blur-3xl opacity-20 scale-150" />
-                 <div className="relative w-24 h-24 rounded-[2rem] bg-orange-500 flex items-center justify-center shadow-[0_0_50px_rgba(249,115,22,0.5)]">
+                 <div className="relative w-24 h-24 rounded-xl bg-orange-500 flex items-center justify-center shadow-[0_0_50px_rgba(249,115,22,0.5)]">
                     <Trophy className="w-12 h-12 text-black" />
                  </div>
               </div>

@@ -125,7 +125,7 @@ export default function YogaPage() {
         </motion.div>
 
         {/* Filter & Search Section */}
-        <div className="bg-[#111111] border border-white/5 rounded-3xl p-6 sm:p-8 mb-8 backdrop-blur-sm relative overflow-hidden">
+        <div className="bg-[#111111] border border-white/5 rounded-xl p-6 sm:p-8 mb-8 backdrop-blur-sm relative overflow-hidden">
           {/* Subtle Background Glow for filters */}
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-orange-500/10 blur-[80px] rounded-full pointer-events-none" />
           

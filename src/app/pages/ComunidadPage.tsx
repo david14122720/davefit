@@ -18,8 +18,8 @@ const PODIUM_COLORS = {
   3: { bg: 'from-orange-600/20 to-orange-700/10', border: 'border-orange-600', crown: 'text-orange-500', text: 'text-orange-500' },
 };
 
-const Avatar = ({ src, name, size = 'md' }: { src?: string; name: string; size?: 'sm' | 'md' | 'lg' }) => {
-  const sizeClasses = { sm: 'w-8 h-8 text-xs', md: 'w-12 h-12 text-sm', lg: 'w-16 h-16 text-lg' };
+const Avatar = ({ src, name, size = 'md' }: { src?: string; name: string; size?: 'sm' | 'md' | 'lg' | 'xl' }) => {
+  const sizeClasses = { sm: 'w-10 h-10 text-sm', md: 'w-14 h-14 text-base', lg: 'w-20 h-20 text-xl', xl: 'w-24 h-24 text-2xl' };
   
   if (src) {
     return <img src={src} alt={name || 'Usuario'} className={`${sizeClasses[size]} rounded-full object-cover ring-2 ring-white/20`} />;
@@ -54,27 +54,31 @@ const PodiumCard = ({ user, position }: { user: LeaderboardUser; position: 1 | 2
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: position * 0.1 }}
         whileHover={{ scale: isFirst ? 1.15 : 1.1 }}
-        className={`relative flex flex-col items-center p-4 rounded-3xl bg-gradient-to-b ${colors.bg} border ${colors.border} ${isFirst ? 'scale-110 z-10 shadow-[0_0_30px_rgba(255,165,0,0.3)]' : ''} cursor-pointer group`}
+        className={`relative flex flex-col items-center rounded-xl bg-gradient-to-b ${colors.bg} border ${colors.border} cursor-pointer group
+          ${isFirst 
+            ? 'sm:scale-110 z-10 shadow-[0_0_30px_rgba(255,165,0,0.3)] w-full max-w-[280px] sm:max-w-none sm:w-auto p-6 sm:p-4' 
+            : 'w-full max-w-[240px] sm:max-w-none sm:w-auto p-5 sm:p-4'
+          }`}
     >
       {isFirst && (
-        <div className={`absolute -top-6 ${colors.crown} animate-bounce`}>
+        <div className={`absolute -top-8 sm:-top-6 ${colors.crown} animate-bounce`}>
           <CrownIcon />
         </div>
       )}
       
-      <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-md rounded-full px-2 py-0.5 text-xs font-bold text-white z-10">
+      <div className="absolute top-3 right-3 sm:top-2 sm:right-2 bg-black/40 backdrop-blur-md rounded-full px-3 py-1 sm:px-2 sm:py-0.5 text-sm sm:text-xs font-bold text-white z-10">
         #{position}
       </div>
       
-      <Avatar src={user.avatar_url} name={user.username} size={isFirst ? 'lg' : 'md'} />
+      <Avatar src={user.avatar_url} name={user.username} size={isFirst ? 'xl' : 'lg'} />
       
-      <h3 className="mt-3 font-bold text-white text-sm truncate max-w-[100px]">
+      <h3 className="mt-4 sm:mt-3 font-bold text-white text-base sm:text-sm truncate max-w-[160px] sm:max-w-[100px]">
         {user.username}
       </h3>
       
-      <div className="mt-2 px-3 py-1 bg-orange-500/20 border border-orange-500/30 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.2)]">
-        <span className="text-orange-400 font-bold text-sm">{user.total_score.toLocaleString()}</span>
-        <span className="text-gray-400 text-[10px] ml-1 uppercase">pts</span>
+      <div className="mt-3 sm:mt-2 px-4 py-1.5 sm:px-3 sm:py-1 bg-orange-500/20 border border-orange-500/30 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.2)]">
+        <span className="text-orange-400 font-bold text-base sm:text-sm">{user.total_score.toLocaleString()}</span>
+        <span className="text-gray-400 text-xs sm:text-[10px] ml-1 uppercase">pts</span>
       </div>
     </motion.div>
   );
@@ -94,22 +98,22 @@ const LeaderboardRow = ({ user }: { user: LeaderboardUser }) => {
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 20 }}
         whileHover={{ scale: 1.01, backgroundColor: 'rgba(255,255,255,0.05)' }}
-        className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/5 transition-colors cursor-pointer group"
+        className="flex items-center gap-3 sm:gap-3 p-4 sm:p-3 rounded-2xl bg-white/5 border border-white/5 transition-colors cursor-pointer group"
     >
-      <div className={`w-8 text-center font-black ${getRankColor(user.rank)}`}>
+      <div className={`w-10 sm:w-8 text-center font-black text-base sm:text-sm ${getRankColor(user.rank)}`}>
         #{user.rank}
       </div>
       
-      <Avatar src={user.avatar_url} name={user.username} size="sm" />
+      <Avatar src={user.avatar_url} name={user.username} size="md" />
       
       <div className="flex-1 min-w-0">
-        <div className="font-bold text-white truncate group-hover:text-orange-400 transition-colors">
+        <div className="font-bold text-white text-base sm:text-sm truncate group-hover:text-orange-400 transition-colors">
           {user.username}
         </div>
       </div>
       
-      <div className="px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-xl group-hover:bg-orange-500/20 transition-colors">
-        <span className="text-orange-400 font-bold">{user.total_score.toLocaleString()}</span>
+      <div className="px-4 py-1.5 sm:px-3 sm:py-1 bg-orange-500/10 border border-orange-500/20 rounded-xl group-hover:bg-orange-500/20 transition-colors">
+        <span className="text-orange-400 font-bold text-base sm:text-sm">{user.total_score.toLocaleString()}</span>
       </div>
     </motion.div>
   );
@@ -183,7 +187,7 @@ export default function ComunidadPage() {
   return (
     <div className="max-w-5xl mx-auto pb-20 px-4">
       <header className="flex flex-col items-center justify-center gap-4 mb-10 text-center">
-        <div className="w-16 h-16 bg-orange-500/10 border border-orange-500/20 text-orange-500 rounded-[1.5rem] flex items-center justify-center shadow-[0_0_40px_rgba(249,115,22,0.15)] ring-1 ring-orange-500/20">
+        <div className="w-16 h-16 bg-orange-500/10 border border-orange-500/20 text-orange-500 rounded-lg flex items-center justify-center shadow-[0_0_40px_rgba(249,115,22,0.15)] ring-1 ring-orange-500/20">
             <TrophyIcon />
         </div>
         <div>
@@ -206,10 +210,10 @@ export default function ComunidadPage() {
         >
           {users.length > 0 ? (
             <div className="mb-12">
-                <div className="flex flex-col sm:flex-row justify-center items-center sm:items-end gap-6 sm:gap-4 lg:gap-8 mb-8 mt-10">
-                    <div className="order-2 sm:order-1">{top3[1] && <PodiumCard user={top3[1]} position={2} />}</div>
-                    <div className="order-1 sm:order-2">{top3[0] && <PodiumCard user={top3[0]} position={1} />}</div>
-                    <div className="order-3 sm:order-3">{top3[2] && <PodiumCard user={top3[2]} position={3} />}</div>
+                <div className="flex flex-col sm:flex-row justify-center items-center sm:items-end gap-8 sm:gap-4 lg:gap-8 mb-8 mt-10 w-full">
+                    <div className="order-2 sm:order-1 w-full flex justify-center sm:w-auto">{top3[1] && <PodiumCard user={top3[1]} position={2} />}</div>
+                    <div className="order-1 sm:order-2 w-full flex justify-center sm:w-auto">{top3[0] && <PodiumCard user={top3[0]} position={1} />}</div>
+                    <div className="order-3 sm:order-3 w-full flex justify-center sm:w-auto">{top3[2] && <PodiumCard user={top3[2]} position={3} />}</div>
                 </div>
                 
                 <div className="max-w-md mx-auto bg-gradient-to-r from-orange-500/0 via-orange-500/10 to-orange-500/0 p-4 text-center">

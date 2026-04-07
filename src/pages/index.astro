@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { Image } from "astro:assets";
 import { insforge } from "../lib/insforge";
+import { BenefitsGrid } from "../app/components/BenefitsCard";
 
 // Fetch suggestions and stats directly instead of using internal fetch (SSR stability)
 const [suggestionsResult, statsResult] = await Promise.all([
@@ -211,7 +212,7 @@ const formatNumber = (num: number): string => {
 
         <div class="relative">
           <div
-            class="rounded-3xl overflow-hidden border border-white/5 shadow-[0_0_40px_rgba(255,107,0,0.2)]"
+            class="rounded-xl overflow-hidden border border-white/5 shadow-[0_0_40px_rgba(255,107,0,0.2)]"
           >
             <img
               src="https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=2070&auto=format&fit=crop"
@@ -253,9 +254,11 @@ const formatNumber = (num: number): string => {
           class="p-8 rounded-2xl bg-background-card border border-white/5 hover:border-primary/50 transition-all hover:shadow-[0_0_30px_rgba(255,107,0,0.2)] group"
         >
           <div
-            class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-6 text-xl shadow-[0_0_15px_rgba(255,107,0,0.3)] group-hover:shadow-[0_0_25px_rgba(255,107,0,0.5)] transition-all"
+            class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-6 shadow-[0_0_15px_rgba(255,107,0,0.3)] group-hover:shadow-[0_0_25px_rgba(255,107,0,0.5)] transition-all"
           >
-            👤
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
           </div>
           <h3 class="text-xl font-bold mb-3 text-white">1. Crea tu perfil</h3>
           <p class="text-gray-400 text-sm leading-relaxed">
@@ -269,9 +272,11 @@ const formatNumber = (num: number): string => {
           class="p-8 rounded-2xl bg-background-card border border-white/5 hover:border-primary/50 transition-all hover:shadow-[0_0_30px_rgba(255,107,0,0.2)] group"
         >
           <div
-            class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-6 text-xl shadow-[0_0_15px_rgba(255,107,0,0.3)] group-hover:shadow-[0_0_25px_rgba(255,107,0,0.5)] transition-all"
+            class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-6 shadow-[0_0_15px_rgba(255,107,0,0.3)] group-hover:shadow-[0_0_25px_rgba(255,107,0,0.5)] transition-all"
           >
-            🕒
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
           </div>
           <h3 class="text-xl font-bold mb-3 text-white">2. Selecciona tu tiempo</h3>
           <p class="text-gray-400 text-sm leading-relaxed">
@@ -285,9 +290,11 @@ const formatNumber = (num: number): string => {
           class="p-8 rounded-2xl bg-background-card border border-white/5 hover:border-primary/50 transition-all hover:shadow-[0_0_30px_rgba(255,107,0,0.2)] group"
         >
           <div
-            class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-6 text-xl shadow-[0_0_15px_rgba(255,107,0,0.3)] group-hover:shadow-[0_0_25px_rgba(255,107,0,0.5)] transition-all"
+            class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-6 shadow-[0_0_15px_rgba(255,107,0,0.3)] group-hover:shadow-[0_0_25px_rgba(255,107,0,0.5)] transition-all"
           >
-            ▶️
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
           </div>
           <h3 class="text-xl font-bold mb-3 text-white">3. Empieza a entrenar</h3>
           <p class="text-gray-400 text-sm leading-relaxed">
@@ -317,98 +324,7 @@ const formatNumber = (num: number): string => {
         </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {
-          [
-            {
-              title: "100% Gratis",
-              desc: "Sin costos, sin suscripciones. Acceso total para todos.",
-              icon: "🎁",
-            },
-            {
-              title: "Sin Equipo Necesario",
-              desc: "Todo lo que necesitas es un poco de espacio y tu propio peso corporal.",
-              icon: "🏠",
-            },
-            {
-              title: "Alivio del Estrés",
-              desc: "Despeja tu mente antes de los exámenes con fitness enfocado en mindfulness.",
-              icon: "🧘",
-            },
-            {
-              title: "Aumento de Energía",
-              desc: "Ráfagas cortas e intensas para despertarte antes de una clase a las 8am.",
-              icon: "⚡",
-            },
-            {
-              title: "Desafíos Comunitarios",
-              desc: "Compite con amigos y domina los tableros de clasificación.",
-              icon: "👥",
-            },
-            {
-              title: "Cualquier Dispositivo",
-              desc: "Laptop, tablet o teléfono. Lleva tu gimnasio donde vayas.",
-              icon: "📱",
-            },
-          ].map((item) => (
-            <div class="p-6 rounded-2xl bg-background-card border border-white/5 flex gap-4 hover:bg-white/5 hover:border-primary/30 transition-all hover:shadow-[0_0_20px_rgba(255,107,0,0.15)] group">
-              <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold flex-shrink-0 shadow-[0_0_15px_rgba(255,107,0,0.4)] group-hover:shadow-[0_0_25px_rgba(255,107,0,0.6)] transition-all">
-                {item.icon}
-              </div>
-              <div>
-                <h4 class="font-bold mb-1 text-white">{item.title}</h4>
-                <p class="text-xs text-gray-400 leading-relaxed">{item.desc}</p>
-              </div>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA Section -->
-  <section class="py-24 relative overflow-hidden bg-background-dark">
-    <div
-      class="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10"
-    >
-    </div>
-    <div
-      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[150px]"
-    >
-    </div>
-
-    <div class="container mx-auto px-4 relative z-10 text-center">
-      <h2
-        class="text-4xl md:text-6xl font-bold mb-6 drop-shadow-[0_0_30px_rgba(255,107,0,0.3)] text-white"
-      >
-        ¿Listo para <span class="text-primary">transformarte</span>?
-      </h2>
-      <p class="text-lg md:text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-        Únete a miles de estudiantes que ya han cambiado su vida con DaveFit. Tu
-        primera semana es gratuita.
-      </p>
-      <a
-        href="/register"
-        data-astro-reload
-        class="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white font-bold rounded-xl hover:scale-105 transition-transform shadow-[0_0_40px_rgba(255,107,0,0.5)] hover:shadow-[0_0_60px_rgba(255,107,0,0.7)]"
-      >
-        Comenzar Mi Transformación
-        <svg
-          class="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-        </svg>
-      </a>
-      <p class="mt-6 text-sm text-gray-500">
-        Sin compromisos. Cancela cuando quieras.
-      </p>
+      <BenefitsGrid client:load />
     </div>
   </section>
 

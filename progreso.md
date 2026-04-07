@@ -18,7 +18,7 @@ Tablero de progreso técnico de nivel senior. Recontado y sincronizado: **52 His
 | [US-002] Selector 10/20/40 min         |   🔥    | 3  | Epic 3    | David   |   |    | 🟢 |
 | [US-049] Botón "Entrenar Ahora"        |   🔥    | 3  | Epic 4    | David   |   |    | 🟢 |
 | [US-041] Navegación Superior (Top Nav) |   🔥    | 2  | Layout    | David   |   |    | 🟢 |
-| [US-041B] Navegación Inferior (Bottom) |   🔥    | 5  | Layout    | Claude  | ⚪ |    |    |
+| [US-041B] Navegación Inferior (Bottom) |   🔥    | 5  | Layout    | Claude  |    |    | 🟢 |
 | **Epic 3: Inteligencia & Recomendacion**   |         |    |           |         |   |    |    |
 | [US-016] Generación Auto Rutina        |   🔥    | 8  | DB Exc.   | Minimax | ⚪ |    |    |
 | [US-017/39/55] Adaptación & Scale      |    ⚡    | 5  | Epic 5    | Minimax | ⚪ |    |    |

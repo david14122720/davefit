@@ -280,7 +280,7 @@ export default function YogaPracticePage() {
             >
               {/* Media Section */}
               <div className="flex flex-col gap-6">
-                <div className="aspect-[4/3] bg-gradient-to-br from-orange-500/20 to-purple-500/20 rounded-3xl border border-white/10 overflow-hidden shadow-2xl relative group">
+                <div className="aspect-[4/3] bg-gradient-to-br from-orange-500/20 to-purple-500/20 rounded-xl border border-white/10 overflow-hidden shadow-2xl relative group">
                   {posicionActual.posicion?.imagen_url ? (
                     <img 
                       src={posicionActual.posicion.imagen_url} 
@@ -389,7 +389,7 @@ export default function YogaPracticePage() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-[#141414] border border-white/10 rounded-3xl p-10 max-w-md w-full text-center shadow-[0_0_50px_rgba(34,197,94,0.1)]"
+              className="bg-[#141414] border border-white/10 rounded-xl p-10 max-w-md w-full text-center shadow-[0_0_50px_rgba(34,197,94,0.1)]"
             >
               <div className="w-24 h-24 mx-auto mb-8 relative">
                  <div className="absolute inset-0 bg-green-500 blur-2xl opacity-20 animate-pulse" />

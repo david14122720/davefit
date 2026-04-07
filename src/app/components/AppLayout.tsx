@@ -165,7 +165,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
                 {/* Bottom Navigation (Mobile Only) */}
                 <nav className="lg:hidden fixed bottom-6 left-4 right-4 z-40">
-                    <div className="bg-[#141414]/80 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-2.5 px-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-between">
+                    <div className="bg-[#141414]/80 backdrop-blur-3xl border border-white/10 rounded-xl p-2.5 px-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-between">
                         {navItems.slice(0, 4).map(item => (
                             <Link
                                 key={item.path}
@@ -182,12 +182,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                 <span className={`text-[10px] font-medium tracking-tight transition-all ${isActive(item.path) ? 'opacity-100 translate-y-0' : 'opacity-70'}`}>
                                     {item.label.split(' ')[0]}
                                 </span>
-                                {isActive(item.path) && (
-                                    <motion.div 
-                                        layoutId="active-dot"
-                                        className="absolute -bottom-1 w-1 h-1 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,1)]" 
-                                    />
-                                )}
                             </Link>
                         ))}
                         {/* More Menu (Sidebar Trigger) */}

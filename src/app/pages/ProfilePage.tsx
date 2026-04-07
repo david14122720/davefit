@@ -122,6 +122,7 @@ export default function ProfilePage() {
     const onSubmit = async (data: ProfileFormValues) => {
         const cleanedData = {
             ...data,
+            genero: data.genero === '' ? null : data.genero,
             peso_actual: data.peso_actual === '' ? null : data.peso_actual,
             altura: data.altura === '' ? null : data.altura,
             dias_entrenamiento_semana: data.dias_entrenamiento_semana === '' ? null : data.dias_entrenamiento_semana,
@@ -194,13 +195,13 @@ export default function ProfilePage() {
             animate="visible"
         >
             {/* Header Card - Premium Mobile Design */}
-            <motion.div variants={itemVariants} className="bg-[#141414]/80 backdrop-blur-3xl p-6 sm:p-10 rounded-[2.5rem] border border-white/5 flex flex-col items-center gap-6 mb-8 shadow-2xl relative overflow-hidden group">
+            <motion.div variants={itemVariants} className="bg-[#141414]/80 backdrop-blur-3xl p-6 sm:p-10 rounded-xl border border-white/5 flex flex-col items-center gap-6 mb-8 shadow-2xl relative overflow-hidden group">
                 {/* Background Decoration */}
                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-orange-500/10 blur-[80px] rounded-full pointer-events-none group-hover:bg-orange-500/20 transition-colors duration-700" />
                 
                 {/* Avatar Section */}
                 <div className="relative z-10 flex-shrink-0">
-                    <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-[2rem] bg-orange-500/10 flex items-center justify-center text-4xl sm:text-5xl border-4 border-white/5 shadow-2xl overflow-hidden relative rotate-3 group-hover:rotate-0 transition-all duration-500">
+                    <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-xl bg-orange-500/10 flex items-center justify-center text-4xl sm:text-5xl border-4 border-white/5 shadow-2xl overflow-hidden relative rotate-3 group-hover:rotate-0 transition-all duration-500">
                         {avatarUrl ? (
                             <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         ) : (
@@ -262,7 +263,7 @@ export default function ProfilePage() {
                         animate={{ opacity: 1, y: 0, height: 'auto' }}
                         exit={{ opacity: 0, y: -20, height: 0 }}
                         onSubmit={handleSubmit(onSubmit)} 
-                        className="bg-[#141414]/90 backdrop-blur-3xl p-6 sm:p-8 rounded-[2.5rem] border border-white/10 mb-8 shadow-2xl overflow-hidden"
+                        className="bg-[#141414]/90 backdrop-blur-3xl p-6 sm:p-8 rounded-xl border border-white/10 mb-8 shadow-2xl overflow-hidden"
                     >
                         <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
                             <Sparkles className="w-4 h-4 text-orange-500" /> Datos Personales
@@ -292,6 +293,15 @@ export default function ProfilePage() {
                             
                             {/* Selects */}
                             <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Género</label>
+                                <select {...register('genero')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-orange-500/50 outline-none">
+                                    <option value="">No especificar</option>
+                                    <option value="masculino">Masculino</option>
+                                    <option value="femenino">Femenino</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div className="space-y-1.5">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Objetivo</label>
                                 <select {...register('objetivo')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-orange-500/50 outline-none">
                                     <option value="perder_peso">Bajar grasa</option>
@@ -313,7 +323,7 @@ export default function ProfilePage() {
                 <div className="space-y-6">
                     <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Metabolism Card */}
-                        <div className="bg-[#141414]/90 backdrop-blur-3xl p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
+                        <div className="bg-[#141414]/90 backdrop-blur-3xl p-8 rounded-xl border border-white/5 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <Flame className="w-12 h-12 text-orange-500" />
                             </div>
@@ -329,7 +339,7 @@ export default function ProfilePage() {
                         </div>
 
                         {/* TDEE Card */}
-                        <div className="bg-[#141414]/90 backdrop-blur-3xl p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
+                        <div className="bg-[#141414]/90 backdrop-blur-3xl p-8 rounded-xl border border-white/5 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <Zap className="w-12 h-12 text-yellow-500" />
                             </div>
@@ -353,7 +363,7 @@ export default function ProfilePage() {
                             { label: 'IMC', value: imc?.toFixed(1), unit: categoriaIMC, icon: Target, color: 'text-purple-500' },
                             { label: 'Edad', value: edad, unit: 'años', icon: Calendar, color: 'text-green-500' },
                         ].map((d, i) => (
-                            <div key={i} className="p-5 sm:p-6 bg-[#141414]/50 backdrop-blur-3xl rounded-3xl border border-white/5 flex flex-col items-center text-center group hover:border-orange-500/20 transition-all">
+                            <div key={i} className="p-5 sm:p-6 bg-[#141414]/50 backdrop-blur-3xl rounded-xl border border-white/5 flex flex-col items-center text-center group hover:border-orange-500/20 transition-all">
                                 <d.icon className={`w-5 h-5 mb-4 ${d.color} opacity-40 group-hover:opacity-100 transition-all duration-300`} />
                                 <p className="text-[9px] text-gray-500 font-black uppercase tracking-[0.15em] mb-1">{d.label}</p>
                                 <div className="text-2xl font-black text-white leading-none mb-1">
@@ -366,7 +376,7 @@ export default function ProfilePage() {
                     
                     {/* Gamification Stats */}
                     {userStats && (
-                        <motion.div variants={itemVariants} className="bg-gradient-to-br from-orange-500/10 to-transparent p-8 rounded-[2.5rem] border border-orange-500/10 shadow-2xl">
+                        <motion.div variants={itemVariants} className="bg-gradient-to-br from-orange-500/10 to-transparent p-8 rounded-xl border border-orange-500/10 shadow-2xl">
                             <div className="flex justify-between items-center mb-8">
                                 <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
                                     <Sparkles className="w-4 h-4 text-orange-500" /> Camino del Guerrero
@@ -396,7 +406,7 @@ export default function ProfilePage() {
             <AnimatePresence>
                 {imageSrc && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4">
-                        <div className="relative w-full max-w-md aspect-square bg-[#111111] rounded-[3rem] overflow-hidden border border-white/10 shadow-3xl">
+                        <div className="relative w-full max-w-md aspect-square bg-[#111111] rounded-xl overflow-hidden border border-white/10 shadow-3xl">
                             <Cropper image={imageSrc} crop={crop} zoom={zoom} aspect={1} cropShape="round" showGrid={false} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} />
                             <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col gap-6">
                                 <input type="range" value={zoom} min={1} max={3} step={0.1} onChange={(e) => setZoom(Number(e.target.value))} className="w-full accent-orange-500" />

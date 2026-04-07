@@ -89,7 +89,7 @@ export default function RegisterPage() {
                     <p className="text-gray-400 mt-2 text-sm">Comienza tu transformación hoy</p>
                 </div>
 
-                <div className="bg-[#141414]/90 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl border border-white/10">
+                <div className="bg-[#141414]/90 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-xl shadow-2xl border border-white/10">
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-300">Nombre completo</label>

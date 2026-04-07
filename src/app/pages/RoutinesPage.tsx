@@ -152,7 +152,7 @@ export default function RoutinesPage() {
                     <div className="h-10 w-24 bg-white/5 rounded-full" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[1, 2, 3].map(i => <div key={i} className="h-72 bg-white/5 rounded-[2.5rem]" />)}
+                    {[1, 2, 3].map(i => <div key={i} className="h-72 bg-white/5 rounded-xl" />)}
                 </div>
             </div>
         </div>
@@ -186,7 +186,7 @@ export default function RoutinesPage() {
                 </div>
 
                 {/* Filter Panel */}
-                <div className="bg-[#111111] border border-white/5 rounded-3xl p-5 sm:p-6 mb-6 sm:mb-8 backdrop-blur-sm relative overflow-hidden">
+                <div className="bg-[#111111] border border-white/5 rounded-xl p-5 sm:p-6 mb-6 sm:mb-8 backdrop-blur-sm relative overflow-hidden">
                     <div className="absolute -top-16 -right-16 w-40 h-40 bg-orange-500/5 blur-[80px] rounded-full pointer-events-none" />
 
                     {/* Search & Filters */}
@@ -283,7 +283,7 @@ export default function RoutinesPage() {
                                     transition={{ delay: idx * 0.05 }}
                                     key={r.id}
                                     onClick={() => handleOpenRutina(r)}
-                                    className="group bg-[#141414] rounded-2xl sm:rounded-[2rem] overflow-hidden border border-white/5 hover:border-orange-500/30 transition-all duration-500 text-left w-full"
+                                    className="group bg-[#141414] rounded-2xl sm:rounded-xl overflow-hidden border border-white/5 hover:border-orange-500/30 transition-all duration-500 text-left w-full"
                                 >
                                     {/* Card Image */}
                                     <div className="h-32 sm:h-40 md:h-48 relative overflow-hidden">
@@ -378,7 +378,7 @@ export default function RoutinesPage() {
                             animate={{ y: 0 }}
                             exit={{ y: "100%" }}
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                            className="relative bg-[#111111] border-t sm:border border-white/10 w-full max-w-2xl h-[90vh] sm:h-auto sm:max-h-[85vh] rounded-t-[1.5rem] sm:rounded-[3rem] overflow-hidden flex flex-col shadow-[0_-20px_60px_rgba(0,0,0,0.5)]"
+                            className="relative bg-[#111111] border-t sm:border border-white/10 w-full max-w-2xl h-[90vh] sm:h-auto sm:max-h-[85vh] rounded-t-lg sm:rounded-xl overflow-hidden flex flex-col shadow-[0_-20px_60px_rgba(0,0,0,0.5)]"
                         >
                             {/* Draggable indicator for mobile */}
                             <div className="sm:hidden w-12 h-1.5 bg-white/10 rounded-full mx-auto my-3 flex-shrink-0" />

@@ -68,22 +68,22 @@ export default function HistoryPage() {
 
             {/* Premium Stats Dashboard - Mobile Optimized */}
             <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-10">
-                <div className="bg-[#141414]/90 backdrop-blur-xl p-5 sm:p-6 rounded-[2rem] border border-white/5 flex flex-col items-center text-center shadow-xl group hover:border-orange-500/20 transition-all">
+                <div className="bg-[#141414]/90 backdrop-blur-xl p-5 sm:p-6 rounded-xl border border-white/5 flex flex-col items-center text-center shadow-xl group hover:border-orange-500/20 transition-all">
                     <Trophy className="w-5 h-5 text-orange-500 mb-3 opacity-40 group-hover:opacity-100 transition-opacity" />
                     <span className="text-3xl font-black text-white leading-none mb-1">{historial.length}</span>
                     <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Sesiones</span>
                 </div>
-                <div className="bg-[#141414]/90 backdrop-blur-xl p-5 sm:p-6 rounded-[2rem] border border-white/5 flex flex-col items-center text-center shadow-xl group hover:border-yellow-500/20 transition-all">
+                <div className="bg-[#141414]/90 backdrop-blur-xl p-5 sm:p-6 rounded-xl border border-white/5 flex flex-col items-center text-center shadow-xl group hover:border-yellow-500/20 transition-all">
                     <Clock className="w-5 h-5 text-yellow-500 mb-3 opacity-40 group-hover:opacity-100 transition-opacity" />
                     <span className="text-3xl font-black text-white leading-none mb-1">{totalMinutos}</span>
                     <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Minutos</span>
                 </div>
-                <div className="bg-[#141414]/90 backdrop-blur-xl p-5 sm:p-6 rounded-[2rem] border border-white/5 flex flex-col items-center text-center shadow-xl group hover:border-red-500/20 transition-all col-span-2 md:col-span-1">
+                <div className="bg-[#141414]/90 backdrop-blur-xl p-5 sm:p-6 rounded-xl border border-white/5 flex flex-col items-center text-center shadow-xl group hover:border-red-500/20 transition-all col-span-2 md:col-span-1">
                     <Flame className="w-5 h-5 text-red-500 mb-3 opacity-40 group-hover:opacity-100 transition-opacity" />
                     <span className="text-3xl font-black text-white leading-none mb-1">{totalCalorias}</span>
                     <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Kcal Quemadas</span>
                 </div>
-                <div className="hidden md:flex bg-gradient-to-br from-orange-500/10 to-transparent p-5 sm:p-6 rounded-[2rem] border border-orange-500/10 flex-col items-center text-center shadow-xl">
+                <div className="hidden md:flex bg-gradient-to-br from-orange-500/10 to-transparent p-5 sm:p-6 rounded-xl border border-orange-500/10 flex-col items-center text-center shadow-xl">
                     <Sparkles className="w-5 h-5 text-orange-400 mb-3" />
                     <span className="text-3xl font-black text-orange-500 leading-none mb-1">Elite</span>
                     <span className="text-[10px] text-orange-500/60 font-black uppercase tracking-widest">Estado</span>
@@ -101,7 +101,7 @@ export default function HistoryPage() {
                                 layout
                                 variants={itemVariants}
                                 exit={{ opacity: 0, x: -20 }}
-                                className="group relative bg-[#141414]/40 backdrop-blur-md border border-white/5 rounded-[1.8rem] p-4 sm:p-5 flex items-center justify-between hover:bg-[#1a1a1a]/60 hover:border-orange-500/30 transition-all duration-300 shadow-lg overflow-hidden"
+                                className="group relative bg-[#141414]/40 backdrop-blur-md border border-white/5 rounded-lg p-4 sm:p-5 flex items-center justify-between hover:bg-[#1a1a1a]/60 hover:border-orange-500/30 transition-all duration-300 shadow-lg overflow-hidden"
                             >
                                 <div className="flex items-center gap-4 relative z-10">
                                     <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-orange-500/10 text-orange-500 border border-orange-500/20 flex flex-col items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-black transition-all">
@@ -142,7 +142,7 @@ export default function HistoryPage() {
                 <motion.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="bg-[#111111] border border-dashed border-white/10 rounded-[3rem] p-16 text-center shadow-xl"
+                    className="bg-[#111111] border border-dashed border-white/10 rounded-xl p-16 text-center shadow-xl"
                 >
                     <div className="text-7xl mb-6">🏜️</div>
                     <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">Archivo Vacío</h3>
