@@ -9,19 +9,44 @@ export default function HistoryPage() {
     const { accessToken } = useAuth();
     const [historial, setHistorial] = React.useState<any[]>([]);
     const [loaded, setLoaded] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
+    const [filtro, setFiltro] = React.useState<'semanal' | 'mensual' | 'todas'>('todas');
 
     React.useEffect(() => {
         if (!accessToken) return;
         const load = async () => {
-            const { data } = await insforge.database
-                .from('historial_entrenamientos')
-                .select('*, rutinas(nombre, imagen_cover_url)')
-                .order('fecha', { ascending: false });
-            setHistorial(data || []);
-            setLoaded(true);
+            setLoaded(false);
+            setError(null);
+            try {
+                let query = insforge.database
+                    .from('historial_entrenamientos')
+                    .select('*, rutinas(nombre, imagen_cover_url)')
+                    .order('fecha', { ascending: false });
+
+                // Apply date filters based on selection
+                if (filtro === 'semanal') {
+                    const oneWeekAgo = new Date();
+                    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                    query = query.gte('fecha', oneWeekAgo.toISOString());
+                } else if (filtro === 'mensual') {
+                    const oneMonthAgo = new Date();
+                    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+                    query = query.gte('fecha', oneMonthAgo.toISOString());
+                }
+
+                const { data, error: fetchError } = await query;
+                
+                if (fetchError) throw fetchError;
+                setHistorial(data || []);
+            } catch (err) {
+                console.error('Error loading history:', err);
+                setError('No pudimos recuperar tu bitácora. La conexión falló.');
+            } finally {
+                setLoaded(true);
+            }
         };
         load();
-    }, [accessToken]);
+    }, [accessToken, filtro]);
 
     const totalMinutos = historial.reduce((acc, h) => acc + (h.duracion_real || 0), 0);
     const totalCalorias = historial.reduce((acc, h) => acc + (h.calorias_quemadas || 0), 0);
@@ -37,9 +62,69 @@ export default function HistoryPage() {
     };
 
     if (!loaded) return (
-        <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-            <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
-            <p className="text-gray-500 font-bold animate-pulse uppercase tracking-widest text-xs">Consultando Archivos...</p>
+        <div className="max-w-4xl mx-auto px-4 pb-32 pt-2">
+            <div className="animate-pulse">
+                {/* Header Skeleton */}
+                <div className="mb-10 mt-6">
+                    <div className="flex gap-3 items-center mb-2">
+                        <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20" />
+                        <div className="h-10 w-64 bg-white/5 rounded-xl" />
+                    </div>
+                    <div className="h-4 w-40 bg-white/5 rounded-lg ml-11" />
+                </div>
+                
+                {/* Stats Dashboard Skeleton */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-10">
+                    {[1, 2, 3, 4].map(i => (
+                        <div key={i} className={`bg-[#141414] border border-white/5 p-5 sm:p-6 rounded-xl flex flex-col items-center gap-3 ${i === 3 ? 'col-span-2 md:col-span-1' : ''} ${i === 4 ? 'hidden md:flex' : ''}`}>
+                            <div className="w-8 h-8 rounded-full bg-white/5" />
+                            <div className="w-16 h-8 bg-white/10 rounded-lg" />
+                            <div className="w-20 h-3 bg-white/5 rounded-md" />
+                        </div>
+                    ))}
+                </div>
+
+                {/* List Skeleton */}
+                <div className="space-y-4">
+                    <div className="w-32 h-3 bg-white/5 rounded-md ml-2 mb-4" />
+                    {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="bg-[#141414] border border-white/5 rounded-lg p-4 sm:p-5 flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-2xl bg-white/5 shrink-0" />
+                            <div className="flex-1 space-y-2">
+                                <div className="w-48 h-5 bg-white/10 rounded-lg" />
+                                <div className="flex gap-2">
+                                    <div className="w-16 h-4 bg-white/5 rounded-full" />
+                                    <div className="w-20 h-4 bg-white/5 rounded-full" />
+                                </div>
+                            </div>
+                            <div className="w-6 h-6 rounded-md bg-white/5 shrink-0" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+
+    if (error) return (
+        <div className="max-w-4xl mx-auto px-4 pb-32 pt-12 flex justify-center">
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="max-w-md w-full bg-[#141414] border border-red-500/20 rounded-[2.5rem] p-8 sm:p-10 text-center shadow-[0_15px_60px_rgba(239,68,68,0.1)] relative overflow-hidden"
+            >
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-500/0 via-red-500 to-red-500/0" />
+                <div className="w-24 h-24 bg-red-500/10 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+                    <Activity className="w-12 h-12" />
+                </div>
+                <h2 className="text-3xl font-black text-white mb-4 tracking-tight">Acceso Denegado</h2>
+                <p className="text-gray-400 mb-8 leading-relaxed text-sm sm:text-base">{error}</p>
+                <button 
+                    onClick={() => window.location.reload()}
+                    className="w-full py-4 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 font-black uppercase tracking-widest rounded-2xl transition-all"
+                >
+                    Reestablecer Conexión
+                </button>
+            </motion.div>
         </div>
     );
 
@@ -60,14 +145,34 @@ export default function HistoryPage() {
                             Bitácora de <span className="text-orange-500">Guerra</span>
                         </h1>
                     </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        <button 
+                            onClick={() => setFiltro('semanal')}
+                            className={`px-4 py-2 bg-[#141414]/50 border border-white/10 rounded-full text-xs font-black text-white transition-all ${filtro === 'semanal' ? 'bg-orange-500/20 border-orange-500/30 text-orange-500' : 'hover:bg-white/5'}`}
+                        >
+                            Semanal
+                        </button>
+                        <button 
+                            onClick={() => setFiltro('mensual')}
+                            className={`px-4 py-2 bg-[#141414]/50 border border-white/10 rounded-full text-xs font-black text-white transition-all ${filtro === 'mensual' ? 'bg-orange-500/20 border-orange-500/30 text-orange-500' : 'hover:bg-white/5'}`}
+                        >
+                            Mensual
+                        </button>
+                        <button 
+                            onClick={() => setFiltro('todas')}
+                            className={`px-4 py-2 bg-[#141414]/50 border border-white/10 rounded-full text-xs font-black text-white transition-all ${filtro === 'todas' ? 'bg-orange-500/20 border-orange-500/30 text-orange-500' : 'hover:bg-white/5'}`}
+                        >
+                            Todas
+                        </button>
+                    </div>
                     <p className="text-gray-500 text-xs sm:text-sm font-black uppercase tracking-[0.2em] mt-1 ml-1">
-                        {historial.length} Sesiones de puro fuego.
+                        {historial.length} Sesiones de puro fuego{filtro !== 'todas' ? ` (${filtro === 'semanal' ? 'últimos 7 días' : 'último mes'})` : ''}
                     </p>
                 </div>
             </motion.div>
 
             {/* Premium Stats Dashboard - Mobile Optimized */}
-            <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-10">
+            <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-10">
                 <div className="bg-[#141414]/90 backdrop-blur-xl p-5 sm:p-6 rounded-xl border border-white/5 flex flex-col items-center text-center shadow-xl group hover:border-orange-500/20 transition-all">
                     <Trophy className="w-5 h-5 text-orange-500 mb-3 opacity-40 group-hover:opacity-100 transition-opacity" />
                     <span className="text-3xl font-black text-white leading-none mb-1">{historial.length}</span>
@@ -78,17 +183,25 @@ export default function HistoryPage() {
                     <span className="text-3xl font-black text-white leading-none mb-1">{totalMinutos}</span>
                     <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Minutos</span>
                 </div>
-                <div className="bg-[#141414]/90 backdrop-blur-xl p-5 sm:p-6 rounded-xl border border-white/5 flex flex-col items-center text-center shadow-xl group hover:border-red-500/20 transition-all col-span-2 md:col-span-1">
+                <div className="bg-[#141414]/90 backdrop-blur-xl p-5 sm:p-6 rounded-xl border border-white/5 flex flex-col items-center text-center shadow-xl group hover:border-red-500/20 transition-all">
                     <Flame className="w-5 h-5 text-red-500 mb-3 opacity-40 group-hover:opacity-100 transition-opacity" />
                     <span className="text-3xl font-black text-white leading-none mb-1">{totalCalorias}</span>
                     <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Kcal Quemadas</span>
                 </div>
-                <div className="hidden md:flex bg-gradient-to-br from-orange-500/10 to-transparent p-5 sm:p-6 rounded-xl border border-orange-500/10 flex-col items-center text-center shadow-xl">
-                    <Sparkles className="w-5 h-5 text-orange-400 mb-3" />
-                    <span className="text-3xl font-black text-orange-500 leading-none mb-1">Elite</span>
-                    <span className="text-[10px] text-orange-500/60 font-black uppercase tracking-widest">Estado</span>
-                </div>
             </motion.div>
+            
+            {/* Filter Feedback Message */}
+            {filtro !== 'todas' && (
+                <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6 text-center"
+                >
+                    <p className="text-[12px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                        Rutinas realizadas {filtro === 'semanal' ? 'esta semana' : 'este mes'}
+                    </p>
+                </motion.div>
+            )}
 
             {/* History List */}
             {historial.length > 0 ? (

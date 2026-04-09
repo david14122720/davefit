@@ -25,10 +25,12 @@ const profileSchema = z.object({
 type ProfileFormValues = z.input<typeof profileSchema>;
 
 export default function ProfilePage() {
-    const { user, perfil, accessToken, updatePerfil } = useAuth();
+    const { user, perfil, accessToken, updatePerfil, loading: authLoading } = useAuth();
     const [editing, setEditing] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
     const [userStats, setUserStats] = useState<any>(null);
+    const [loadingStats, setLoadingStats] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     // Crop UI states
     const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -38,12 +40,24 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (!user) return;
+        setLoadingStats(true);
+        setError(null);
         insforge.database
             .from('user_stats')
             .select('*')
             .eq('user_id', user.id)
             .maybeSingle()
-            .then(({ data }) => setUserStats(data));
+            .then(({ data, error: fetchError }) => {
+                if (fetchError) throw fetchError;
+                setUserStats(data);
+            })
+            .catch((err) => {
+                console.error('Error loading stats:', err);
+                setError('No pudimos cargar toda tu información clasificada.');
+            })
+            .finally(() => {
+                setLoadingStats(false);
+            });
     }, [user]);
 
     const {
@@ -186,6 +200,68 @@ export default function ProfilePage() {
         hidden: { y: 20, opacity: 0 },
         visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 24 } }
     };
+
+    const isPageLoading = authLoading || loadingStats;
+
+    if (isPageLoading) {
+        return (
+            <div className="max-w-4xl mx-auto px-4 pb-32 pt-2">
+                <div className="animate-pulse">
+                    {/* Header Skeleton */}
+                    <div className="bg-[#141414] border border-white/5 p-6 sm:p-10 rounded-xl flex flex-col items-center gap-6 mb-8">
+                        <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-xl bg-orange-500/10 border-4 border-white/5 rotate-3" />
+                        <div className="flex flex-col items-center gap-2 w-full mt-2">
+                            <div className="h-8 w-48 bg-white/10 rounded-xl mb-1" />
+                            <div className="h-4 w-32 bg-white/5 rounded-lg mb-6" />
+                            <div className="flex gap-2 mb-8">
+                                <div className="w-20 h-6 bg-white/5 rounded-full" />
+                                <div className="w-20 h-6 bg-orange-500/10 rounded-full" />
+                                <div className="w-16 h-6 bg-blue-500/10 rounded-full" />
+                            </div>
+                            <div className="w-full sm:w-48 h-14 bg-white/5 rounded-2xl" />
+                        </div>
+                    </div>
+
+                    {/* Stats Blocks Skeleton */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <div className="h-32 bg-[#141414] border border-white/5 rounded-xl p-8" />
+                        <div className="h-32 bg-[#141414] border border-white/5 rounded-xl p-8" />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className="h-28 bg-[#141414] border border-white/5 rounded-xl p-6" />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error || (!authLoading && !perfil)) {
+        return (
+            <div className="max-w-4xl mx-auto px-4 pb-32 pt-12 flex justify-center">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="max-w-md w-full bg-[#141414] border border-red-500/20 rounded-[2.5rem] p-8 sm:p-10 text-center shadow-[0_15px_60px_rgba(239,68,68,0.1)] relative overflow-hidden"
+                >
+                    <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-500/0 via-red-500 to-red-500/0" />
+                    <div className="w-24 h-24 bg-red-500/10 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+                        <div className="w-12 h-12 flex items-center justify-center rotate-45 border-4 rounded-xl border-current" />
+                    </div>
+                    <h2 className="text-3xl font-black text-white mb-4 tracking-tight">Identidad Extraviada</h2>
+                    <p className="text-gray-400 mb-8 leading-relaxed text-sm sm:text-base">{error || 'No fue posible acceder a los detalles de tu cuenta de guerrero.'}</p>
+                    <button 
+                        onClick={() => window.location.reload()}
+                        className="w-full py-4 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 font-black uppercase tracking-widest rounded-2xl transition-all"
+                    >
+                        Reestablecer Perfil
+                    </button>
+                </motion.div>
+            </div>
+        );
+    }
 
     return (
         <motion.div 
@@ -330,37 +406,47 @@ export default function ProfilePage() {
             {perfil && (
                 <div className="space-y-6">
                     <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/* Metabolism Card */}
-                        <div className="bg-[#141414]/90 backdrop-blur-3xl p-8 rounded-xl border border-white/5 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <Flame className="w-12 h-12 text-orange-500" />
-                            </div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1">Metabolismo Basal (BMR)</p>
-                            <div className="flex items-baseline gap-2 mb-4">
-                                <span className="text-5xl font-black text-white tracking-tighter">{bmr || '--'}</span>
-                                <span className="text-gray-600 text-xs font-bold uppercase tracking-widest">kcal/día</span>
-                            </div>
-                            <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-500/5 border border-orange-500/10 rounded-full w-fit">
-                                <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                                <span className="text-[9px] text-orange-500 font-black uppercase tracking-tighter">Calorías en reposo</span>
-                            </div>
-                        </div>
+                         {/* Metabolism Card */}
+                         <div className="bg-[#141414]/90 backdrop-blur-3xl p-8 rounded-xl border border-white/5 relative overflow-hidden group">
+                             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+                                 <Flame className="w-12 h-12 text-orange-500" />
+                             </div>
+                             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1">Metabolismo Basal (BMR)</p>
+                             <div className="flex items-baseline gap-2 mb-4">
+                                 <span className="text-5xl font-black text-white tracking-tighter">{bmr || '--'}</span>
+                                 <span className="text-gray-600 text-xs font-bold uppercase tracking-widest">kcal/día</span>
+                             </div>
+                             <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-500/5 border border-orange-500/10 rounded-full w-fit">
+                                 <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                                 <span className="text-[9px] text-orange-500 font-black uppercase tracking-tighter">Calorías en reposo</span>
+                             </div>
+                             {bmr !== null && (
+                                 <p className="text-[10px] text-gray-400 font-black mt-2 max-w-xs">
+                                     Calorías que tu cuerpo quema en reposo
+                                 </p>
+                             )}
+                         </div>
 
-                        {/* TDEE Card */}
-                        <div className="bg-[#141414]/90 backdrop-blur-3xl p-8 rounded-xl border border-white/5 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <Zap className="w-12 h-12 text-yellow-500" />
-                            </div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1">Gasto Calórico Diario</p>
-                            <div className="flex items-baseline gap-2 mb-4">
-                                <span className="text-5xl font-black text-white tracking-tighter">{tdee || '--'}</span>
-                                <span className="text-gray-600 text-xs font-bold uppercase tracking-widest">kcal/día</span>
-                            </div>
-                            <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/5 border border-yellow-500/10 rounded-full w-fit">
-                                <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
-                                <span className="text-[9px] text-yellow-500 font-black uppercase tracking-tighter">Gasto total real</span>
-                            </div>
-                        </div>
+                         {/* TDEE Card */}
+                         <div className="bg-[#141414]/90 backdrop-blur-3xl p-8 rounded-xl border border-white/5 relative overflow-hidden group">
+                             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+                                 <Zap className="w-12 h-12 text-yellow-500" />
+                             </div>
+                             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1">Gasto Calórico Diario</p>
+                             <div className="flex items-baseline gap-2 mb-4">
+                                 <span className="text-5xl font-black text-white tracking-tighter">{tdee || '--'}</span>
+                                 <span className="text-gray-600 text-xs font-bold uppercase tracking-widest">kcal/día</span>
+                             </div>
+                             <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/5 border border-yellow-500/10 rounded-full w-fit">
+                                 <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+                                 <span className="text-[9px] text-yellow-500 font-black uppercase tracking-tighter">Gasto total real</span>
+                             </div>
+                             {tdee !== null && (
+                                 <p className="text-[10px] text-gray-400 font-black mt-2 max-w-xs">
+                                     Estimación de calorías diarias según tu actividad y objetivo
+                                 </p>
+                             )}
+                         </div>
                     </motion.div>
 
                     {/* Stats Grid */}
