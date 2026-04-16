@@ -64,11 +64,24 @@ export default function XPBar() {
 
     if (loading) {
         return (
-            <div className="flex items-center gap-3 p-3 bg-[#141414] rounded-xl border border-white/5">
-                <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
-                <div className="flex-1 space-y-2">
-                    <div className="h-3 bg-white/10 rounded animate-pulse w-24" />
-                    <div className="h-2 bg-white/5 rounded-full animate-pulse" />
+            <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 bg-[#141414] rounded-xl border border-white/5 animate-pulse">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-white/10" />
+                        <div className="flex-1">
+                            <div className="h-3 bg-white/10 rounded w-12 mb-1" />
+                            <div className="h-4 bg-white/5 rounded w-16" />
+                        </div>
+                    </div>
+                </div>
+                <div className="p-3 bg-[#141414] rounded-xl border border-white/5 animate-pulse">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-white/10" />
+                        <div className="flex-1">
+                            <div className="h-3 bg-white/10 rounded w-12 mb-1" />
+                            <div className="h-4 bg-white/5 rounded w-16" />
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -77,57 +90,35 @@ export default function XPBar() {
     const xpActual = stats?.xp_total ?? 0;
     const nivelActual = stats?.nivel ?? 1;
     const diasRacha = stats?.dias_racha ?? 0;
-    
-    let xpAcumuladoEnNivelesAnteriores = 0;
-    for (let n = 1; n < nivelActual; n++) {
-        xpAcumuladoEnNivelesAnteriores += calcularXpParaSiguienteNivel(n);
-    }
-
-    const xpEnNivelActual = xpActual - xpAcumuladoEnNivelesAnteriores;
-    const xpParaSiguiente = calcularXpParaSiguienteNivel(nivelActual);
-    const percentage = Math.min((xpEnNivelActual / xpParaSiguiente) * 100, 100);
 
     return (
-        <div className="p-3 bg-[#141414] rounded-xl border border-white/5 hover:border-orange-500/20 transition-all">
-            <div className="flex items-center justify-between mb-2">
+        <div className="grid grid-cols-2 gap-3">
+            {/* Nivel Card */}
+            <div className="p-3 bg-[#141414] rounded-xl border border-white/5 hover:border-orange-500/20 transition-all">
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shrink-0">
                         <Zap className="w-4 h-4 text-black" />
                     </div>
-                    <div>
-                        <p className="text-xs text-gray-400 font-medium">Nivel</p>
-                        <p className="text-lg font-black text-white">{nivelActual}</p>
+                    <div className="min-w-0">
+                        <p className="text-[10px] text-gray-400 font-medium truncate">Nivel</p>
+                        <p className="text-lg font-black text-white leading-none">{nivelActual}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
-                    <div className="text-right">
-                        <p className="text-xs text-gray-400 font-medium">Racha</p>
-                        <div className="flex items-center gap-1">
-                            <Flame className={`w-4 h-4 ${diasRacha > 0 ? 'text-orange-500' : 'text-gray-600'}`} />
-                            <p className="text-sm font-bold text-white">{diasRacha}</p>
-                        </div>
-                    </div>
-                    <div className="w-px h-8 bg-white/10" />
-                    <div className="text-right">
-                        <p className="text-xs text-gray-400 font-medium">Total XP</p>
-                        <p className="text-sm font-bold text-orange-400">{(xpActual || 0).toLocaleString()}</p>
-                    </div>
-                </div>
+                <p className="text-[10px] text-orange-400 font-bold mt-1 ml-10">{xpActual.toLocaleString()} XP</p>
             </div>
-            
-            <div className="relative">
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                    <span>XP</span>
-                    <span>{xpEnNivelActual} / {xpParaSiguiente}</span>
+
+            {/* Racha Card */}
+            <div className="p-3 bg-[#141414] rounded-xl border border-white/5 hover:border-orange-500/20 transition-all">
+                <div className="flex items-center gap-2">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${diasRacha > 0 ? 'bg-gradient-to-br from-orange-500 to-red-500' : 'bg-white/5'}`}>
+                        <Flame className={`w-4 h-4 ${diasRacha > 0 ? 'text-black' : 'text-gray-600'}`} />
+                    </div>
+                    <div className="min-w-0">
+                        <p className="text-[10px] text-gray-400 font-medium truncate">Racha</p>
+                        <p className="text-lg font-black text-white leading-none">{diasRacha}</p>
+                    </div>
                 </div>
-                <div className="h-2 bg-black/50 rounded-full overflow-hidden">
-                    <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${percentage}%` }}
-                        transition={{ duration: 1, ease: 'easeOut' }}
-                        className="h-full bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.5)]"
-                    />
-                </div>
+                <p className="text-[10px] text-gray-500 font-medium mt-1 ml-10">{diasRacha > 0 ? 'días consecutivos' : 'Sin actividad'}</p>
             </div>
         </div>
     );

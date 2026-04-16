@@ -6,16 +6,23 @@ import { motion, type Variants } from 'framer-motion';
 import TimeSelector from '../components/TimeSelector';
 import XPBar from '../components/XPBar';
 import WeeklyGoal from '../components/WeeklyGoal';
+import WelcomeModal from '../components/WelcomeModal';
+import DashboardTour from '../components/DashboardTour';
 import { Play, TrendingUp, CalendarCheck, Activity, Target, Zap } from 'lucide-react';
 
 export default function DashboardPage() {
-    const { user, perfil, accessToken } = useAuth();
     const navigate = useNavigate();
+    const { user, perfil, accessToken, updatePerfil } = useAuth();
     const [historial, setHistorial] = React.useState<any[]>([]);
     const [rutinas, setRutinas] = React.useState<any[]>([]);
     const [ejercicios, setEjercicios] = React.useState<any[]>([]);
     const [loaded, setLoaded] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
     const [datosTotales, setDatosTotales] = React.useState({ count: 0, minutos: 0, calorias: 0 });
+    
+    // Onboarding State
+    const [showWelcome, setShowWelcome] = React.useState(false);
+    const [showTour, setShowTour] = React.useState(false);
 
     const userName = useMemo(() => perfil?.nombre_completo?.split(' ')[0] || user?.email?.split('@')[0] || 'Usuario', [perfil, user]);
 
@@ -29,6 +36,8 @@ export default function DashboardPage() {
     React.useEffect(() => {
         if (!accessToken) return;
         const loadData = async () => {
+            setLoaded(false);
+            setError(null);
             try {
                 const [h, r, e, countRes, sumRes] = await Promise.all([
                     insforge.database
@@ -56,12 +65,29 @@ export default function DashboardPage() {
                 });
             } catch (e) {
                 console.error('Error cargando dashboard:', e);
+                setError('No pudimos recuperar tu progreso. Los servidores están tomando un respiro.');
             } finally {
                 setLoaded(true);
             }
         };
         loadData();
     }, [accessToken]);
+
+    // Detect Onboarding need
+    React.useEffect(() => {
+        if (loaded && perfil && perfil.onboarding_completado === false) {
+            setShowWelcome(true);
+        }
+    }, [loaded, perfil?.onboarding_completado]);
+
+    const handleOnboardingComplete = async () => {
+        setShowTour(false);
+        try {
+            await updatePerfil({ onboarding_completado: true });
+        } catch (e) {
+            console.error('[Dashboard] Error al finalizar onboarding:', e);
+        }
+    };
 
     const totalEntrenamientos = datosTotales.count;
     const totalMinutos = datosTotales.minutos;
@@ -89,19 +115,116 @@ export default function DashboardPage() {
     if (!loaded) {
         return (
             <div className="max-w-6xl mx-auto animate-pulse">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                    <div className="w-64 h-10 bg-white/10 rounded-xl" />
-                    <div className="w-40 h-12 bg-white/10 rounded-xl" />
+                {/* Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-start mb-10 gap-8">
+                    <div className="flex-1">
+                        <div className="w-48 sm:w-72 h-10 bg-white/5 rounded-xl mb-3" />
+                        <div className="w-56 h-6 bg-white/5 rounded-lg" />
+                    </div>
+                    <div className="w-full md:w-auto -mt-2">
+                        <div className="w-32 h-10 bg-white/5 rounded-xl mb-4" />
+                        <div className="w-36 h-4 bg-white/5 rounded-lg ml-1" />
+                    </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
-                    <div className="h-40 bg-white/5 rounded-2xl" />
-                    <div className="h-40 bg-white/5 rounded-2xl" />
-                    <div className="h-40 bg-white/5 rounded-2xl" />
+
+                {/* XP Bar */}
+                <div className="w-full h-16 bg-white/5 rounded-2xl mb-6" />
+
+                {/* Weekly Goal */}
+                <div className="w-full h-24 bg-white/5 rounded-2xl mb-6" />
+
+                {/* 3 Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+                    <div className="h-40 bg-[#141414] border border-white/5 rounded-2xl sm:col-span-2 lg:col-span-1 p-5 sm:p-6 flex flex-col justify-between">
+                        <div className="flex justify-between items-start">
+                            <div className="space-y-3">
+                                <div className="w-16 h-3 bg-white/5 rounded" />
+                                <div className="w-24 h-6 bg-white/5 rounded" />
+                            </div>
+                            <div className="w-10 h-10 rounded-full bg-white/5" />
+                        </div>
+                        <div className="h-2 w-full bg-white/5 rounded-full mt-4" />
+                    </div>
+                    <div className="h-40 bg-gradient-to-br from-white/5 to-white/0 border border-white/5 rounded-2xl p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden">
+                        <div className="relative z-10 space-y-4">
+                            <div className="w-20 h-3 bg-white/10 rounded" />
+                            <div className="w-32 h-6 bg-white/10 rounded" />
+                            <div className="w-24 h-8 bg-white/10 rounded-lg mt-2" />
+                        </div>
+                    </div>
+                    <div className="h-40 bg-[#141414] border border-white/5 rounded-2xl p-5 sm:p-6">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="space-y-3">
+                                <div className="w-20 h-3 bg-white/5 rounded" />
+                                <div className="w-24 h-6 bg-white/5 rounded" />
+                            </div>
+                            <div className="w-10 h-10 rounded-full bg-white/5" />
+                        </div>
+                        <div className="flex gap-2 mt-6">
+                            <div className="w-16 h-6 bg-white/5 rounded-full" />
+                            <div className="w-16 h-6 bg-white/5 rounded-full" />
+                        </div>
+                    </div>
                 </div>
+
+                {/* Grid chart + list */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-                    <div className="lg:col-span-2 h-72 bg-white/5 rounded-2xl" />
-                    <div className="h-72 bg-white/5 rounded-2xl" />
+                    <div className="col-span-1 lg:col-span-2 h-[300px] bg-[#141414] border border-white/5 rounded-2xl p-6 flex flex-col justify-between">
+                        <div className="w-40 h-6 bg-white/5 rounded-lg mb-6" />
+                        <div className="flex justify-around items-end h-48 gap-2">
+                            {[1, 2, 3, 4, 5, 6, 7].map(i => (
+                                <div key={i} className="w-full flex flex-col items-center gap-2">
+                                    <div className="w-full h-1/2 bg-white/5 rounded-t-xl" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="h-[300px] bg-transparent">
+                        <div className="flex justify-between mb-4">
+                            <div className="w-20 h-6 bg-white/5 rounded-lg" />
+                            <div className="w-16 h-4 bg-white/5 rounded-lg" />
+                        </div>
+                        <div className="space-y-3">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="p-4 bg-[#141414] border border-white/5 rounded-xl h-20 flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-white/5" />
+                                    <div className="space-y-2 flex-1">
+                                        <div className="w-2/3 h-4 bg-white/5 rounded" />
+                                        <div className="w-1/2 h-3 bg-white/5 rounded" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="max-w-6xl mx-auto px-4 py-12 flex justify-center">
+                <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="max-w-lg w-full bg-[#141414] border border-red-500/20 rounded-[2.5rem] p-8 sm:p-10 text-center shadow-[0_15px_60px_rgba(239,68,68,0.1)] relative overflow-hidden"
+                >
+                    <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-500/0 via-red-500 to-red-500/0" />
+                    
+                    <div className="w-24 h-24 bg-red-500/10 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+                        <Activity className="w-12 h-12" />
+                    </div>
+                    
+                    <h2 className="text-3xl font-black text-white mb-4 tracking-tight">Sistema Estresado</h2>
+                    <p className="text-gray-400 mb-8 leading-relaxed text-sm sm:text-base">{error}</p>
+                    
+                    <button 
+                        onClick={() => window.location.reload()}
+                        className="w-full py-4 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 font-black uppercase tracking-widest rounded-2xl transition-all"
+                    >
+                        Reestablecer Conexión
+                    </button>
+                </motion.div>
             </div>
         );
     }
@@ -133,13 +256,9 @@ export default function DashboardPage() {
                 </div>
             </motion.div>
 
-            {/* XP & Streak Bar */}
-            <motion.div variants={itemVariants} className="mb-6">
+            {/* XP & Racha / Meta Semanal - Combined Compact Cards */}
+            <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3 mb-6">
                 <XPBar />
-            </motion.div>
-
-            {/* Weekly Goal */}
-            <motion.div variants={itemVariants} className="mb-6">
                 <WeeklyGoal />
             </motion.div>
 
@@ -369,6 +488,18 @@ export default function DashboardPage() {
                     </div>
                 </motion.div>
             )}
+            
+            {/* Onboarding Flow */}
+            <WelcomeModal 
+                isOpen={showWelcome} 
+                onClose={() => { setShowWelcome(false); setShowTour(true); }} 
+                userName={userName} 
+            />
+            
+            <DashboardTour 
+                isOpen={showTour} 
+                onComplete={handleOnboardingComplete} 
+            />
         </motion.div>
     );
 }
