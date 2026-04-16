@@ -59,13 +59,13 @@ export default function WeeklyGoal() {
 
     if (loading) {
         return (
-            <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-[#141414] rounded-xl border border-white/5 animate-pulse">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-white/10" />
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                <div className="p-3 sm:p-4 md:p-5 bg-[#141414] rounded-xl sm:rounded-2xl border border-white/5 animate-pulse">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-8 sm:w-10 md:w-12 h-8 sm:h-10 md:h-12 rounded-full bg-white/10" />
                         <div className="flex-1">
-                            <div className="h-3 bg-white/10 rounded w-16 mb-1" />
-                            <div className="h-4 bg-white/5 rounded w-12" />
+                            <div className="h-3 bg-white/10 rounded w-16 sm:w-20 mb-1" />
+                            <div className="h-4 sm:h-5 bg-white/5 rounded w-12 sm:w-14" />
                         </div>
                     </div>
                 </div>
@@ -74,35 +74,35 @@ export default function WeeklyGoal() {
     }
 
     return (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
             {/* Meta Semanal Card */}
             <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`p-3 rounded-xl border transition-all ${
+                className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border transition-all ${
                     metaAlcanzada 
                         ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/10 border-green-500/30' 
                         : 'bg-[#141414] border-white/5 hover:border-blue-500/20'
                 }`}
             >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 sm:gap-3">
                     {metaAlcanzada ? (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shrink-0">
-                            <Trophy className="w-4 h-4 text-black" />
+                        <div className="w-8 sm:w-10 md:w-12 h-8 sm:h-10 md:h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shrink-0">
+                            <Trophy className="w-4 sm:w-5 md:w-6 h-4 sm:h-5 md:h-6 text-black" />
                         </div>
                     ) : (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shrink-0">
-                            <Target className="w-4 h-4 text-white" />
+                        <div className="w-8 sm:w-10 md:w-12 h-8 sm:h-10 md:h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shrink-0">
+                            <Target className="w-4 sm:w-5 md:w-6 h-4 sm:h-5 md:h-6 text-white" />
                         </div>
                     )}
                     <div className="min-w-0">
-                        <p className="text-[10px] text-gray-400 font-medium truncate">Meta Semanal</p>
-                        <p className="text-lg font-black text-white leading-none">
+                        <p className="text-[10px] sm:text-xs text-gray-400 font-medium truncate">Meta Semanal</p>
+                        <p className="text-lg sm:text-xl md:text-2xl font-black text-white leading-none">
                             {metaAlcanzada ? '✓' : `${weeklyCount}/${metaSemanal}`}
                         </p>
                     </div>
                 </div>
-                <p className={`text-[10px] font-medium mt-1 ml-10 ${metaAlcanzada ? 'text-green-400' : 'text-gray-500'}`}>
+                <p className={`text-[10px] sm:text-xs font-medium mt-1 sm:mt-2 ml-10 sm:ml-12 md:ml-14 ${metaAlcanzada ? 'text-green-400' : 'text-gray-500'}`}>
                     {metaAlcanzada ? 'Completada!' : 'días entrenados'}
                 </p>
             </motion.div>
