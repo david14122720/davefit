@@ -148,6 +148,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                             console.error('[Auth] Error procesando token OAuth:', e);
                         }
                     }
+                    // Limpiar fragmento para que el token no quede visible en la URL
+                    history.replaceState(null, '', window.location.pathname + window.location.search);
                 }
             } catch (e: any) {
                 console.error('[Auth] Excepción en initSession:', e.message);
@@ -250,13 +252,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const PERFIL_ALLOWED_FIELDS = new Set([
+        'nombre_completo', 'avatar_url', 'fecha_nacimiento', 'genero',
+        'peso_actual', 'altura', 'objetivo', 'nivel',
+        'dias_entrenamiento_semana', 'preferencia_lugar', 'onboarding_completado',
+    ]);
+
     const updatePerfil = async (data: Partial<Perfil>) => {
         if (!user || !accessToken) return { error: 'No autenticado' };
 
         try {
+            const filtered: Record<string, any> = { id: user.id, updated_at: new Date().toISOString() };
+            for (const key of Object.keys(data)) {
+                if (PERFIL_ALLOWED_FIELDS.has(key)) {
+                    filtered[key] = (data as any)[key];
+                }
+            }
+
             const { error } = await insforge.database
                 .from('perfiles')
-                .upsert([{ id: user.id, ...data, updated_at: new Date().toISOString() }]);
+                .upsert([filtered]);
 
             if (error) return { error: error.message };
 

@@ -5,7 +5,7 @@ Tablero de progreso técnico de nivel senior. Recontado y sincronizado: **52 His
 | Historias de Usuario (Stories)         | Impacto | SP | Depend.   | Resp.   | ⚪ | 🟡 | 🟢 |
 |:---------------------------------------|:-------:|:--:|:----------|:--------|:-:|:--:|:--:|
 | **Epic 0: Onboarding & Config.**           |         |    |           |         |   |    |    |
-| [US-013] Onboarding Inicial (UI)       |   🔥    | 5  | Ninguna   | Gemini  |   | 🟡 |    |
+| [US-013] Onboarding Inicial (UI)       |   🔥    | 5  | Ninguna   | Gemini  |   |    | 🟢 |
 | [US-014] Selección de Objetivo         |   🔥    | 3  | DB Sync   | Gemini  |   |    | 🟢 |
 | [US-015] Nivel del Usuario             |   🔥    | 3  | DB Sync   | David   |   |    | 🟢 |
 | [US-060] Persistencia Idioma (I18N)    |    ⚡    | 2  | Epic 7    | Minimax | ⚪ |    |    |
@@ -45,7 +45,7 @@ Tablero de progreso técnico de nivel senior. Recontado y sincronizado: **52 His
 | **Epic 7: I18N (Idiomas)**                 |         |    |           |         |   |    |    |
 | [US-033/34/35/36] Detec/Trad de UI     |    ⚡    | 5  | Global    | Gemini  | ⚪ |    |    |
 | **Epic 8: Robustez & Calidad**             |         |    |           |         |   |    |    |
-| [US-058/59] Manejo de Errores & Skel   |    ⚡    | 5  | Global    | Gemini  | ⚪ |    |    |
+| [US-058/59] Manejo de Errores & Skel   |    ⚡    | 5  | Global    | Gemini  |   |    | 🟢 |
 | [US-012] CI/CD Dokploy Pipeline        |   🔥    | 8  | DevOps    | Minimax |   |    | 🟢 |
 | Integración Core (Auth/DB/SDK)         |   🔥    | 8  | Backend   | Equipo  |   |    | 🟢 |
 | **Epic 9: Experiencia & Pulido (DNA)**     |         |    |           |         |   |    |    |
@@ -78,12 +78,12 @@ Tablero de progreso técnico de nivel senior. Recontado y sincronizado: **52 His
 ## 📈 Progreso del Sprint
 
 * **Total Historias Identificadas:** 73
-* **🟢 Done:** 27
-* **🟡 In Progress:** 1
-* **⚪ To Do:** 44
+* **🟢 Done:** 29
+* **🟡 In Progress:** 0
+* **⚪ To Do:** 43
 * **🔴 Blocked:** 1 (US-052)
 
-**📊 Avance Real:** ~37% del proyecto total completado (Base 73 historias).
+**📊 Avance Real:** ~38% del proyecto total completado (Base 73 historias).
 
 ---
 

@@ -12,15 +12,19 @@ export const insforge = createClient({
     anonKey: insforgeAnonKey,
 });
 
-// Polyfill para llamar a PostgreSQL RPCs de forma nativa a través del REST API subyacente de InsForge/Supabase
+const ALLOWED_RPCS = new Set([
+    'process_workout_completion',
+]);
+
 export const invokeRpc = async (functionName: string, payload: any = {}) => {
+    if (!ALLOWED_RPCS.has(functionName)) {
+        console.error(`[InsForge] RPC no permitida: "${functionName}"`);
+        return { data: null, error: new Error(`RPC "${functionName}" no está en la lista blanca`) };
+    }
     try {
-        // Obtenemos el token del tokenManager interno del SDK
-        const token = (insforge as any)._tokenManager?.accessToken || 
-                      (insforge as any).tokenManager?.accessToken ||
-                      (insforge as any).accessToken ||
-                      null;
-        
+        const { data: sessionData } = await insforge.auth.getSession();
+        const token = sessionData?.session?.accessToken ?? null;
+
         const response = await fetch(`${insforgeUrl}/rest/v1/rpc/${functionName}`, {
             method: 'POST',
             headers: {
@@ -36,7 +40,6 @@ export const invokeRpc = async (functionName: string, payload: any = {}) => {
             return { data: null, error };
         }
         
-        // PostgREST puede devolver 204 No Content para RPCs que no retornan nada
         if (response.status === 204) {
             return { data: null, error: null };
         }

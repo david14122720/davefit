@@ -2,13 +2,25 @@ import type { APIRoute } from 'astro';
 import { insforge } from '../../lib/insforge';
 import DOMPurify from 'dompurify';
 
+const RATE_LIMIT_MS = 60000;
+
+function getClientIP(request: Request, clientAddress: string | undefined): string {
+    const forwarded = request.headers.get('x-forwarded-for');
+    if (forwarded) {
+        const ip = forwarded.split(',')[0].trim();
+        if (ip) return ip;
+    }
+    return clientAddress || 'unknown';
+}
+
 export const GET: APIRoute = async ({ url }) => {
     try {
-        const limit = parseInt(url.searchParams.get('limit') || '10');
-        
+        const rawLimit = parseInt(url.searchParams.get('limit') || '10');
+        const limit = Math.min(Math.max(isNaN(rawLimit) ? 10 : rawLimit, 1), 50);
+
         const { data, error } = await insforge.database
             .from('suggestions')
-            .select('*')
+            .select('message, rating, created_at')
             .order('created_at', { ascending: false })
             .limit(limit);
 
@@ -31,26 +43,57 @@ export const GET: APIRoute = async ({ url }) => {
     }
 };
 
-// Simple in-memory rate limit map (holds IP and timestamp of last request)
-const rateLimitMap = new Map<string, number>();
-const RATE_LIMIT_MS = 60000; // 1 minute
+const MAX_BODY_BYTES = 10240;
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
     try {
-        // Simple rate limiting by IP
-        const now = Date.now();
-        const lastRequest = rateLimitMap.get(clientAddress);
-        if (lastRequest && now - lastRequest < RATE_LIMIT_MS) {
-            return new Response(JSON.stringify({ 
-                error: 'Demasiadas solicitudes. Por favor espera un minuto.' 
-            }), {
-                status: 429,
+        const contentLength = parseInt(request.headers.get('content-length') || '0');
+        if (contentLength > MAX_BODY_BYTES) {
+            return new Response(JSON.stringify({ error: 'Cuerpo demasiado grande' }), {
+                status: 413,
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-        rateLimitMap.set(clientAddress, now);
 
-        const body = await request.json();
+        const bodyText = await request.text();
+        if (bodyText.length > MAX_BODY_BYTES) {
+            return new Response(JSON.stringify({ error: 'Cuerpo demasiado grande' }), {
+                status: 413,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        let body: Record<string, unknown>;
+        try {
+            body = JSON.parse(bodyText);
+        } catch {
+            return new Response(JSON.stringify({ error: 'JSON inválido' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        const ip = getClientIP(request, clientAddress);
+
+        const { data: recent } = await insforge.database
+            .from('suggestions')
+            .select('created_at')
+            .eq('sender_ip', ip)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+        if (recent && recent.length > 0) {
+            const elapsed = Date.now() - new Date(recent[0].created_at).getTime();
+            if (elapsed < RATE_LIMIT_MS) {
+                return new Response(JSON.stringify({ 
+                    error: 'Demasiadas solicitudes. Por favor espera un minuto.' 
+                }), {
+                    status: 429,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+        }
+
         const { message, rating } = body;
 
         if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -67,7 +110,6 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
             });
         }
 
-        // Sanitizar mensaje para prevenir XSS
         const cleanMessage = DOMPurify.sanitize(message.trim(), { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
 
         const ratingValue = typeof rating === 'number' ? Math.min(5, Math.max(0, rating)) : 0;
@@ -76,7 +118,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
             .from('suggestions')
             .insert([{
                 message: cleanMessage,
-                rating: ratingValue
+                rating: ratingValue,
+                sender_ip: ip,
             }]);
 
         if (error) {

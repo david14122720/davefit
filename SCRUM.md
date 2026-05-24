@@ -6,7 +6,7 @@ DaveFit es el sistema definitivo para crear consistencia en el entrenamiento de 
 ## 📋 Product Backlog Completo (Historias de Usuario)
 
 ### 🚀 Epic 0: Onboarding & Configuración
-* [US-013] Onboarding Inicial (Flujo bienvenida) 🟡
+* [US-013] Onboarding Inicial (Flujo bienvenida) ✅
 * [US-014] Selección de Objetivo (Grasa/Músculo/Actividad) ✅
 * [US-015] Definición de Nivel (Principiante/Intermedio/Pro) ✅
 ### 🖼 Epic 1: Gestión de Perfil & Avatar
@@ -65,8 +65,8 @@ DaveFit es el sistema definitivo para crear consistencia en el entrenamiento de 
 * [US-036] Traducción de Contenido (Ejercicios)
 
 ### 🛡 Epic 8: Robustez & Calidad
-* [US-058] Manejo de Errores & Fallback UI
-* [US-059] Estados de Carga (Skeletons UI)
+* [US-058] Manejo de Errores & Fallback UI ✅
+* [US-059] Estados de Carga (Skeletons UI) ✅
 * [US-012] Pipeline CI/CD Dokploy ✅
 * Integración Core InsForge (Auth/Database/Storage) ✅
 

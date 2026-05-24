@@ -11,7 +11,12 @@ import { Mail, Lock, User, Eye, EyeOff, Loader2, ArrowLeft, ArrowRight, CheckCir
 const registerSchema = z.object({
     fullName: z.string().min(2, 'Ingresa tu nombre completo'),
     email: z.string().email('Ingresa un correo válido'),
-    password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+    password: z
+        .string()
+        .min(8, 'La contraseña debe tener al menos 8 caracteres')
+        .regex(/[A-Z]/, 'Debe contener al menos una mayúscula')
+        .regex(/[a-z]/, 'Debe contener al menos una minúscula')
+        .regex(/[0-9]/, 'Debe contener al menos un número'),
 });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;

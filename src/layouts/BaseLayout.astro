@@ -250,32 +250,21 @@ const defaultJsonLd = {
         { passive: true },
       );
 
-      // InsForge Session Sync
+      // InsForge Session Sync — usa sessionStorage con bandera booleana, no almacena el token
       async function syncSession() {
         try {
           // @ts-expect-error local SDK types might be outdated but method exists
           const { data, error } = await insforge.auth.getCurrentSession();
 
           if (error) {
-            if (document.cookie.includes("if-access-token=")) {
-              document.cookie =
-                "if-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-            }
+            sessionStorage.removeItem("if-auth");
             return;
           }
 
           if (data?.session?.accessToken) {
-            const cookies = document.cookie.split("; ");
-            const currentToken = cookies
-              .find((row) => row.startsWith("if-access-token="))
-              ?.split("=")[1];
-
-            if (currentToken !== data.session.accessToken) {
-              document.cookie = `if-access-token=${data.session.accessToken}; path=/; max-age=604800; SameSite=Lax`;
-            }
-          } else if (document.cookie.includes("if-access-token=")) {
-            document.cookie =
-              "if-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            sessionStorage.setItem("if-auth", "1");
+          } else {
+            sessionStorage.removeItem("if-auth");
           }
         } catch (e) {
           // Silent catch
@@ -284,7 +273,7 @@ const defaultJsonLd = {
 
       // Only attempt sync if we might have a session
       const hasPossibleSession = () =>
-        document.cookie.includes("if-access-token=") ||
+        sessionStorage.getItem("if-auth") === "1" ||
         window.location.hash.includes("access_token=");
 
       if (hasPossibleSession()) {

@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, UploadCloud, Edit3, X, Zap, Flame, Check, Scale, Ruler, User as UserIcon, Calendar, Target, Sparkles } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../../lib/cropImage';
+import { validateFile } from '../../lib/fileValidation';
 
 const profileSchema = z.object({
     nombre_completo: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -159,6 +160,12 @@ export default function ProfilePage() {
     const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !accessToken || !user) return;
+        const validation = await validateFile(file, 'image/*', 5);
+        if (!validation.valid) {
+            toast.error(validation.error!);
+            e.target.value = '';
+            return;
+        }
         const reader = new FileReader();
         reader.addEventListener('load', () => setImageSrc(reader.result?.toString() || null));
         reader.readAsDataURL(file);

@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Upload, X, Loader2, Image, Video } from 'lucide-react';
 import { insforge } from '../../lib/insforge';
+import { validateFile } from '../../lib/fileValidation';
 
 interface FileUploadProps {
     value: string;
@@ -30,19 +31,21 @@ export default function FileUpload({
     const handleFile = async (file: File) => {
         if (!file) return;
         
-        // Validar tamaño (10MB por defecto)
-        if (file.size > maxSizeMB * 1024 * 1024) {
-            alert(`El archivo es demasiado grande (máx ${maxSizeMB}MB)`);
-            return;
-        }
-        
         setUploading(true);
         try {
-            const ext = file.name.split('.').pop() || 'jpg';
-            const filename = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${ext}`;
-            const path = `${folder}/${filename}`;
+            const validation = await validateFile(file, accept, maxSizeMB);
+            if (!validation.valid) {
+                alert(validation.error);
+                setUploading(false);
+                return;
+            }
 
-            const { data, error } = await insforge.storage.from(bucket).upload(path, file);
+            const path = `${folder}/${validation.safeName}`;
+            const safeFile = validation.safeType
+                ? new File([file], validation.safeName!, { type: validation.safeType })
+                : file;
+
+            const { data, error } = await insforge.storage.from(bucket).upload(path, safeFile);
             
             if (error) {
                 throw error;
