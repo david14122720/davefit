@@ -2,9 +2,11 @@
 FROM node:20.20.2-alpine AS builder
 
 # Astro inlines PUBLIC_* env vars at build time into client bundles.
-# These MUST be passed via --build-arg, not at runtime.
-ARG PUBLIC_INSFORGE_URL
-ARG PUBLIC_INSFORGE_ANON_KEY
+# Valores por defecto para build local. En Dokploy se sobreescriben via buildArgs.
+ARG PUBLIC_INSFORGE_URL=https://insforge.tesh.online
+ARG PUBLIC_INSFORGE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3OC0xMjM0LTU2NzgtOTBhYi1jZGVmMTIzNDU2NzgiLCJlbWFpbCI6ImFub25AaW5zZm9yZ2UuY29tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5OTMyNzJ9.7zrvJ3VeVawf0uhSQ7eytXUDzOZMpcOlKg5pbkx2Iik
+ENV PUBLIC_INSFORGE_URL=${PUBLIC_INSFORGE_URL}
+ENV PUBLIC_INSFORGE_ANON_KEY=${PUBLIC_INSFORGE_ANON_KEY}
 
 WORKDIR /app
 
