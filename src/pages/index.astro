@@ -5,22 +5,35 @@ import { insforge } from "../lib/insforge";
 import { BenefitsGrid } from "../app/components/BenefitsCard";
 
 // Fetch suggestions and stats directly instead of using internal fetch (SSR stability)
-const [suggestionsResult, statsResult] = await Promise.all([
-    insforge.database
-        .from('suggestions')
-        .select('*')
-        .eq('is_approved', true) // Only approved ones for the home page
-        .order('created_at', { ascending: false })
-        .limit(5),
-    insforge.database
-        .from('site_stats')
-        .select('*')
-        .eq('id', 1)
-        .maybeSingle()
-]);
+let suggestions = [];
+let dbStats = { total_exercises: 0, total_users: 0, avg_rating: 0, total_reviews: 0 };
+let fetchError = null;
 
-const suggestions = suggestionsResult.data || [];
-const dbStats = statsResult.data || { exercises: 0, users: 0, rating: 0, reviews: 0 };
+try {
+    const [suggestionsResult, statsResult] = await Promise.all([
+        insforge.database
+            .from('suggestions')
+            .select('*')
+            .eq('is_approved', true) 
+            .order('created_at', { ascending: false })
+            .limit(5),
+        insforge.database
+            .from('site_stats')
+            .select('*')
+            .eq('id', 1)
+            .maybeSingle()
+    ]);
+    
+    if (suggestionsResult.error) throw suggestionsResult.error;
+    if (statsResult.error) throw statsResult.error;
+
+    suggestions = suggestionsResult.data || [];
+    dbStats = statsResult.data || { total_exercises: 0, total_users: 0, avg_rating: 0, total_reviews: 0 };
+} catch (e) {
+    console.error('Error fetching index data:', e);
+    fetchError = "No se pudo establecer conexión con los servidores de DaveFit.";
+}
+
 const stats = {
     exercises: dbStats.total_exercises || 0,
     users: dbStats.total_users || 0,
@@ -42,6 +55,25 @@ const formatNumber = (num: number): string => {
   description="DaveFit - Entrenamientos gratuitos en casa para estudiantes. Rutinas de fitness sin equipo, yoga y ejercicios personalizados. Transforma tu habitación en tu gimnasio personal."
   image="/og-image.png"
 >
+  {fetchError ? (
+      <div class="min-h-screen flex items-center justify-center bg-[#0a0a0a] px-4">
+        <div class="max-w-lg w-full bg-[#141414] border border-red-500/20 rounded-[2.5rem] p-10 text-center shadow-[0_15px_60px_rgba(239,68,68,0.1)] relative overflow-hidden">
+            <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-500/0 via-red-500 to-red-500/0" />
+            <div class="w-24 h-24 bg-red-500/10 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+                <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            </div>
+            <h2 class="text-3xl font-black text-white mb-4 tracking-tight">Sobrecarga en la Base</h2>
+            <p class="text-gray-400 mb-8 leading-relaxed">{fetchError}</p>
+            <button 
+                onclick="window.location.reload()"
+                class="w-full py-4 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 font-black uppercase tracking-widest rounded-2xl transition-all"
+            >
+                Reintentar
+            </button>
+        </div>
+      </div>
+  ) : (
+  <Fragment>
   <!-- Hero Section con efectos lumínicos mejorados -->
   <section
     class="relative min-h-screen flex items-center pt-16 overflow-hidden bg-background-dark"
@@ -595,4 +627,6 @@ const formatNumber = (num: number): string => {
       </div>
     </div>
   </footer>
+  </Fragment>
+  )}
 </BaseLayout>

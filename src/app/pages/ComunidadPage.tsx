@@ -123,6 +123,7 @@ const LeaderboardRow = ({ user }: { user: LeaderboardUser }) => {
 export default function ComunidadPage() {
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const loadLeaderboard = useCallback(async () => {
     setLoading(true);
@@ -133,6 +134,7 @@ export default function ComunidadPage() {
 
       if (pError) {
         console.error('Error loading perfiles:', pError);
+        setError('No pudimos acceder a los datos de la comunidad en este momento.');
         return;
       }
 
@@ -142,6 +144,7 @@ export default function ComunidadPage() {
 
       if (sError) {
         console.error('Error loading stats:', sError);
+        setError('Hubo un problema al cargar las puntuaciones de los usuarios.');
         return;
       }
 
@@ -172,6 +175,7 @@ export default function ComunidadPage() {
       }
     } catch (e) {
       console.error('Exception loading leaderboard:', e);
+      setError('Ocurrió un error inesperado al conectar con el servidor.');
     } finally {
       setLoading(false);
     }
@@ -196,9 +200,44 @@ export default function ComunidadPage() {
         </div>
       </header>
 
-      {loading ? (
-        <div className="flex justify-center py-20">
-          <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(249,115,22,0.5)]" />
+      {error ? (
+        <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="max-w-md mx-auto text-center p-8 bg-[#141414] border border-red-500/20 rounded-3xl mt-12 shadow-[0_10px_40px_rgba(239,68,68,0.1)]"
+        >
+            <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-red-500/20">
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Conexión Caída</h3>
+            <p className="text-gray-400 mb-6 text-sm">{error}</p>
+            <button 
+                onClick={loadLeaderboard}
+                className="px-6 py-3 bg-red-500 hover:bg-red-400 transition-colors text-white font-bold rounded-xl text-sm w-full shadow-lg shadow-red-500/20"
+            >
+                Reintentar
+            </button>
+        </motion.div>
+      ) : loading ? (
+        <div className="w-full flex flex-col items-center animate-pulse">
+            <div className="flex flex-col sm:flex-row justify-center items-end gap-4 mb-20 mt-10 w-full px-4">
+                <div className="w-32 sm:w-40 h-48 bg-[#1a1a1a] border border-white/5 rounded-[2rem] order-2 sm:order-1" />
+                <div className="w-40 sm:w-48 h-64 bg-gradient-to-t from-orange-500/10 to-[#1a1a1a] border border-orange-500/20 rounded-[2.5rem] order-1 sm:order-2" />
+                <div className="w-32 sm:w-40 h-40 bg-[#1a1a1a] border border-white/5 rounded-[2rem] order-3 sm:order-3" />
+            </div>
+            <div className="max-w-2xl w-full space-y-4">
+                <div className="h-6 w-48 bg-white/5 rounded-lg mb-6" />
+                {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="w-full h-20 bg-white/5 rounded-2xl flex items-center px-4 gap-4">
+                        <div className="w-8 h-8 rounded-md bg-white/5" />
+                        <div className="w-12 h-12 rounded-full bg-white/10" />
+                        <div className="flex-1">
+                            <div className="w-32 h-4 bg-white/10 rounded-md mb-2" />
+                        </div>
+                        <div className="w-20 h-8 rounded-xl bg-orange-500/10" />
+                    </div>
+                ))}
+            </div>
         </div>
       ) : (
         <AnimatePresence mode="wait">

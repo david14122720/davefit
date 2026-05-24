@@ -25,6 +25,7 @@ export interface Perfil {
     preferencia_lugar?: string | null;
     rol?: string | null;
     dias_entrenamiento_semana?: number | null;
+    onboarding_completado?: boolean;
     created_at?: string;
     updated_at?: string;
 }

@@ -52,6 +52,7 @@ export default function RoutinesPage() {
 
     const [rutinas, setRutinas] = useState<Rutina[]>([]);
     const [loaded, setLoaded] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [filter, setFilter] = useState('todos');
     const [selectedRutina, setSelectedRutina] = useState<Rutina | null>(null);
     const [ejercicios, setEjercicios] = useState<RutinaEjercicio[]>([]);
@@ -60,12 +61,22 @@ export default function RoutinesPage() {
     useEffect(() => {
         if (!accessToken) return;
         const load = async () => {
-            const { data } = await insforge.database
-                .from('rutinas')
-                .select('*')
-                .order('created_at', { ascending: false });
-            setRutinas(data || []);
-            setLoaded(true);
+            setLoaded(false);
+            setError(null);
+            try {
+                const { data, error: fetchError } = await insforge.database
+                    .from('rutinas')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (fetchError) throw fetchError;
+                setRutinas(data || []);
+            } catch (err) {
+                console.error('Error loading rutinas:', err);
+                setError('No pudimos desplegar el arsenal en este momento. La conexión falló.');
+            } finally {
+                setLoaded(true);
+            }
         };
         load();
     }, [accessToken]);
@@ -144,17 +155,69 @@ export default function RoutinesPage() {
 
 
     if (!loaded) return (
-        <div className="w-full px-4 pb-20 pt-2 md:px-6">
-            <div className="max-w-6xl mx-auto animate-pulse space-y-8">
-                <div className="h-12 w-1/2 bg-white/5 rounded-2xl" />
-                <div className="flex gap-4">
-                    <div className="h-10 w-24 bg-white/5 rounded-full" />
-                    <div className="h-10 w-24 bg-white/5 rounded-full" />
+        <div className="w-full px-4 sm:px-6 pb-24 pt-2 max-w-6xl mx-auto">
+            <div className="animate-pulse">
+                {/* Header Skeleton */}
+                <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between gap-4">
+                    <div>
+                        <div className="h-10 w-48 bg-white/5 rounded-xl mb-2" />
+                        <div className="h-4 w-64 bg-white/5 rounded-lg" />
+                    </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[1, 2, 3].map(i => <div key={i} className="h-72 bg-white/5 rounded-xl" />)}
+
+                {/* Filter Panel Skeleton */}
+                <div className="bg-[#111111] border border-white/5 rounded-xl p-5 sm:p-6 mb-6 sm:mb-8 h-32">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 h-full items-end">
+                        <div className="lg:col-span-4 h-12 bg-white/5 rounded-2xl" />
+                        <div className="lg:col-span-8 flex gap-2">
+                            {[1, 2, 3, 4].map(i => <div key={i} className="flex-1 h-12 bg-white/5 rounded-2xl" />)}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Grid Skeleton */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 md:gap-6">
+                    {[1, 2, 3, 4, 5, 6].map(i => (
+                        <div key={i} className="bg-[#141414] rounded-xl border border-white/5 h-64 overflow-hidden flex flex-col">
+                            <div className="h-32 sm:h-40 relative bg-white/5">
+                                <div className="absolute top-2 left-2 w-16 h-4 bg-white/10 rounded-md" />
+                                <div className="absolute top-2 right-2 w-12 h-4 bg-white/10 rounded-md" />
+                            </div>
+                            <div className="p-4 flex-1 flex flex-col justify-end gap-2">
+                                <div className="h-5 w-3/4 bg-white/5 rounded-lg" />
+                                <div className="h-3 w-full bg-white/5 rounded-md" />
+                                <div className="h-3 w-2/3 bg-white/5 rounded-md" />
+                                <div className="mt-2 flex justify-between items-center">
+                                    <div className="h-3 w-1/4 bg-white/5 rounded-md" />
+                                    <div className="w-8 h-8 rounded-full bg-white/5" />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
+        </div>
+    );
+
+    if (error) return (
+        <div className="w-full px-4 sm:px-6 pb-24 pt-12 max-w-6xl mx-auto flex justify-center">
+            <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-md w-full bg-[#141414] border border-red-500/20 rounded-[2rem] p-8 text-center shadow-[0_15px_50px_rgba(239,68,68,0.1)]"
+            >
+                <div className="w-20 h-20 bg-red-500/10 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6 transform rotate-3 border border-red-500/20">
+                    <MonitorPlay className="w-10 h-10" />
+                </div>
+                <h2 className="text-2xl font-black text-white mb-3">Armería Cerrada</h2>
+                <p className="text-gray-400 mb-8">{error}</p>
+                <button 
+                    onClick={() => { setLoaded(false); /* The effect will not re-run, need to force reload or change state nicely, we'll reload full page for simplicity if the user clicks since the effect depends on accessToken */ window.location.reload(); }}
+                    className="w-full py-4 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase tracking-widest rounded-xl transition-all shadow-[0_10px_20px_rgba(249,115,22,0.3)]"
+                >
+                    Reintentar Conexión
+                </button>
+            </motion.div>
         </div>
     );
 

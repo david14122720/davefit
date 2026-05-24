@@ -234,21 +234,60 @@ export default function YogaPage() {
 
         {/* Loading State */}
         {loadingRutinas && (
-          <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <div className="animate-pulse">
+            <div className="h-6 w-32 bg-white/5 rounded-lg mb-4" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden h-64 flex flex-col">
+                  {/* Image Placeholder */}
+                  <div className="h-32 bg-gradient-to-br from-orange-500/10 to-purple-500/10" />
+                  
+                  {/* Content Placeholder */}
+                  <div className="p-4 flex flex-col flex-1 justify-between">
+                    <div>
+                      <div className="flex gap-2 mb-3">
+                        <div className="w-20 h-4 bg-white/10 rounded-full" />
+                        <div className="w-24 h-4 bg-white/5 rounded-full" />
+                      </div>
+                      <div className="h-5 w-3/4 bg-white/10 rounded-md mb-2" />
+                      <div className="h-4 w-full bg-white/5 rounded-md" />
+                    </div>
+                    <div className="flex justify-between items-center mt-3">
+                      <div className="w-16 h-4 bg-white/5 rounded-md" />
+                      <div className="w-24 h-8 bg-orange-500/10 rounded-lg" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
         {/* Error State */}
         {errorRutinas && (
-          <div className="text-center py-12">
-            <p className="text-red-400 mb-4">{errorRutinas}</p>
-            <button
-              onClick={() => fetchRutinas()}
-              className="px-4 py-2 bg-orange-500 text-black rounded-lg font-medium hover:bg-orange-400 transition-colors"
+          <div className="flex justify-center py-12">
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="max-w-md w-full bg-[#141414] border border-red-500/20 rounded-[2.5rem] p-8 sm:p-10 text-center shadow-[0_15px_60px_rgba(239,68,68,0.1)] relative overflow-hidden"
             >
-              Reintentar
-            </button>
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-500/0 via-red-500 to-red-500/0" />
+                <div className="w-24 h-24 bg-red-500/10 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+                    <Activity className="w-12 h-12" />
+                </div>
+                <h2 className="text-3xl font-black text-white mb-4 tracking-tight">Equilibrio Alterado</h2>
+                <p className="text-gray-400 mb-8 leading-relaxed text-sm sm:text-base">
+                  {errorRutinas.includes('Network') || errorRutinas.includes('fetch') 
+                    ? 'No pudimos acceder al templo mental. Los servidores están desconectados.'
+                    : errorRutinas}
+                </p>
+                <button 
+                    onClick={() => fetchRutinas()}
+                    className="w-full py-4 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 font-black uppercase tracking-widest rounded-2xl transition-all shadow-[0_10px_20px_rgba(239,68,68,0.15)]"
+                >
+                    Recuperar Conexión
+                </button>
+            </motion.div>
           </div>
         )}
 
