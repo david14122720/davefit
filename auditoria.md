@@ -142,7 +142,7 @@ La prioridad mas alta esta en el backend Insforge y en secretos/credenciales ope
 
 **Correccion aplicada:** Eliminada politica `user_stats_public_read` en DB via `DROP POLICY`. Ahora solo usuarios autenticados pueden leer estadisticas (via politica `Users can read all stats`). Leaderboard sigue funcionando porque se usa dentro de rutas protegidas.
 
-### 13. Bajo - La anon key esta hardcodeada en Dockerfile y scripts
+### 13. Bajo - La anon key esta hardcodeada en Dockerfile ✅ CORREGIDO
 
 **Categoria:** Configuracion / Higiene de secretos  
 **Evidencia:** `Dockerfile` define `PUBLIC_INSFORGE_URL` y `PUBLIC_INSFORGE_ANON_KEY`; `scripts/create-admin.ts` tambien contiene la anon key.
@@ -150,6 +150,8 @@ La prioridad mas alta esta en el backend Insforge y en secretos/credenciales ope
 **Impacto:** La anon key es publica por diseno, pero hardcodearla complica rotacion, separacion de entornos y revision de permisos. Tambien aumenta el riesgo de usar produccion por accidente en desarrollo.
 
 **Recomendacion:** Pasar variables en build/deploy desde el entorno o secretos del proveedor. Mantener `.env.example` sin valores reales.
+
+**Correccion aplicada:** Dockerfile reescrito: las vars PUBLIC_ ahora se pasan via `ARG --build-arg` sin valores por defecto. Se anadio HEALTHCHECK, `tini` como init, `npm ci`, produccion-only en runtime, cache limpiado, node:20.20.2-alpine fijado, y `.dockerignore` creado. El backup del Dockerfile original esta en `Dockerfile_anterior`.
 
 ### 14. Bajo - Service worker cachearia respuestas API si se reactiva
 
@@ -178,6 +180,7 @@ La prioridad mas alta esta en el backend Insforge y en secretos/credenciales ope
 - Hay validacion de magic bytes para uploads de imagen/video en `src/lib/fileValidation.ts`.
 - No se encontro uso de `dangerouslySetInnerHTML` para contenido de usuarios; React/Astro escapan texto por defecto.
 - CSP endurecida (eliminado `unsafe-eval`), `user_stats` ya no es publica, sugerencias requieren aprobacion explicita, tokens OAuth se limpian del fragmento URL, body size limitado en endpoint de sugerencias.
+- Dockerfile reescrito: sin secrets hardcodeados, HEALTHCHECK, tini, npm ci, built-in init.
 
 ## Verificaciones realizadas
 
@@ -195,7 +198,7 @@ La prioridad mas alta esta en el backend Insforge y en secretos/credenciales ope
 5. Agregar `.env.example` y limpiar `.env.production` del repo.
 6. Versionar migraciones SQL y politicas RLS.
 
-## Correcciones aplicadas en esta ronda (medios)
+## Correcciones aplicadas en esta ronda
 
 | # | Hallazgo | Estado | Archivos modificados |
 |---|----------|--------|----------------------|
@@ -206,6 +209,7 @@ La prioridad mas alta esta en el backend Insforge y en secretos/credenciales ope
 | 10 | Tokens OAuth en fragmento URL | ✅ | `AuthContext.tsx` |
 | 11 | Sugerencias sin limite de body | ✅ | `suggestions.ts` |
 | 12 | user_stats lectura publica | ✅ | RLS policy via SQL |
+| 13 | Anon key hardcodeada en Dockerfile | ✅ | `Dockerfile`, `.dockerignore` |
 
 ## Correcciones de rondas anteriores
 

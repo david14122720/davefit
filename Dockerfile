@@ -1,28 +1,29 @@
 # ---------- BUILD STAGE ----------
-FROM node:20-alpine AS builder
+FROM node:20.20.2-alpine AS builder
 
-ENV PUBLIC_INSFORGE_URL=https://insforge.tesh.online
-ENV PUBLIC_INSFORGE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3OC0xMjM0LTU2NzgtOTBhYi1jZGVmMTIzNDU2NzgiLCJlbWFpbCI6ImFub25AaW5zZm9yZ2UuY29tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5OTMyNzJ9.7zrvJ3VeVawf0uhSQ7eytXUDzOZMpcOlKg5pbkx2Iik
+# Astro inlines PUBLIC_* env vars at build time into client bundles.
+# These MUST be passed via --build-arg, not at runtime.
+ARG PUBLIC_INSFORGE_URL
+ARG PUBLIC_INSFORGE_ANON_KEY
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN npm ci && npm cache clean --force
 
 COPY . .
 RUN npm run build
 
 # ---------- RUNTIME STAGE ----------
-FROM node:20-alpine AS runner
+FROM node:20.20.2-alpine AS runner
+
+RUN apk add --no-cache nginx tini
 
 WORKDIR /app
 
-RUN apk add --no-cache nginx
-
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/public ./public
+COPY --from=builder /app/package*.json ./
+RUN npm ci --production --ignore-scripts && npm cache clean --force
 
 COPY nginx.conf /etc/nginx/http.d/default.conf
 
@@ -32,4 +33,8 @@ ENV NODE_ENV=production
 
 EXPOSE 80
 
-CMD ["sh", "-c", "nginx -g 'daemon off;' & node dist/server/entry.mjs"]
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:80/health || exit 1
+
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD sh -c 'nginx -g "daemon off;" & exec node dist/server/entry.mjs'
