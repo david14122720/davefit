@@ -21,11 +21,11 @@ export interface XpCalculation {
     xp_en_nivel_actual: number;
 }
 
-function calcularXpParaSiguienteNivel(nivel: number): number {
+export function calcularXpParaSiguienteNivel(nivel: number): number {
     return Math.floor(100 * Math.pow(nivel, 1.5));
 }
 
-function calcularRachaBonus(diasRacha: number): number {
+export function calcularRachaBonus(diasRacha: number): number {
     if (diasRacha <= 0) return 0;
     if (diasRacha <= 2) return 20;
     if (diasRacha <= 4) return 30;
