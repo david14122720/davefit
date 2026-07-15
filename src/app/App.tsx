@@ -8,9 +8,9 @@ import AdminLayout from './components/AdminLayout';
 import { Toaster } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
-import LoginPage from './pages/LoginPage';
+const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
-import DashboardPage from './pages/DashboardPage';
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const RoutinesPage = lazy(() => import('./pages/RoutinesPage'));
 const HistoryPage = lazy(() => import('./pages/HistoryPage'));
@@ -19,12 +19,15 @@ const YogaPage = lazy(() => import('./pages/YogaPage'));
 const YogaPracticePage = lazy(() => import('./pages/YogaPracticePage'));
 const WorkoutPracticePage = lazy(() => import('./pages/WorkoutPracticePage'));
 const YogaPosicionesPage = lazy(() => import('./pages/YogaPosicionesPage'));
+const NutritionPage = lazy(() => import('./pages/NutritionPage'));
+const NutritionDetailPage = lazy(() => import('./pages/NutritionDetailPage'));
 
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const AdminEjerciciosPage = lazy(() => import('./pages/AdminEjerciciosPage'));
 const AdminRutinasPage = lazy(() => import('./pages/AdminRutinasPage'));
 const AdminYogaPosicionesPage = lazy(() => import('./pages/AdminYogaPosicionesPage'));
 const AdminYogaRutinasPage = lazy(() => import('./pages/AdminYogaRutinasPage'));
+const AdminRecetasPage = lazy(() => import('./pages/AdminRecetasPage'));
 
 const PageLoader = () => (
     <div className="flex bg-[#0a0a0a] min-h-screen items-center justify-center text-white flex-col gap-4">
@@ -63,6 +66,10 @@ function MetaUpdater() {
         title: 'Rutinas de Yoga',
         description: 'Sesiones de yoga guiadas para estudiantes. Mejora tu flexibilidad, fuerza y bienestar mental.'
       },
+      '/nutricion': {
+        title: 'Nutrición',
+        description: 'Recetas saludables para estudiantes. Descubre comidas nutritivas y fáciles de preparar.'
+      },
       '/login': {
         title: 'Iniciar Sesión',
         description: 'Accede a tu cuenta de DaveFit para continuar tu viaje fitness.'
@@ -85,6 +92,8 @@ function MetaUpdater() {
       meta = { title: 'Practicar Yoga', description: 'Sigue una sesión de yoga en tiempo real con instrucciones paso a paso.' };
     } else if (!meta && path.startsWith('/rutinas/practicar')) {
       meta = { title: 'Practicar Rutina', description: 'Entrenamiento en progreso. Sigue los ejercicios de tu rutina personalizada.' };
+    } else if (!meta && path.startsWith('/nutricion/')) {
+      meta = { title: 'Receta', description: 'Detalle de receta saludable para tu alimentación.' };
     } else if (!meta && path.startsWith('/admin/')) {
       meta = { title: 'Administración', description: 'Panel de administración de DaveFit.' };
     }
@@ -164,6 +173,16 @@ export default function App() {
                                 <><MetaUpdater /><AppLayout><YogaPosicionesPage /></AppLayout></>
                             </ProtectedRoute>
                         } />
+                        <Route path="/nutricion" element={
+                            <ProtectedRoute>
+                                <><MetaUpdater /><AppLayout><NutritionPage /></AppLayout></>
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/nutricion/:id" element={
+                            <ProtectedRoute>
+                                <><MetaUpdater /><AppLayout><NutritionDetailPage /></AppLayout></>
+                            </ProtectedRoute>
+                        } />
                         <Route path="/rutinas/practicar/:rutinaId" element={
                             <ProtectedRoute>
                                 <><MetaUpdater /><WorkoutPracticePage /></>
@@ -193,6 +212,11 @@ export default function App() {
                         <Route path="/admin/yoga-rutinas" element={
                             <ProtectedRoute adminOnly>
                                 <><MetaUpdater /><AdminLayout><AdminYogaRutinasPage /></AdminLayout></>
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/admin/recetas" element={
+                            <ProtectedRoute adminOnly>
+                                <><MetaUpdater /><AdminLayout><AdminRecetasPage /></AdminLayout></>
                             </ProtectedRoute>
                         } />
 

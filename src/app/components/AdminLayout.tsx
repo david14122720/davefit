@@ -7,7 +7,8 @@ import {
     LayoutGrid,
     ArrowLeft,
     Settings,
-    LogOut
+    LogOut,
+    ChefHat
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -18,6 +19,7 @@ interface AdminLayoutProps {
 const navItems = [
     { path: '/admin', label: 'Dashboard', icon: LayoutGrid },
     { path: '/admin/ejercicios', label: 'Ejercicios', icon: Dumbbell },
+    { path: '/admin/recetas', label: 'Recetas', icon: ChefHat },
     { path: '/admin/rutinas', label: 'Rutinas', icon: ListTodo },
     { path: '/admin/yoga-posiciones', label: 'Yoga Posiciones', icon: Sparkles },
     { path: '/admin/yoga-rutinas', label: 'Yoga Rutinas', icon: Sparkles },

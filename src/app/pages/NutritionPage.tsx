@@ -1,0 +1,323 @@
+import React, { useEffect, useState, useMemo, useCallback, useTransition } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import {
+  UtensilsCrossed, Clock, Search, Flame,
+  Beef, Wheat, Droplets, SlidersHorizontal, Timer
+} from 'lucide-react';
+import { insforge } from '../../lib/insforge';
+import type { Receta } from '../lib/adminApi';
+
+type Dificultad = 'facil' | 'media' | 'dificil';
+
+const DIFICULTADES: { value: Dificultad; label: string; color: string }[] = [
+  { value: 'facil', label: 'Fácil', color: 'from-green-500/20 to-emerald-500/20 border-green-500/30' },
+  { value: 'media', label: 'Media', color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30' },
+  { value: 'dificil', label: 'Difícil', color: 'from-purple-500/20 to-violet-500/20 border-purple-500/30' },
+];
+
+const getDificultadColor = (dificultad: string): string => {
+  switch (dificultad) {
+    case 'facil': return 'text-green-400 bg-green-500/20';
+    case 'media': return 'text-blue-400 bg-blue-500/20';
+    case 'dificil': return 'text-purple-400 bg-purple-500/20';
+    default: return 'text-gray-400 bg-gray-500/20';
+  }
+};
+
+const getDificultadLabel = (dificultad: string): string => {
+  switch (dificultad) {
+    case 'facil': return 'Fácil';
+    case 'media': return 'Media';
+    case 'dificil': return 'Difícil';
+    default: return dificultad;
+  }
+};
+
+export default function NutritionPage() {
+  const navigate = useNavigate();
+  const [recetas, setRecetas] = useState<Receta[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [dificultadSeleccionada, setDificultadSeleccionada] = useState<Dificultad | null>(null);
+  const [busqueda, setBusqueda] = useState('');
+  const [tiempoMaximo, setTiempoMaximo] = useState<number | ''>('');
+  const [isPending, startTransition] = useTransition();
+
+  const fetchRecetas = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: fetchError } = await insforge.database
+        .from('recetas')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (fetchError) throw new Error(fetchError.message);
+      setRecetas(data || []);
+    } catch (e: any) {
+      console.error('[Nutrition] Error fetching recetas:', e);
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRecetas();
+  }, [fetchRecetas]);
+
+  const handleSetDificultad = useCallback((dificultad: Dificultad | null) => {
+    startTransition(() => {
+      setDificultadSeleccionada(dificultad);
+    });
+  }, []);
+
+  const recetasFiltradas = useMemo(() => {
+    return recetas.filter(receta => {
+      const matchesDificultad = dificultadSeleccionada ? receta.dificultad === dificultadSeleccionada : true;
+      const searchLower = busqueda.toLowerCase();
+      const matchesBusqueda = busqueda
+        ? receta.nombre.toLowerCase().includes(searchLower) ||
+          (receta.descripcion?.toLowerCase().includes(searchLower) ?? false)
+        : true;
+      const matchesTiempo = tiempoMaximo !== '' ? receta.tiempo_preparacion <= Number(tiempoMaximo) : true;
+      return matchesDificultad && matchesBusqueda && matchesTiempo;
+    });
+  }, [recetas, dificultadSeleccionada, busqueda, tiempoMaximo]);
+
+  const handleRecetaClick = useCallback((recetaId: string) => {
+    navigate(`/nutricion/${recetaId}`);
+  }, [navigate]);
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] p-4 sm:p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-10"
+        >
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-orange-500/20 to-green-500/20 border border-orange-500/30 mb-5 shadow-[0_0_30px_rgba(249,115,22,0.15)]">
+            <UtensilsCrossed className="w-8 h-8 text-orange-400" />
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-tight">Nutrición <span className="text-orange-500">Inteligente</span></h1>
+          <p className="text-gray-400 font-medium">Recetas saludables y fáciles de preparar para estudiantes.</p>
+        </motion.div>
+
+        {/* Filter & Search Section */}
+        <div className="bg-[#111111] border border-white/5 rounded-xl p-6 sm:p-8 mb-8 backdrop-blur-sm relative overflow-hidden">
+          {/* Subtle Background Glow for filters */}
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-orange-500/10 blur-[80px] rounded-full pointer-events-none" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end relative z-10">
+            {/* Search - Takes 4/12 columns on large screens */}
+            <div className="lg:col-span-4 space-y-3">
+              <label className="text-xs font-bold text-gray-500 flex items-center gap-2 ml-1">
+                 <Search className="w-3 h-3" /> Buscador
+              </label>
+              <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-orange-500 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="¿Qué receta buscas?"
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-4 focus:ring-orange-500/5 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Filters Container - Takes 8/12 columns */}
+            <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Dificultad Filter */}
+              <div className="space-y-3 flex-1 min-w-[200px]">
+                <div className="flex items-center justify-between ml-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                    <SlidersHorizontal className="w-3 h-3" /> Dificultad
+                  </label>
+                  {dificultadSeleccionada && (
+                    <button
+                      onClick={() => setDificultadSeleccionada(null)}
+                      className="text-[10px] text-orange-500/60 hover:text-orange-500 font-bold uppercase transition-colors"
+                    >
+                      Limpiar
+                    </button>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  {DIFICULTADES.map((d) => (
+                    <button
+                      key={d.value}
+                      onClick={() => handleSetDificultad(dificultadSeleccionada === d.value ? null : d.value)}
+                      title={d.label}
+                      className={`flex-1 flex items-center justify-center p-3 rounded-2xl border transition-all relative text-xs font-bold ${
+                        dificultadSeleccionada === d.value
+                          ? `${d.color} text-white shadow-lg shadow-black/20`
+                          : 'bg-black/20 border-white/5 text-gray-500 hover:text-gray-300 hover:border-white/10'
+                      }`}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tiempo Max Filter */}
+              <div className="space-y-3 flex-1 min-w-[200px]">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2 ml-1">
+                  <Timer className="w-3 h-3" /> Máx. minutos
+                </label>
+                <div className="relative group">
+                  <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-orange-500 transition-colors" />
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Ej: 30"
+                    value={tiempoMaximo}
+                    onChange={(e) => setTiempoMaximo(e.target.value ? Number(e.target.value) : '')}
+                    className="w-full pl-12 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-4 focus:ring-orange-500/5 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Loading State */}
+        {loading && (
+          <div className="animate-pulse">
+            <div className="h-6 w-32 bg-white/5 rounded-lg mb-4" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden h-64 flex flex-col">
+                  {/* Image Placeholder */}
+                  <div className="h-32 bg-gradient-to-br from-orange-500/10 to-green-500/10" />
+
+                  {/* Content Placeholder */}
+                  <div className="p-4 flex flex-col flex-1 justify-between">
+                    <div>
+                      <div className="flex gap-2 mb-3">
+                        <div className="w-20 h-4 bg-white/10 rounded-full" />
+                        <div className="w-24 h-4 bg-white/5 rounded-full" />
+                      </div>
+                      <div className="h-5 w-3/4 bg-white/10 rounded-md mb-2" />
+                      <div className="h-4 w-full bg-white/5 rounded-md" />
+                    </div>
+                    <div className="flex justify-between items-center mt-3">
+                      <div className="w-16 h-4 bg-white/5 rounded-md" />
+                      <div className="w-24 h-8 bg-orange-500/10 rounded-lg" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div className="flex justify-center py-12">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="max-w-md w-full bg-[#141414] border border-red-500/20 rounded-[2.5rem] p-8 sm:p-10 text-center shadow-[0_15px_60px_rgba(239,68,68,0.1)] relative overflow-hidden"
+            >
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-500/0 via-red-500 to-red-500/0" />
+              <div className="w-24 h-24 bg-red-500/10 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+                <UtensilsCrossed className="w-12 h-12" />
+              </div>
+              <h2 className="text-3xl font-black text-white mb-4 tracking-tight">Error al Cargar</h2>
+              <p className="text-gray-400 mb-8 leading-relaxed text-sm sm:text-base">
+                {error.includes('Network') || error.includes('fetch')
+                  ? 'No pudimos conectar con el servidor. La cocina está cerrada por ahora.'
+                  : error}
+              </p>
+              <button
+                onClick={() => fetchRecetas()}
+                className="w-full py-4 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 font-black uppercase tracking-widest rounded-2xl transition-all shadow-[0_10px_20px_rgba(239,68,68,0.15)]"
+              >
+                Reintentar
+              </button>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Recetas Grid */}
+        {!loading && !error && (
+          <div>
+            <h2 className="text-lg font-semibold text-white mb-4">
+              Recetas ({recetasFiltradas.length})
+            </h2>
+
+            {recetasFiltradas.length === 0 ? (
+              <div className="text-center py-12 bg-white/5 rounded-xl border border-white/10">
+                <UtensilsCrossed className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-400">No se encontraron recetas</p>
+                <p className="text-gray-500 text-sm mt-1">Intenta con otros filtros o crea una nueva receta</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {recetasFiltradas.map((receta, index) => (
+                  <motion.div
+                    key={receta.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => handleRecetaClick(receta.id)}
+                    className="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-orange-500/30 transition-colors group cursor-pointer"
+                  >
+                    {/* Card Image */}
+                    <div className="h-32 bg-gradient-to-br from-orange-500/20 to-green-500/20 flex items-center justify-center">
+                      {receta.imagen_url ? (
+                        <img
+                          src={receta.imagen_url}
+                          alt={receta.nombre}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <UtensilsCrossed className="w-12 h-12 text-orange-400/50 group-hover:text-orange-400 transition-colors" />
+                      )}
+                    </div>
+
+                    <div className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getDificultadColor(receta.dificultad)}`}>
+                          {getDificultadLabel(receta.dificultad)}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-white/10 text-gray-300 flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> {receta.tiempo_preparacion} min
+                        </span>
+                      </div>
+
+                      <h3 className="text-lg font-bold text-white mb-1">{receta.nombre}</h3>
+                      <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                        {receta.descripcion || 'Sin descripción'}
+                      </p>
+
+                      <div className="flex items-center justify-between">
+                        {receta.calorias ? (
+                          <div className="flex items-center gap-1 text-gray-400">
+                            <Flame className="w-4 h-4 text-orange-400" />
+                            <span className="text-sm">{receta.calorias} cal</span>
+                          </div>
+                        ) : (
+                          <div />
+                        )}
+
+                        <span className="text-xs text-orange-500/60 group-hover:text-orange-500 transition-colors font-medium">
+                          Ver receta →
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

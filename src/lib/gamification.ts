@@ -106,13 +106,15 @@ export function calculateXpProgress(stats: UserStats): XpCalculation {
         xpAcumuladoEnNivelesAnteriores += calcularXpParaSiguienteNivel(n);
     }
 
-    const xpEnNivelActual = xpActual - xpAcumuladoEnNivelesAnteriores;
-    const xpParaSiguiente = calcularXpParaSiguienteNivel(nivel);
+    let xpEnNivelActual = xpActual - xpAcumuladoEnNivelesAnteriores;
+    let xpParaSiguiente = calcularXpParaSiguienteNivel(nivel);
     const nivelAnterior = nivel;
 
     while (xpEnNivelActual >= xpParaSiguiente) {
         nivel++;
         xpAcumuladoEnNivelesAnteriores += xpParaSiguiente;
+        xpEnNivelActual = xpActual - xpAcumuladoEnNivelesAnteriores;
+        xpParaSiguiente = calcularXpParaSiguienteNivel(nivel);
     }
 
     return {
@@ -120,8 +122,8 @@ export function calculateXpProgress(stats: UserStats): XpCalculation {
         nivel_anterior: nivelAnterior,
         nivel_nuevo: nivel,
         subio_nivel: nivel > nivelAnterior,
-        xp_para_siguiente_nivel: calcularXpParaSiguienteNivel(nivel),
-        xp_en_nivel_actual: nivel === nivelAnterior ? xpEnNivelActual : xpEnNivelActual - (xpActual - xpAcumuladoEnNivelesAnteriores),
+        xp_para_siguiente_nivel: xpParaSiguiente,
+        xp_en_nivel_actual: xpEnNivelActual,
     };
 }
 

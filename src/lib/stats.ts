@@ -11,6 +11,8 @@ export interface WorkoutCompletion {
 export interface UserStats {
   id: string;
   user_id: string;
+  nivel: number;
+  racha_bonus: number;
   dias_racha: number;
   longest_streak: number;
   total_workouts: number;

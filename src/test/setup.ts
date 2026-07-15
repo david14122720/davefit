@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { vi, beforeAll, afterAll, afterEach } from 'vitest';
+import { vi } from 'vitest';
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -8,8 +8,8 @@ Object.defineProperty(window, 'matchMedia', {
     matches: false,
     media: query,
     onchange: null,
-    addListener: vi.fn(), // deprecated
-    removeListener: vi.fn(), // deprecated
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
@@ -24,16 +24,36 @@ class ResizeObserver {
 }
 window.ResizeObserver = ResizeObserver;
 
-/**
- * Shared mutable response for test control of InsForge mock queries.
- * Tests can import this and set `__mockDbResponse.data` / `__mockDbResponse.error`
- * to control what database queries and invokeRpc return.
- */
-export const __mockDbResponse = vi.hoisted(() => ({ data: null as any, error: null as any }));
+// ---------------------------------------------------------------------------
+// Injectable mock response for InsForge DB queries.
+// Tests import this and set data/error before calling code that hits the DB.
+// The mock builder reads from this object at resolution time (thenable,
+// maybeSingle, single) so late binding works correctly.
+//
+// Stored on globalThis because vi.mock factories are hoisted above module
+// declarations, so closure capture of a local variable doesn't work.
+// globalThis is the shared mutable store that both the mock factory and
+// test files can read/write.
+// ---------------------------------------------------------------------------
+(globalThis as any).__mockDbResponse = { data: null, error: null };
 
-// Mock InsForge SDK with full query builder chaining
+export const __mockDbResponse: { data: any; error: any } = (globalThis as any).__mockDbResponse;
+
+// Mock InsForge SDK with full query builder chaining.
+// The builder is thenable so `await chain` works for query patterns
+// that don't end with an explicit terminal method.
 vi.mock('../lib/insforge', () => {
+  const getResponse = () => (globalThis as any).__mockDbResponse || { data: null, error: null };
+
   const createQueryBuilder = () => {
+    // Late binding: resolve current mock data at call time.
+    // Reads from globalThis so tests can set __mockDbResponse.data/error
+    // between calling code and the query resolution.
+    const resolveData = () => ({
+      data: getResponse().data,
+      error: getResponse().error,
+    });
+
     const builder: Record<string, any> = {
       select: vi.fn(() => builder),
       eq: vi.fn(() => builder),
@@ -43,13 +63,14 @@ vi.mock('../lib/insforge', () => {
       gte: vi.fn(() => builder),
       range: vi.fn(() => builder),
       insert: vi.fn(() => builder),
-      single: vi.fn(() => Promise.resolve(__mockDbResponse)),
-      maybeSingle: vi.fn(() => Promise.resolve(__mockDbResponse)),
-      // Makes the builder thenable so `await chain` works for query patterns
-      // that don't end with an explicit terminal method (e.g. gte().then)
-      then: vi.fn((onFulfilled: any, onRejected: any) =>
-        Promise.resolve(__mockDbResponse).then(onFulfilled, onRejected),
-      ),
+      update: vi.fn(() => builder),
+      delete: vi.fn(() => builder),
+      // Terminal methods — resolve at call time
+      single: vi.fn(() => Promise.resolve(resolveData())),
+      maybeSingle: vi.fn(() => Promise.resolve(resolveData())),
+      // Thenable — resolves at await time
+      then: (onFulfilled: any, onRejected: any) =>
+        Promise.resolve(resolveData()).then(onFulfilled, onRejected),
     };
     return builder;
   };
@@ -64,6 +85,6 @@ vi.mock('../lib/insforge', () => {
         from: vi.fn(() => createQueryBuilder()),
       },
     },
-    invokeRpc: vi.fn(() => Promise.resolve(__mockDbResponse)),
+    invokeRpc: vi.fn(() => Promise.resolve({ data: null, error: null })),
   };
 });

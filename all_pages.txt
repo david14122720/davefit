@@ -1,0 +1,16 @@
+AdminEjerciciosPage
+AdminPage
+AdminRutinasPage
+AdminYogaPosicionesPage
+AdminYogaRutinasPage
+ComunidadPage
+DashboardPage
+HistoryPage
+LoginPage
+ProfilePage
+RegisterPage
+RoutinesPage
+WorkoutPracticePage
+YogaPage
+YogaPosicionesPage
+YogaPracticePage

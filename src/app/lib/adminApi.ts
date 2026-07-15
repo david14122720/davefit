@@ -68,6 +68,24 @@ export interface RutinaEjercicio {
     ejercicio?: Ejercicio;
 }
 
+export interface Receta {
+    id: string;
+    nombre: string;
+    descripcion: string;
+    ingredientes: string[];
+    instrucciones: string[];
+    tiempo_preparacion: number;
+    dificultad: string;
+    calorias: number | null;
+    proteinas: number | null;
+    carbos: number | null;
+    grasas: number | null;
+    imagen_url: string | null;
+    creado_por: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface RutinaConEjercicios extends Rutina {
     ejercicios?: RutinaEjercicio[];
 }
@@ -351,18 +369,83 @@ const adminApi = {
         if (error) throw error;
     },
 
+    async getRecetas(): Promise<Receta[]> {
+        const { data, error } = await insforge.database
+            .from('recetas')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        return data || [];
+    },
+
+    async createReceta(receta: Partial<Receta>): Promise<Receta> {
+        const { data, error } = await insforge.database
+            .from('recetas')
+            .insert([receta])
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    async updateReceta(id: string, receta: Partial<Receta>): Promise<Receta> {
+        const { data, error } = await insforge.database
+            .from('recetas')
+            .update(receta)
+            .eq('id', id)
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    async deleteReceta(id: string): Promise<void> {
+        const { data: receta, error: fetchError } = await insforge.database
+            .from('recetas')
+            .select('imagen_url')
+            .eq('id', id)
+            .maybeSingle();
+        
+        if (fetchError) throw fetchError;
+
+        const deleteFile = async (url: string | undefined) => {
+            if (!url) return;
+            const match = url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)$/);
+            if (match && match[1]) {
+                const path = decodeURIComponent(match[1]);
+                try {
+                    await insforge.storage.from('ejercicios').remove(path);
+                } catch (e) {
+                    console.error('[AdminApi] Error borrando archivo:', e);
+                }
+            }
+        };
+
+        if (receta) {
+            await deleteFile(receta.imagen_url);
+        }
+
+        const { error } = await insforge.database
+            .from('recetas')
+            .delete()
+            .eq('id', id);
+        if (error) throw error;
+    },
+
     async getStats() {
-        const [ejercicios, rutinas, yogaPosiciones, yogaRutinas] = await Promise.all([
+        const [ejercicios, rutinas, yogaPosiciones, yogaRutinas, recetas] = await Promise.all([
             insforge.database.from('ejercicios').select('id', { count: 'exact', head: true }),
             insforge.database.from('rutinas').select('id', { count: 'exact', head: true }),
             insforge.database.from('yoga_posiciones').select('id', { count: 'exact', head: true }),
             insforge.database.from('yoga_rutinas').select('id', { count: 'exact', head: true }),
+            insforge.database.from('recetas').select('id', { count: 'exact', head: true }),
         ]);
         return {
             ejercicios: ejercicios.count || 0,
             rutinas: rutinas.count || 0,
             yogaPosiciones: yogaPosiciones.count || 0,
             yogaRutinas: yogaRutinas.count || 0,
+            recetas: recetas.count || 0,
         };
     },
 };

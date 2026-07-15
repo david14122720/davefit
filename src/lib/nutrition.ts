@@ -31,7 +31,7 @@ function getFactorActividad(nivel: string | null | undefined, diasSemana: number
     if (d <= 1) return factoresActividad.sedentario;
     if (d <= 3) return factoresActividad.ligero;
     if (d <= 5) return factoresActividad.moderado;
-    if (d <= 7) return factoresActividad.activo;
+    if (d <= 6) return factoresActividad.activo;
     return factoresActividad.muy_activo;
 }
 

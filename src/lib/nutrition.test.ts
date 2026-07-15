@@ -56,7 +56,9 @@ describe('calcularBMR', () => {
   });
 
   it('calculates BMR for male (Mifflin-St Jeor)', () => {
-    // (10 * 80) + (6.25 * 175) - (5 * 34) + 5 = 800 + 1093.75 - 170 + 5 = 1728.75 → 1729
+    // Age = current year - 1990, birthday Jun 15 (passed before Jul 14)
+    // (10 * 80) + (6.25 * 175) - (5 * {age}) + 5 = 800 + 1093.75 - (5*age) + 5
+    // Age 36: 800 + 1093.75 - 180 + 5 = 1718.75 → 1719
     const bmr = calcularBMR({
       id: '1',
       genero: 'masculino',
@@ -64,11 +66,12 @@ describe('calcularBMR', () => {
       altura: 175,
       fecha_nacimiento: '1990-06-15',
     });
-    expect(bmr).toBe(1729);
+    expect(bmr).toBe(1719);
   });
 
   it('calculates BMR for female (Mifflin-St Jeor)', () => {
-    // (10 * 65) + (6.25 * 165) - (5 * 30) - 161 = 650 + 1031.25 - 150 - 161 = 1370.25 → 1370
+    // (10 * 65) + (6.25 * 165) - (5 * {age}) - 161
+    // Age 32: 650 + 1031.25 - 160 - 161 = 1360.25 → 1360
     const bmr = calcularBMR({
       id: '1',
       genero: 'femenino',
@@ -76,13 +79,12 @@ describe('calcularBMR', () => {
       altura: 165,
       fecha_nacimiento: '1994-03-20',
     });
-    expect(bmr).toBe(1370);
+    expect(bmr).toBe(1360);
   });
 
   it('averages male and female formulas for other genders', () => {
-    // Male: (10*70)+(6.25*170)-(5*25)+5 = 700+1062.5-125+5 = 1642.5
-    // Female: (10*70)+(6.25*170)-(5*25)-161 = 700+1062.5-125-161 = 1476.5
-    // Average: (1642.5 + 1476.5) / 2 = 1559.5 → 1560
+    // Age 26: Male=700+1062.5-130+5=1637.5, Female=700+1062.5-130-161=1471.5
+    // Average: (1637.5 + 1471.5) / 2 = 1554.5 → 1555
     const bmr = calcularBMR({
       id: '1',
       genero: 'otro',
@@ -90,7 +92,7 @@ describe('calcularBMR', () => {
       altura: 170,
       fecha_nacimiento: '2000-01-01',
     });
-    expect(bmr).toBe(1560);
+    expect(bmr).toBe(1555);
   });
 });
 
@@ -100,7 +102,7 @@ describe('calcularTDEE', () => {
   });
 
   it('calculates TDEE with activity factor', () => {
-    // BMR = 1729, factor = 1.55 (moderado from 3-5 days)
+    // BMR = 1719, factor = 1.55 (moderado from 3-5 days)
     const tdee = calcularTDEE({
       id: '1',
       genero: 'masculino',
@@ -110,8 +112,8 @@ describe('calcularTDEE', () => {
       nivel: 'intermedio',
       dias_entrenamiento_semana: 4,
     });
-    // 1729 * 1.55 = 2679.95 → 2680
-    expect(tdee).toBe(2680);
+    // 1719 * 1.55 = 2664.45 → 2664
+    expect(tdee).toBe(2664);
   });
 
   it('uses default sedentary factor when no training days provided', () => {
@@ -122,8 +124,8 @@ describe('calcularTDEE', () => {
       altura: 175,
       fecha_nacimiento: '1990-06-15',
     });
-    // BMR = 1729 * 1.2 = 2074.8 → 2075
-    expect(tdee).toBe(2075);
+    // BMR = 1719 * 1.2 = 2062.8 → 2063
+    expect(tdee).toBe(2063);
   });
 
   it('maps 0 days to sedentary', () => {
@@ -135,7 +137,7 @@ describe('calcularTDEE', () => {
       fecha_nacimiento: '1990-06-15',
       dias_entrenamiento_semana: 0,
     });
-    expect(tdee).toBe(2075); // 1729 * 1.2
+    expect(tdee).toBe(2063); // 1719 * 1.2
   });
 
   it('maps 6 days to activo', () => {
@@ -147,7 +149,7 @@ describe('calcularTDEE', () => {
       fecha_nacimiento: '1990-06-15',
       dias_entrenamiento_semana: 6,
     });
-    expect(tdee).toBe(2983); // 1729 * 1.725
+    expect(tdee).toBe(2965); // 1719 * 1.725
   });
 });
 
@@ -230,8 +232,8 @@ describe('calcularCaloriasObjetivo', () => {
       fecha_nacimiento: '1990-06-15',
       objetivo: 'mantener_forma',
     });
-    // TDEE = 1729 * 1.2 = 2075
-    expect(result.calorias).toBe(2075);
+    // TDEE = 1719 * 1.2 = 2063
+    expect(result.calorias).toBe(2063);
     expect(result.tipo).toBe('Mantenimiento');
   });
 
@@ -244,8 +246,8 @@ describe('calcularCaloriasObjetivo', () => {
       fecha_nacimiento: '1990-06-15',
       objetivo: 'perder_peso',
     });
-    // TDEE - 500 = 2075 - 500 = 1575
-    expect(result.calorias).toBe(1575);
+    // TDEE - 500 = 2063 - 500 = 1563
+    expect(result.calorias).toBe(1563);
     expect(result.tipo).toBe('Déficit calórico');
   });
 
@@ -258,8 +260,8 @@ describe('calcularCaloriasObjetivo', () => {
       fecha_nacimiento: '1990-06-15',
       objetivo: 'tonificar',
     });
-    // TDEE - 400 = 2075 - 400 = 1675
-    expect(result.calorias).toBe(1675);
+    // TDEE - 400 = 2063 - 400 = 1663
+    expect(result.calorias).toBe(1663);
   });
 
   it('returns surplus for ganar_fuerza', () => {
@@ -271,8 +273,8 @@ describe('calcularCaloriasObjetivo', () => {
       fecha_nacimiento: '1990-06-15',
       objetivo: 'ganar_fuerza',
     });
-    // TDEE + 400 = 2075 + 400 = 2475
-    expect(result.calorias).toBe(2475);
+    // TDEE + 400 = 2063 + 400 = 2463
+    expect(result.calorias).toBe(2463);
     expect(result.tipo).toBe('Superávit calórico');
   });
 
@@ -285,7 +287,7 @@ describe('calcularCaloriasObjetivo', () => {
       fecha_nacimiento: '1990-06-15',
       objetivo: 'unknown_goal',
     });
-    expect(result.calorias).toBe(2075);
+    expect(result.calorias).toBe(2063);
     expect(result.tipo).toBe('Mantenimiento');
   });
 });

@@ -127,10 +127,11 @@ describe('calcularCalorias', () => {
     expect(calcularCalorias(30, 'meditacion')).toBe(44);
   });
 
-  it('scales linearly with duration', () => {
+  it('scales approximately linearly with duration (rounding may cause small diff)', () => {
     const oneMin = calcularCalorias(1, 'ejercicio');
     const tenMin = calcularCalorias(10, 'ejercicio');
-    expect(tenMin).toBe(oneMin * 10);
+    // Math.round introduces ± deviation, but should be within 5% of linear
+    expect(Math.abs(tenMin - oneMin * 10)).toBeLessThanOrEqual(5);
   });
 
   it('gives ejercicio the highest calories per minute', () => {
