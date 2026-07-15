@@ -22,8 +22,8 @@ export const invokeRpc = async (functionName: string, payload: any = {}) => {
         return { data: null, error: new Error(`RPC "${functionName}" no está en la lista blanca`) };
     }
     try {
-        const { data: sessionData } = await insforge.auth.getSession();
-        const token = sessionData?.session?.accessToken ?? null;
+        const tokenManager = (insforge.auth as any).tokenManager;
+        const token = tokenManager?.getAccessToken() ?? null;
 
         const response = await fetch(`${insforgeUrl}/rest/v1/rpc/${functionName}`, {
             method: 'POST',

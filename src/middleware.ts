@@ -3,9 +3,9 @@ import { defineMiddleware } from 'astro:middleware';
 const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://accounts.google.com",
-  "style-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob: https:",
-  "font-src 'self'",
+  "font-src 'self' https://fonts.gstatic.com",
   "connect-src 'self' https://insforge.tesh.online",
   "frame-src https://accounts.google.com",
   "object-src 'none'",
