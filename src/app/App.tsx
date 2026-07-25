@@ -9,6 +9,8 @@ import { Toaster } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
 const BibliotecaPage = lazy(() => import('./pages/BibliotecaPage'));
+const NutritionPage = lazy(() => import('./pages/NutritionPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 import LoginPage from './pages/LoginPage';
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 import DashboardPage from './pages/DashboardPage';
@@ -26,7 +28,7 @@ const AdminYogaRutinasPage = lazy(() => import('./pages/AdminYogaRutinasPage'));
 
 const PageLoader = () => (
     <div className="flex bg-[#0a0a0a] min-h-screen items-center justify-center text-white flex-col gap-4">
-        <Loader2 className="w-10 h-10 animate-spin text-orange-500" />
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
         <span className="text-sm font-medium animate-pulse">Iniciando aplicación...</span>
     </div>
 );
@@ -60,6 +62,10 @@ function MetaUpdater() {
       '/yoga': {
         title: 'Rutinas de Yoga',
         description: 'Sesiones de yoga guiadas para estudiantes. Mejora tu flexibilidad, fuerza y bienestar mental.'
+      },
+      '/nutricion': {
+        title: 'Nutrición',
+        description: 'Descubre recetas saludables y planes de alimentación para complementar tu entrenamiento en DaveFit.'
       },
       '/biblioteca': {
         title: 'Biblioteca de Rutinas',
@@ -125,14 +131,18 @@ export default function App() {
                         <Route path="/login" element={<><MetaUpdater /><LoginPage /></>} />
                         <Route path="/register" element={<><MetaUpdater /><RegisterPage /></>} />
                         <Route path="/biblioteca" element={<><MetaUpdater /><AppLayout><BibliotecaPage /></AppLayout></>} />
-                        <Route path="/nutricion" element={<Navigate to="/biblioteca" replace />} />
+                        <Route path="/nutricion" element={<><MetaUpdater /><AppLayout><NutritionPage /></AppLayout></>} />
 
                         <Route path="/dashboard" element={
                             <ProtectedRoute>
                                 <><MetaUpdater /><AppLayout><DashboardPage /></AppLayout></>
                             </ProtectedRoute>
                         } />
-                        <Route path="/perfil" element={<><MetaUpdater /><Navigate to="/dashboard" replace /></>} />
+                        <Route path="/perfil" element={
+                            <ProtectedRoute>
+                                <><MetaUpdater /><AppLayout><ProfilePage /></AppLayout></>
+                            </ProtectedRoute>
+                        } />
                         <Route path="/rutinas" element={
                             <ProtectedRoute>
                                 <><MetaUpdater /><AppLayout><RoutinesPage /></AppLayout></>
