@@ -12,11 +12,8 @@ const BibliotecaPage = lazy(() => import('./pages/BibliotecaPage'));
 import LoginPage from './pages/LoginPage';
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 import DashboardPage from './pages/DashboardPage';
-const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const RoutinesPage = lazy(() => import('./pages/RoutinesPage'));
-const HistoryPage = lazy(() => import('./pages/HistoryPage'));
 const ComunidadPage = lazy(() => import('./pages/ComunidadPage'));
-const YogaPage = lazy(() => import('./pages/YogaPage'));
 const YogaPracticePage = lazy(() => import('./pages/YogaPracticePage'));
 const WorkoutPracticePage = lazy(() => import('./pages/WorkoutPracticePage'));
 const YogaPosicionesPage = lazy(() => import('./pages/YogaPosicionesPage'));
@@ -128,38 +125,27 @@ export default function App() {
                         <Route path="/login" element={<><MetaUpdater /><LoginPage /></>} />
                         <Route path="/register" element={<><MetaUpdater /><RegisterPage /></>} />
                         <Route path="/biblioteca" element={<><MetaUpdater /><AppLayout><BibliotecaPage /></AppLayout></>} />
+                        <Route path="/nutricion" element={<Navigate to="/biblioteca" replace />} />
 
                         <Route path="/dashboard" element={
                             <ProtectedRoute>
                                 <><MetaUpdater /><AppLayout><DashboardPage /></AppLayout></>
                             </ProtectedRoute>
                         } />
-                        <Route path="/perfil" element={
-                            <ProtectedRoute>
-                                <><MetaUpdater /><AppLayout><ProfilePage /></AppLayout></>
-                            </ProtectedRoute>
-                        } />
+                        <Route path="/perfil" element={<><MetaUpdater /><Navigate to="/dashboard" replace /></>} />
                         <Route path="/rutinas" element={
                             <ProtectedRoute>
                                 <><MetaUpdater /><AppLayout><RoutinesPage /></AppLayout></>
                             </ProtectedRoute>
                         } />
-                        <Route path="/historial" element={
-                            <ProtectedRoute>
-                                <><MetaUpdater /><AppLayout><HistoryPage /></AppLayout></>
-                            </ProtectedRoute>
-                        } />
+                        <Route path="/historial" element={<><MetaUpdater /><Navigate to="/dashboard" replace /></>} />
                         <Route path="/comunidad" element={
                             <ProtectedRoute>
                                 <><MetaUpdater /><AppLayout><ComunidadPage /></AppLayout></>
                             </ProtectedRoute>
                         } />
 
-                        <Route path="/yoga" element={
-                            <ProtectedRoute>
-                                <><MetaUpdater /><AppLayout><YogaPage /></AppLayout></>
-                            </ProtectedRoute>
-                        } />
+                        <Route path="/yoga" element={<><MetaUpdater /><Navigate to="/biblioteca" replace /></>} />
                         <Route path="/yoga/practicar/:rutinaId" element={
                             <ProtectedRoute>
                                 <><MetaUpdater /><YogaPracticePage /></>
