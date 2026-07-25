@@ -134,7 +134,7 @@ export default function WorkoutPracticePage() {
   const progreso = ((currentIndex + 1) / totalEjercicios) * 100;
 
   if (loading) return <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-8 text-center"><div className="flex flex-col items-center gap-6"><div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" /><p className="text-gray-500 font-black uppercase tracking-[0.2em] animate-pulse">Sincronizando Arsenal...</p></div></div>;
-  if (error || !currentEjercicio) return <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-8 text-center"><Dumbbell className="w-16 h-16 text-red-500 mb-6" /><p className="text-white font-black text-xl mb-8">{error || 'Objetivo Perdido'}</p><button onClick={() => navigate('/rutinas')} className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3"><ArrowLeft className="w-4 h-4" /> Volver al Cuartel</button></div>;
+  if (error || !currentEjercicio) return <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-8 text-center"><Dumbbell className="w-16 h-16 text-red-500 mb-6" /><p className="text-white font-black text-xl mb-8">{error || 'Objetivo Perdido'}</p><button onClick={() => navigate('/biblioteca')} className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3"><ArrowLeft className="w-4 h-4" /> Volver al Cuartel</button></div>;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col text-white select-none overflow-hidden touch-none sm:touch-auto">
@@ -147,7 +147,7 @@ export default function WorkoutPracticePage() {
       {/* Extreme Mobile Header */}
       <header className="relative z-40 px-6 py-4 flex flex-col gap-4 bg-[#0a0a0a]/90 backdrop-blur-3xl border-b border-white/5 sticky top-0 shadow-2xl">
         <div className="flex items-center justify-between">
-          <button onClick={() => navigate('/rutinas')} className="p-3 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 active:scale-90 transition-all">
+          <button onClick={() => navigate('/biblioteca')} className="p-3 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 active:scale-90 transition-all">
             <ArrowLeft className="w-5 h-5 text-gray-400" />
           </button>
           <div className="text-center flex-1 px-4 min-w-0">
@@ -323,7 +323,7 @@ export default function WorkoutPracticePage() {
               )}
 
               <div className="flex flex-col gap-3">
-                 <button onClick={() => navigate('/rutinas')} className="h-16 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all">Finalizar Misión</button>
+                 <button onClick={() => navigate('/biblioteca')} className="h-16 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all">Finalizar Misión</button>
                  <button onClick={() => window.location.reload()} className="h-16 bg-white/5 border border-white/5 text-gray-400 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white/10 active:scale-95 transition-all">Reiniciar Simulación</button>
               </div>
             </motion.div>
