@@ -8,6 +8,7 @@ import AdminLayout from './components/AdminLayout';
 import { Toaster } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
+const BibliotecaPage = lazy(() => import('./pages/BibliotecaPage'));
 import LoginPage from './pages/LoginPage';
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 import DashboardPage from './pages/DashboardPage';
@@ -62,6 +63,10 @@ function MetaUpdater() {
       '/yoga': {
         title: 'Rutinas de Yoga',
         description: 'Sesiones de yoga guiadas para estudiantes. Mejora tu flexibilidad, fuerza y bienestar mental.'
+      },
+      '/biblioteca': {
+        title: 'Biblioteca de Rutinas',
+        description: 'Explora todas las rutinas de ejercicios y yoga. Entrena sin equipo, en casa, gratis.'
       },
       '/login': {
         title: 'Iniciar Sesión',
@@ -122,6 +127,7 @@ export default function App() {
                         <Routes>
                         <Route path="/login" element={<><MetaUpdater /><LoginPage /></>} />
                         <Route path="/register" element={<><MetaUpdater /><RegisterPage /></>} />
+                        <Route path="/biblioteca" element={<><MetaUpdater /><AppLayout><BibliotecaPage /></AppLayout></>} />
 
                         <Route path="/dashboard" element={
                             <ProtectedRoute>
