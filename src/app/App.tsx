@@ -146,21 +146,13 @@ export default function App() {
                         } />
 
                         <Route path="/yoga" element={<><MetaUpdater /><Navigate to="/biblioteca" replace /></>} />
-                        <Route path="/yoga/practicar/:rutinaId" element={
-                            <ProtectedRoute>
-                                <><MetaUpdater /><YogaPracticePage /></>
-                            </ProtectedRoute>
-                        } />
+                        <Route path="/yoga/practicar/:rutinaId" element={<><MetaUpdater /><YogaPracticePage /></>} />
                         <Route path="/yoga/posiciones" element={
                             <ProtectedRoute>
                                 <><MetaUpdater /><AppLayout><YogaPosicionesPage /></AppLayout></>
                             </ProtectedRoute>
                         } />
-                        <Route path="/rutinas/practicar/:rutinaId" element={
-                            <ProtectedRoute>
-                                <><MetaUpdater /><WorkoutPracticePage /></>
-                            </ProtectedRoute>
-                        } />
+                        <Route path="/rutinas/practicar/:rutinaId" element={<><MetaUpdater /><WorkoutPracticePage /></>} />
 
                         <Route path="/admin" element={
                             <ProtectedRoute adminOnly>

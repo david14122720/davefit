@@ -118,32 +118,33 @@ export default function YogaPracticePage() {
 
   const handleFinalizar = useCallback(async () => {
     setIsTimerRunning(false);
-    const result = await completeSession();
-    if (!result.error) {
-      if (user && session.rutina && session.startTime) {
-        const duracionMin = Math.floor((Date.now() - session.startTime.getTime()) / 1000 / 60);
-        const xpResult = await processWorkoutCompletion(user.id, Math.max(duracionMin, 1), 'yoga');
-        if (xpResult.success) {
-          setXpResult({
-            xp_ganado: xpResult.calculation.xp_ganado,
-            nivel_nuevo: xpResult.calculation.nivel_nuevo,
-            subio_nivel: xpResult.calculation.subio_nivel,
-          });
-          celebrateCompletion();
-          if (xpResult.calculation.subio_nivel) {
-            setTimeout(celebrateLevelUp, 500);
-          }
+
+    if (user && session.rutina && session.startTime) {
+      const result = await completeSession();
+      if (result.error) {
+        toast.error('Error al guardar el progreso');
+        return;
+      }
+      const duracionMin = Math.floor((Date.now() - session.startTime.getTime()) / 1000 / 60);
+      const xpCalc = await processWorkoutCompletion(user.id, Math.max(duracionMin, 1), 'yoga');
+      if (xpCalc.success) {
+        setXpResult({
+          xp_ganado: xpCalc.calculation.xp_ganado,
+          nivel_nuevo: xpCalc.calculation.nivel_nuevo,
+          subio_nivel: xpCalc.calculation.subio_nivel,
+        });
+        celebrateCompletion();
+        if (xpCalc.calculation.subio_nivel) {
+          setTimeout(celebrateLevelUp, 500);
         }
       }
-      setShowCompletionModal(true);
-    } else {
-      toast.error('Error al guardar el progreso');
     }
+    setShowCompletionModal(true);
   }, [completeSession, user, session.rutina, session.startTime, celebrateCompletion, celebrateLevelUp]);
 
   const handleVolverInicio = useCallback(() => {
     resetSession();
-    navigate('/yoga');
+    navigate('/biblioteca');
   }, [resetSession, navigate]);
 
   if (loadingRutinas) {
@@ -163,11 +164,11 @@ export default function YogaPracticePage() {
         <XCircle className="w-16 h-16 text-red-500 mb-4" />
         <p className="text-red-400 mb-6 text-center max-w-sm">{errorRutinas}</p>
         <button
-          onClick={() => navigate('/yoga')}
+          onClick={() => navigate('/biblioteca')}
           className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
-          Volver a Yoga
+          Volver a Biblioteca
         </button>
       </div>
     );
@@ -449,7 +450,7 @@ export default function YogaPracticePage() {
                   className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-bold hover:bg-white/10 hover:border-white/20 transition-all"
                 >
                   <Home className="w-5 h-5" />
-                  Volver a Yoga
+                  Volver a Biblioteca
                 </button>
               </div>
             </motion.div>
