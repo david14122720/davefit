@@ -24,6 +24,40 @@ class ResizeObserver {
 }
 window.ResizeObserver = ResizeObserver;
 
+// Mock scrollIntoView (not available in jsdom)
+window.scrollIntoView = vi.fn();
+Element.prototype.scrollIntoView = vi.fn() as any;
+
+// Mock AudioContext for jsdom (used by useCelebration hook in XPBar)
+class MockAudioContext {
+  currentTime = 0;
+  destination = {};
+
+  createOscillator() {
+    return {
+      type: 'sine',
+      frequency: { setValueAtTime: vi.fn() },
+      connect: vi.fn(),
+      start: vi.fn(),
+      stop: vi.fn(),
+    };
+  }
+
+  createGain() {
+    return {
+      gain: {
+        setValueAtTime: vi.fn(),
+        linearRampToValueAtTime: vi.fn(),
+      },
+      connect: vi.fn(),
+    };
+  }
+
+  close() { return Promise.resolve(); }
+}
+(window as any).AudioContext = MockAudioContext;
+(window as any).webkitAudioContext = MockAudioContext;
+
 // Mock InsForge SDK if needed globally
 vi.mock('../lib/insforge', () => ({
   insforge: {
@@ -35,8 +69,9 @@ vi.mock('../lib/insforge', () => ({
       from: vi.fn(() => ({
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
+        gte: vi.fn().mockReturnThis(),
         single: vi.fn().mockReturnThis(),
-        maybeSingle: vi.fn().mockReturnThis(),
+        maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
       }))
     }
   }

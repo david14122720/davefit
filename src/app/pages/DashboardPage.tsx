@@ -6,14 +6,14 @@ import { motion, type Variants } from 'framer-motion';
 import TimeSelector from '../components/TimeSelector';
 import XPBar from '../components/XPBar';
 import WeeklyGoal from '../components/WeeklyGoal';
-import { Play, TrendingUp, CalendarCheck, Activity, Target, Zap, User, Clock, Flame, Dumbbell, ChevronRight } from 'lucide-react';
+import { Play, TrendingUp, CalendarCheck, Activity, Target, Zap, User, Clock, Flame, Dumbbell, ChevronRight, Wind, CalendarDays, BookOpen, Sparkles } from 'lucide-react';
 
-type TabId = 'resumen' | 'perfil' | 'historial';
+type TabId = 'resumen' | 'biblioteca' | 'calendario';
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'resumen', label: 'Resumen' },
-  { id: 'perfil', label: 'Perfil' },
-  { id: 'historial', label: 'Historial' },
+  { id: 'biblioteca', label: 'Biblioteca de Ejercicios' },
+  { id: 'calendario', label: 'Mi Calendario' },
 ];
 
 export default function DashboardPage() {
@@ -35,10 +35,13 @@ export default function DashboardPage() {
         return 'Buenos días';
     }, []);
 
-    // Hash-based tab routing — support /dashboard#perfil and /dashboard#historial
+    const nivel = perfil?.nivel || 'Principiante';
+    const racha = 0; // Streak data — placeholder for now
+
+    // Hash-based tab routing
     useEffect(() => {
         const hash = window.location.hash.replace('#', '');
-        if (hash === 'perfil' || hash === 'historial') {
+        if (hash === 'biblioteca' || hash === 'calendario') {
             setActiveTab(hash);
         }
     }, []);
@@ -63,9 +66,7 @@ export default function DashboardPage() {
                         .limit(10),
                     insforge.database.from('rutinas').select('*').limit(5),
                     insforge.database.from('ejercicios').select('*').limit(5),
-                    // Obtener conteo real total
                     insforge.database.from('historial_entrenamientos').select('*', { count: 'exact', head: true }),
-                    // Obtener sumas (usando rpc o calculando de una muestra mayor)
                     insforge.database.from('historial_entrenamientos').select('duracion_real, calorias_quemadas')
                 ]);
                 
@@ -94,13 +95,13 @@ export default function DashboardPage() {
     const ultimoEntrenamiento = historial[0];
     const items = rutinas.length > 0 ? rutinas : ejercicios;
 
-    // Memoize the chart "random" data so it doesn't jump on every re-render
     const chartData = useMemo(() => 
         ['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((day) => ({
             day,
             height: Math.random() * 80 + 20
         }))
-    , [totalEntrenamientos]); // Only change if new training is added
+    , [totalEntrenamientos]);
+
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
         visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -115,17 +116,17 @@ export default function DashboardPage() {
         return (
             <div className="max-w-6xl mx-auto animate-pulse">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                    <div className="w-64 h-10 bg-white/10 rounded-xl" />
-                    <div className="w-40 h-12 bg-white/10 rounded-xl" />
+                    <div className="w-64 h-10 bg-white/10 rounded-lg" />
+                    <div className="w-40 h-12 bg-white/10 rounded-lg" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
-                    <div className="h-40 bg-white/5 rounded-2xl" />
-                    <div className="h-40 bg-white/5 rounded-2xl" />
-                    <div className="h-40 bg-white/5 rounded-2xl" />
+                    <div className="h-40 bg-white/5 rounded-lg" />
+                    <div className="h-40 bg-white/5 rounded-lg" />
+                    <div className="h-40 bg-white/5 rounded-lg" />
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-                    <div className="lg:col-span-2 h-72 bg-white/5 rounded-2xl" />
-                    <div className="h-72 bg-white/5 rounded-2xl" />
+                    <div className="lg:col-span-2 h-72 bg-white/5 rounded-lg" />
+                    <div className="h-72 bg-white/5 rounded-lg" />
                 </div>
             </div>
         );
@@ -138,26 +139,32 @@ export default function DashboardPage() {
             initial="hidden"
             animate="visible"
         >
-            {/* Tab Navigation — Sticky glassmorphism */}
-            <div className="sticky top-0 z-30 pb-4 mb-6 -mx-4 px-4 bg-[#0a0a0a]/80 backdrop-blur-xl">
-                <div className="bg-[#141414]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-1 flex">
+            {/* Tab Navigation — underline style */}
+            <div className="sticky top-0 z-30 pb-4 mb-6 -mx-4 px-4 bg-background-dark/80 backdrop-blur-xl">
+                <div className="flex border-b border-white/10">
                     {TABS.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => {
                                 setActiveTab(tab.id);
-                                // Scroll suave al contenido después de cambiar tab
                                 setTimeout(() => {
                                     document.getElementById(`tab-${tab.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                 }, 50);
                             }}
-                            className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all ${
+                            className={`flex-1 py-3 px-4 text-sm font-bold transition-all relative ${
                                 activeTab === tab.id
-                                    ? 'bg-orange-500 text-black shadow-lg'
-                                    : 'text-gray-400 hover:text-white'
+                                    ? 'text-primary'
+                                    : 'text-on-surface-variant hover:text-white'
                             }`}
                         >
                             {tab.label}
+                            {activeTab === tab.id && (
+                                <motion.div
+                                    layoutId="tab-underline"
+                                    className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full"
+                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                />
+                            )}
                         </button>
                     ))}
                 </div>
@@ -166,22 +173,36 @@ export default function DashboardPage() {
             {/* ===== TAB: RESUMEN ===== */}
             {activeTab === 'resumen' && (
             <div id="tab-resumen" className="scroll-mt-24">
-                {/* Header */}
-                <motion.div variants={itemVariants} className="flex flex-col md:flex-row justify-between items-start md:items-start mb-10 gap-8">
+                {/* Header with Greeting + Badges */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row justify-between items-start md:items-start mb-8 gap-4">
                     <div className="flex-1">
-                        <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 drop-shadow-[0_0_20px_rgba(249,115,22,0.2)] tracking-tight">
-                            {saludo}, {userName}
-                        </h1>
-                        <p className="text-gray-400 font-medium text-base sm:text-lg">¿Listo para destruir tus metas de hoy?</p>
+                        <div className="flex items-center gap-3 mb-1">
+                            <h1 className="text-2xl sm:text-4xl font-bold text-white tracking-tight">
+                                {saludo}, {userName}
+                            </h1>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1.5">
+                            {/* Streak badge */}
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20">
+                                <Flame className="w-3.5 h-3.5" />
+                                {racha} días racha
+                            </span>
+                            {/* Level badge */}
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-bold border border-purple-500/20">
+                                <Zap className="w-3.5 h-3.5" />
+                                Nivel {nivel}
+                            </span>
+                        </div>
                     </div>
                     
-                    <div className="w-full md:w-auto -mt-2">
+                    <div className="w-full md:w-auto flex flex-col items-start md:items-end gap-3">
                         <TimeSelector />
                         <Link
                             to="/biblioteca"
-                            className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-orange-500 hover:text-orange-400 transition-colors ml-1"
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-on font-bold rounded-lg hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 active:scale-95"
                         >
-                            Ver todas las rutinas →
+                            <Play className="w-4 h-4" />
+                            Entrenar ahora
                         </Link>
                     </div>
                 </motion.div>
@@ -196,125 +217,59 @@ export default function DashboardPage() {
                     <WeeklyGoal />
                 </motion.div>
 
-                {/* Stats Cards */}
-                <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
-                    {/* Objetivo */}
-                    <div className="p-5 sm:p-6 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all sm:col-span-2 lg:col-span-1">
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Tu Objetivo</p>
-                                <h3 className="text-xl sm:text-2xl font-bold text-white capitalize">
-                                    {String(perfil?.objetivo || '').replace('_', ' ') || 'Por definir'}
-                                </h3>
-                            </div>
-                            <div className="w-10 h-10 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center">
-                                <Target className="w-5 h-5" />
+                {/* Stat Cards — Stitch style */}
+                <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
+                    {/* Entrenamientos esta semana */}
+                    <div className="p-5 rounded-lg bg-surface border border-white/5 hover:border-primary/30 transition-all">
+                        <div className="flex justify-between items-start mb-3">
+                            <p className="text-xs text-on-surface-variant uppercase font-bold tracking-wider">Entrenamientos</p>
+                            <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                                <Activity className="w-4 h-4" />
                             </div>
                         </div>
-                        <div className="flex justify-between text-xs font-medium mb-2">
-                            <span className="text-orange-500">Nivel {perfil?.nivel || 'No definido'}</span>
-                            <span className="text-gray-500 capitalize">{perfil?.preferencia_lugar || 'Casa'}</span>
-                        </div>
-                        <div className="h-2 bg-black/50 rounded-full overflow-hidden">
-                            <motion.div 
-                                initial={{ width: 0 }}
-                                animate={{ width: '75%' }}
-                                transition={{ duration: 1, ease: "easeOut" }}
-                                className="h-full bg-gradient-to-r from-orange-500 to-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.5)]" 
-                            />
-                        </div>
+                        <h3 className="text-2xl font-bold text-white">{totalEntrenamientos}</h3>
+                        <p className="text-xs text-on-surface-variant mt-1">esta semana</p>
                     </div>
 
-                    {/* Especial: Quick Resume (US-072) */}
-                    {ultimoEntrenamiento ? (
-                        <motion.div 
-                            variants={itemVariants}
-                            whileHover={{ scale: 1.02 }}
-                            className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-orange-600 to-orange-500 border border-orange-400/30 shadow-[0_10px_40px_rgba(249,115,22,0.3)] group cursor-pointer relative overflow-hidden"
-                            onClick={() => navigate(`/rutinas/practicar/${ultimoEntrenamiento.rutina_id}`)}
-                        >
-                            <div className="relative z-10">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-1">Continuar Misión</p>
-                                <h3 className="text-xl sm:text-2xl font-black text-white leading-tight mb-3">
-                                    {ultimoEntrenamiento.rutinas?.nombre || 'Última Rutina'}
-                                </h3>
-                                <button className="px-4 py-2 bg-white text-black text-xs font-black uppercase tracking-widest rounded-lg transition-transform group-hover:scale-105 active:scale-95">
-                                    Reanudar Ahora →
-                                </button>
-                            </div>
-                            <Play className="absolute -right-4 -bottom-4 w-32 h-32 text-white/10 rotate-12 group-hover:rotate-0 transition-transform duration-500" />
-                        </motion.div>
-                    ) : (
-                        <div className="p-5 sm:p-6 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 flex flex-col justify-center items-center text-center space-y-2">
-                            <div className="w-12 h-12 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center">
-                                <Zap className="w-6 h-6" />
-                            </div>
-                            <h3 className="text-white font-bold text-sm">Sin misiones activas</h3>
-                            <p className="text-gray-500 text-[10px]">Elige una rutina para empezar tu leyenda.</p>
-                        </div>
-                    )}
-
-                    {/* Último Entrenamiento Info */}
-                    <div className="p-5 sm:p-6 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 hover:border-yellow-500/30 transition-all">
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Último Logro</p>
-                                <h3 className="text-xl sm:text-2xl font-bold text-white">
-                                    {ultimoEntrenamiento ? '🔥 Victoria' : 'Sin datos'}
-                                </h3>
-                            </div>
-                            <div className="w-10 h-10 rounded-full bg-yellow-500/10 text-yellow-500 flex items-center justify-center">
-                                <CalendarCheck className="w-5 h-5" />
+                    {/* Calorías quemadas */}
+                    <div className="p-5 rounded-lg bg-surface border border-white/5 hover:border-primary/30 transition-all">
+                        <div className="flex justify-between items-start mb-3">
+                            <p className="text-xs text-on-surface-variant uppercase font-bold tracking-wider">Calorías</p>
+                            <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                                <Flame className="w-4 h-4" />
                             </div>
                         </div>
-                        {ultimoEntrenamiento ? (
-                            <div className="flex flex-col gap-1 mt-4">
-                                <div className="flex items-center gap-2 text-sm font-medium">
-                                    <span className="bg-white/5 px-3 py-1 rounded-full text-gray-300">{ultimoEntrenamiento.duracion_real || 0} min</span>
-                                    <span className="bg-white/5 px-3 py-1 rounded-full text-gray-300">{ultimoEntrenamiento.calorias_quemadas || 0} kcal</span>
-                                </div>
-                                <p className="text-[10px] text-gray-500 mt-2 uppercase tracking-widest font-bold">
-                                    {new Date(ultimoEntrenamiento.fecha).toLocaleDateString()}
-                                </p>
-                            </div>
-                        ) : (
-                            <p className="text-sm text-gray-500 mt-4">Tus hazañas aparecerán aquí.</p>
-                        )}
+                        <h3 className="text-2xl font-bold text-white">{totalCalorias}</h3>
+                        <p className="text-xs text-on-surface-variant mt-1">kcal quemadas</p>
                     </div>
 
-                    {/* Total */}
-                    <div className="p-5 sm:p-6 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 hover:border-red-500/30 transition-all cursor-default">
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Actividad Total</p>
-                                <div className="flex items-baseline gap-2">
-                                    <h3 className="text-3xl font-bold text-white">{totalEntrenamientos}</h3>
-                                    <span className="text-gray-500 text-sm font-medium uppercase tracking-tighter">batallas</span>
-                                </div>
-                            </div>
-                            <div className="w-10 h-10 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center">
-                                <Activity className="w-5 h-5" />
+                    {/* Minutos activos */}
+                    <div className="p-5 rounded-lg bg-surface border border-white/5 hover:border-primary/30 transition-all">
+                        <div className="flex justify-between items-start mb-3">
+                            <p className="text-xs text-on-surface-variant uppercase font-bold tracking-wider">Minutos</p>
+                            <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                                <Clock className="w-4 h-4" />
                             </div>
                         </div>
-                        <p className="text-sm text-gray-500 mt-4 leading-relaxed">
-                            <span className="text-orange-400 font-bold">{totalMinutos}</span> min acumulados <br/>
-                            <span className="text-yellow-400 font-bold">{totalCalorias}</span> kcal quemadas
-                        </p>
+                        <h3 className="text-2xl font-bold text-white">{totalMinutos}</h3>
+                        <p className="text-xs text-on-surface-variant mt-1">min activos</p>
                     </div>
                 </motion.div>
 
                 {/* Content Grid */}
                 <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-                    {/* Activity or Empty State */}
-                    <div className="lg:col-span-2 p-6 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5">
+                    {/* Activity / Weekly Chart */}
+                    <div className="lg:col-span-2 p-6 rounded-lg bg-surface border border-white/5">
                         {totalEntrenamientos > 0 ? (
                             <>
-                                <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-orange-500"/> Frecuencia Semanal</h2>
+                                <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                                    <TrendingUp className="w-5 h-5 text-primary" /> Actividad Semanal
+                                </h2>
                                 <div className="flex items-center gap-2 mb-6 flex-wrap">
-                                    <span className="text-gray-400 text-sm">Has acumulado</span>
-                                    <span className="text-xl font-bold text-white bg-orange-500/10 px-2 py-1 rounded-lg text-orange-400">{totalMinutos} min</span>
-                                    <span className="text-gray-400 text-sm">y</span>
-                                    <span className="text-xl font-bold text-white bg-yellow-500/10 px-2 py-1 rounded-lg text-yellow-400">{totalCalorias} kcal</span>
+                                    <span className="text-on-surface-variant text-sm">Has acumulado</span>
+                                    <span className="text-xl font-bold text-white bg-primary/10 px-2 py-1 rounded-lg text-primary">{totalMinutos} min</span>
+                                    <span className="text-on-surface-variant text-sm">y</span>
+                                    <span className="text-xl font-bold text-white bg-primary/10 px-2 py-1 rounded-lg text-primary">{totalCalorias} kcal</span>
                                 </div>
                                 <div className="h-48 flex items-end justify-around gap-2">
                                     {chartData.map((data, i) => (
@@ -323,224 +278,282 @@ export default function DashboardPage() {
                                                 initial={{ height: 0 }}
                                                 animate={{ height: `${data.height}%` }}
                                                 transition={{ duration: 0.8, delay: i * 0.1, ease: "easeOut" }}
-                                                className="w-full rounded-t-lg bg-gradient-to-t from-orange-500/20 to-orange-500/80 shadow-[0_-5px_15px_rgba(249,115,22,0.1)]"
+                                                className="w-full rounded-t-lg bg-gradient-to-t from-primary/20 to-primary/80 shadow-[0_-5px_15px_rgba(19,236,91,0.1)]"
                                             />
-                                            <span className="text-xs font-bold text-gray-500">{data.day}</span>
+                                            <span className="text-xs font-bold text-on-surface-variant">{data.day}</span>
                                         </div>
                                     ))}
                                 </div>
                             </>
                         ) : (
                             <div className="text-center py-12">
-                                <div className="text-6xl mb-4">📊</div>
+                                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+                                    <TrendingUp className="w-8 h-8 text-text-muted" />
+                                </div>
                                 <h2 className="text-xl font-bold text-white mb-2">Sin actividad registrada</h2>
-                                <p className="text-gray-400 mb-6">Completa tu primer entrenamiento para ver tu gráfica aquí</p>
-                                <Link to="/biblioteca" className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 text-white font-bold rounded-lg hover:bg-white/10 transition-colors">
+                                <p className="text-on-surface-variant mb-6">Completa tu primer entrenamiento para ver tu gráfica aquí</p>
+                                <Link to="/biblioteca" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-on font-bold rounded-lg hover:bg-primary-hover transition-all shadow-lg shadow-primary/20">
                                     Explorar Rutinas
                                 </Link>
                             </div>
                         )}
                     </div>
 
-                    {/* Rutinas / Ejercicios */}
+                    {/* Next Workout / Suggestion */}
                     <div>
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-bold text-white">
-                                {rutinas.length > 0 ? 'Rutinas' : 'Ejercicios'}
-                            </h2>
-                            <Link
-                                to={rutinas.length > 0 ? '/biblioteca' : '/admin/ejercicios'}
-                                className="text-sm text-orange-500 hover:text-orange-400 font-bold transition-colors"
+                        {ultimoEntrenamiento ? (
+                            <motion.div
+                                variants={itemVariants}
+                                className="p-5 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 group cursor-pointer relative overflow-hidden"
+                                onClick={() => navigate(`/rutinas/practicar/${ultimoEntrenamiento.rutina_id}`)}
                             >
-                                Ver todo →
-                            </Link>
-                        </div>
-
-                        {items.length > 0 ? (
-                            <div className="space-y-3">
-                                {items.slice(0, 4).map((item: any, i: number) => (
-                                    <motion.div 
-                                        key={item.id} 
-                                        whileHover={{ scale: 1.02, x: 5 }}
-                                        onClick={() => navigate('/biblioteca')}
-                                        className="p-4 rounded-xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 hover:border-orange-500/30 transition-all cursor-pointer group"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center text-xl">
-                                                {i === 0 ? '🔥' : i === 1 ? '💪' : '🧘'}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className="font-bold text-white group-hover:text-orange-500 transition-colors truncate">{item.nombre}</h4>
-                                                <p className="text-xs text-gray-500 capitalize font-medium">{item.nivel} • {item.duracion_estimada || 30} min</p>
-                                            </div>
-                                            <div className="text-gray-600 group-hover:text-orange-500 opacity-0 group-hover:opacity-100 transition-all">
-                                                →
-                                            </div>
+                                <div className="relative z-10">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                                            <Play className="w-4 h-4 text-primary" />
                                         </div>
-                                    </motion.div>
-                                ))}
-                            </div>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-primary">Siguiente Entreno</p>
+                                    </div>
+                                    <h3 className="text-lg font-bold text-white leading-tight mb-3">
+                                        {ultimoEntrenamiento.rutinas?.nombre || 'Última Rutina'}
+                                    </h3>
+                                    <div className="flex items-center gap-2 text-xs text-on-surface-variant mb-3">
+                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{ultimoEntrenamiento.duracion_real || 30} min</span>
+                                        <span>•</span>
+                                        <span className="flex items-center gap-1"><Flame className="w-3 h-3" />{ultimoEntrenamiento.calorias_quemadas || 0} kcal</span>
+                                    </div>
+                                    <button className="px-4 py-2 bg-primary text-primary-on text-xs font-black uppercase tracking-widest rounded-lg transition-transform group-hover:scale-105 active:scale-95">
+                                        Reanudar Ahora →
+                                    </button>
+                                </div>
+                            </motion.div>
                         ) : (
-                            <div className="p-8 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 text-center space-y-3">
-                                <div className="text-5xl">⚡</div>
-                                <h4 className="text-white font-bold">¡Arsenal vacío!</h4>
-                                <p className="text-gray-500 text-xs">Crea tu primera rutina o explora los ejercicios para empezar tu transformación.</p>
-                                <Link 
-                                    to="/admin/rutinas"
-                                    className="inline-block mt-2 text-xs font-bold text-orange-500 hover:text-orange-400"
+                            <div className="p-5 rounded-lg bg-surface border border-white/5 flex flex-col justify-center items-center text-center space-y-2">
+                                <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                                    <Sparkles className="w-6 h-6" />
+                                </div>
+                                <h3 className="text-white font-bold text-sm">Sin entrenos aún</h3>
+                                <p className="text-on-surface-variant text-xs">Elige una rutina para empezar</p>
+                                <Link
+                                    to="/biblioteca"
+                                    className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-on text-xs font-bold rounded-lg hover:bg-primary-hover transition-all"
                                 >
-                                    Crear Rutina Ahora →
+                                    <Dumbbell className="w-3.5 h-3.5" />
+                                    Explorar Rutinas
                                 </Link>
                             </div>
                         )}
+
+                        {/* Next workout card / suggestion */}
+                        <motion.div variants={itemVariants} className="mt-4 p-5 rounded-lg bg-surface border border-white/5 hover:border-primary/30 transition-all">
+                            <div className="flex justify-between items-start mb-3">
+                                <div>
+                                    <p className="text-xs text-on-surface-variant uppercase font-bold tracking-wider mb-1">Tu Objetivo</p>
+                                    <h3 className="text-lg font-bold text-white capitalize">
+                                        {String(perfil?.objetivo || '').replace('_', ' ') || 'Por definir'}
+                                    </h3>
+                                </div>
+                                <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                                    <Target className="w-4 h-4" />
+                                </div>
+                            </div>
+                            <div className="flex justify-between text-xs font-medium mb-2">
+                                <span className="text-primary">Nivel {perfil?.nivel || 'No definido'}</span>
+                                <span className="text-on-surface-variant capitalize">{perfil?.preferencia_lugar || 'Casa'}</span>
+                            </div>
+                            <div className="h-2 bg-black/50 rounded-full overflow-hidden">
+                                <motion.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: '75%' }}
+                                    transition={{ duration: 1, ease: "easeOut" }}
+                                    className="h-full bg-gradient-to-r from-primary to-primary-light shadow-[0_0_10px_rgba(19,236,91,0.5)]" 
+                                />
+                            </div>
+                        </motion.div>
                     </div>
                 </motion.div>
 
-                {/* Historial Reciente */}
+                {/* Recent Sessions */}
                 {historial.length > 0 && (
                     <motion.div variants={itemVariants} className="mt-8">
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-bold text-white">Últimas Sesiones</h2>
+                            <h2 className="text-lg font-bold text-white">Últimas Sesiones</h2>
                             <button
                                 onClick={() => {
-                                    setActiveTab('historial');
+                                    setActiveTab('calendario');
                                     setTimeout(() => {
-                                        document.getElementById('tab-historial')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                        document.getElementById('tab-calendario')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                     }, 50);
                                 }}
-                                className="text-sm text-orange-500 hover:text-orange-400 font-bold transition-colors"
+                                className="text-sm text-primary hover:text-primary-light font-bold transition-colors"
                             >
                                 Ver todo →
                             </button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {historial.slice(0, 3).map((entrada: any) => (
-                                <div key={entrada.id} className="p-4 rounded-xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 hover:border-green-500/30 transition-all flex items-center gap-4 group cursor-pointer">
-                                    <div className="w-12 h-12 rounded-xl bg-green-500/10 text-green-500 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <div key={entrada.id} className="p-4 rounded-lg bg-surface border border-white/5 hover:border-primary/30 transition-all flex items-center gap-4 group cursor-pointer">
+                                    <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                                         <Activity className="w-5 h-5" />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="font-bold text-white truncate capitalize">
                                             {new Date(entrada.fecha).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}
                                         </p>
-                                        <p className="text-xs text-gray-500 font-medium"> <span className="text-green-400">{entrada.duracion_real || 0}m</span> • {entrada.calorias_quemadas || 0} kcal</p>
+                                        <p className="text-xs text-on-surface-variant font-medium">
+                                            <span className="text-primary">{entrada.duracion_real || 0}m</span> • {entrada.calorias_quemadas || 0} kcal
+                                        </p>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </motion.div>
                 )}
-            </div>
-            )}
 
-            {/* ===== TAB: PERFIL ===== */}
-            {activeTab === 'perfil' && (
-            <div id="tab-perfil" className="scroll-mt-24 space-y-6">
-                <motion.div variants={itemVariants} className="flex flex-col items-center py-8">
-                    {/* Avatar */}
-                    {perfil?.avatar_url ? (
-                        <img
-                            src={perfil.avatar_url}
-                            alt="Avatar"
-                            className="w-32 h-32 rounded-full object-cover border-4 border-orange-500/30 shadow-[0_0_40px_rgba(249,115,22,0.15)]"
-                        />
-                    ) : (
-                        <div className="w-32 h-32 rounded-full bg-orange-500/20 border-4 border-orange-500/30 flex items-center justify-center shadow-[0_0_40px_rgba(249,115,22,0.15)]">
-                            <span className="text-5xl font-black text-orange-500">
-                                {(perfil?.nombre_completo || user?.email || '?')[0]?.toUpperCase() || '?'}
-                            </span>
-                        </div>
-                    )}
-                    
-                    {/* Name & Email */}
-                    <h2 className="text-2xl font-bold text-white mt-5">
-                        {perfil?.nombre_completo || 'Sin nombre'}
-                    </h2>
-                    <p className="text-gray-400 text-sm">{user?.email}</p>
-                </motion.div>
-
-                {/* Profile Info Cards */}
-                <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="p-5 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5">
-                        <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1 flex items-center gap-2">
-                            <Target className="w-3.5 h-3.5" /> Objetivo
-                        </p>
-                        <p className="text-lg font-bold text-white capitalize">
-                            {String(perfil?.objetivo || '').replace(/_/g, ' ') || 'Por definir'}
-                        </p>
-                        {!perfil?.objetivo && (
-                            <p className="text-xs text-gray-500 mt-2">Completa tu perfil para definir tu objetivo</p>
-                        )}
-                    </div>
-
-                    <div className="p-5 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5">
-                        <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1 flex items-center gap-2">
-                            <Activity className="w-3.5 h-3.5" /> Nivel
-                        </p>
-                        <p className="text-lg font-bold text-orange-500">
-                            {perfil?.nivel || 'No definido'}
-                        </p>
-                    </div>
-
-                    <div className="p-5 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5">
-                        <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1 flex items-center gap-2">
-                            <Dumbbell className="w-3.5 h-3.5" /> Lugar de Entreno
-                        </p>
-                        <p className="text-lg font-bold text-white capitalize">
-                            {perfil?.preferencia_lugar || 'Casa'}
-                        </p>
-                    </div>
-
-                    <div className="p-5 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5">
-                        <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1 flex items-center gap-2">
-                            <Clock className="w-3.5 h-3.5" /> Miembro desde
-                        </p>
-                        <p className="text-lg font-bold text-white">
-                            {perfil?.created_at
-                                ? new Date(perfil.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })
-                                : 'Reciente'}
-                        </p>
-                    </div>
-                </motion.div>
-
-                {/* Edit Button */}
-                <motion.div variants={itemVariants}>
+                {/* Explora la Biblioteca CTA */}
+                <motion.div variants={itemVariants} className="mt-8 mb-8">
                     <Link
-                        to="/perfil"
-                        className="w-full flex items-center justify-center gap-3 py-4 bg-orange-500 text-black rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-orange-400 transition-all shadow-lg active:scale-[0.98]"
+                        to="/biblioteca"
+                        className="w-full flex items-center justify-between gap-4 p-5 rounded-lg bg-gradient-to-r from-primary/15 to-surface border border-primary/20 hover:border-primary/40 transition-all group"
                     >
-                        <User className="w-4 h-4" />
-                        Editar Perfil
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                                <BookOpen className="w-6 h-6 text-primary" />
+                            </div>
+                            <div className="text-left">
+                                <h3 className="font-bold text-white text-base">Explora la Biblioteca</h3>
+                                <p className="text-on-surface-variant text-sm">Descubre nuevas rutinas y ejercicios</p>
+                            </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </motion.div>
             </div>
             )}
 
-            {/* ===== TAB: HISTORIAL ===== */}
-            {activeTab === 'historial' && (
-            <div id="tab-historial" className="scroll-mt-24 space-y-4">
+            {/* ===== TAB: BIBLIOTECA DE EJERCICIOS ===== */}
+            {activeTab === 'biblioteca' && (
+            <div id="tab-biblioteca" className="scroll-mt-24">
                 <motion.div variants={itemVariants}>
-                    <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-orange-500" />
-                        Historial de Entrenamientos
-                    </h2>
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                <BookOpen className="w-5 h-5 text-primary" />
+                                Biblioteca de Ejercicios
+                            </h2>
+                            <p className="text-on-surface-variant text-sm mt-0.5">Ejercicios disponibles para ti</p>
+                        </div>
+                        <Link
+                            to="/biblioteca"
+                            className="text-sm text-primary hover:text-primary-light font-bold transition-colors"
+                        >
+                            Ver completa →
+                        </Link>
+                    </div>
 
+                    {items.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {items.map((item: any, i: number) => (
+                                <motion.div
+                                    key={item.id}
+                                    whileHover={{ scale: 1.02 }}
+                                    onClick={() => navigate('/biblioteca')}
+                                    className="p-4 rounded-lg bg-surface border border-white/5 hover:border-primary/30 transition-all cursor-pointer group"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xl">
+                                            {i === 0 ? <Dumbbell className="w-5 h-5" /> : i === 1 ? <Zap className="w-5 h-5" /> : <Activity className="w-5 h-5" />}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="font-bold text-white group-hover:text-primary transition-colors truncate">{item.nombre}</h4>
+                                            <p className="text-xs text-on-surface-variant capitalize font-medium">{item.nivel || 'Principiante'} • {item.duracion_estimada || 30} min</p>
+                                        </div>
+                                        <ChevronRight className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="p-8 rounded-lg bg-surface border border-white/5 text-center space-y-3">
+                            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto">
+                                <Dumbbell className="w-8 h-8 text-text-muted" />
+                            </div>
+                            <h4 className="text-white font-bold">¡Sin ejercicios aún!</h4>
+                            <p className="text-on-surface-variant text-xs">Explora la biblioteca completa para descubrir rutinas.</p>
+                            <Link
+                                to="/biblioteca"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-on font-bold rounded-lg hover:bg-primary-hover transition-all mt-2"
+                            >
+                                Ir a Biblioteca
+                            </Link>
+                        </div>
+                    )}
+                </motion.div>
+            </div>
+            )}
+
+            {/* ===== TAB: MI CALENDARIO ===== */}
+            {activeTab === 'calendario' && (
+            <div id="tab-calendario" className="scroll-mt-24">
+                <motion.div variants={itemVariants}>
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                <CalendarDays className="w-5 h-5 text-primary" />
+                                Mi Calendario
+                            </h2>
+                            <p className="text-on-surface-variant text-sm mt-0.5">Tu historial de entrenamientos</p>
+                        </div>
+                    </div>
+
+                    {/* Week calendar mini view */}
+                    <div className="p-5 rounded-lg bg-surface border border-white/5 mb-6">
+                        <h3 className="text-sm font-bold text-white mb-4">Esta Semana</h3>
+                        <div className="grid grid-cols-7 gap-2">
+                            {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, i) => {
+                                const hasTraining = historial.some((e: any) => {
+                                    const d = new Date(e.fecha);
+                                    const now = new Date();
+                                    const dayDiff = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+                                    return dayDiff === i && dayDiff < 7;
+                                });
+                                return (
+                                    <div key={day} className="flex flex-col items-center gap-1">
+                                        <span className="text-[10px] font-bold text-on-surface-variant uppercase">{day}</span>
+                                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${
+                                            hasTraining
+                                                ? 'bg-primary text-primary-on'
+                                                : 'bg-white/5 text-on-surface-variant'
+                                        }`}>
+                                            {new Date(Date.now() - i * 86400000).getDate()}
+                                        </div>
+                                        {hasTraining && (
+                                            <div className="w-1 h-1 rounded-full bg-primary" />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Training log */}
                     {historial.length > 0 ? (
                         <div className="space-y-3">
+                            <h3 className="text-sm font-bold text-white mb-3">Entrenamientos Recientes</h3>
                             {historial.map((entrada: any) => (
                                 <motion.div
                                     key={entrada.id}
                                     variants={itemVariants}
-                                    className="p-4 sm:p-5 rounded-2xl bg-[#141414]/90 backdrop-blur-xl border border-white/5 hover:border-green-500/30 transition-all flex items-center gap-4 group"
+                                    className="p-4 rounded-lg bg-surface border border-white/5 hover:border-primary/30 transition-all flex items-center gap-4 group"
                                 >
-                                    <div className="w-12 h-12 rounded-xl bg-green-500/10 text-green-500 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                                         <Dumbbell className="w-5 h-5" />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="font-bold text-white truncate capitalize">
                                             {entrada.rutinas?.nombre || 'Rutina'}
                                         </p>
-                                        <p className="text-xs text-gray-400">
+                                        <p className="text-xs text-on-surface-variant">
                                             {new Date(entrada.fecha).toLocaleDateString('es-ES', {
                                                 weekday: 'long',
                                                 day: 'numeric',
@@ -551,12 +564,12 @@ export default function DashboardPage() {
                                     </div>
                                     <div className="text-right flex-shrink-0">
                                         <div className="flex items-center gap-2 text-sm">
-                                            <span className="flex items-center gap-1 text-orange-400 font-bold">
+                                            <span className="flex items-center gap-1 text-primary font-bold">
                                                 <Flame className="w-3.5 h-3.5" />
                                                 {entrada.calorias_quemadas || 0}
                                             </span>
-                                            <span className="text-gray-500">•</span>
-                                            <span className="text-green-400 font-bold">{entrada.duracion_real || 0} min</span>
+                                            <span className="text-on-surface-variant">•</span>
+                                            <span className="text-primary font-bold">{entrada.duracion_real || 0} min</span>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -564,9 +577,18 @@ export default function DashboardPage() {
                         </div>
                     ) : (
                         <div className="text-center py-16">
-                            <div className="text-5xl mb-4 opacity-30">📋</div>
+                            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+                                <CalendarDays className="w-8 h-8 text-text-muted" />
+                            </div>
                             <h3 className="text-white font-bold text-lg mb-2">Sin entrenamientos registrados</h3>
-                            <p className="text-gray-500 text-sm">Completa tu primer entrenamiento y aparecerá aquí</p>
+                            <p className="text-on-surface-variant text-sm">Completa tu primer entrenamiento y aparecerá aquí</p>
+                            <Link
+                                to="/biblioteca"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-on font-bold rounded-lg hover:bg-primary-hover transition-all mt-6"
+                            >
+                                <Play className="w-4 h-4" />
+                                Empezar Ahora
+                            </Link>
                         </div>
                     )}
                 </motion.div>
