@@ -19,7 +19,7 @@ const NIVELES: { value: Nivel; label: string; icon: React.ReactNode; color: stri
 
 const OBJETIVOS: { value: Objetivo; label: string; icon: React.ReactNode; color: string }[] = [
   { value: 'flexibilidad', label: 'Flexibilidad', icon: <Sparkles className="w-5 h-5" />, color: 'from-pink-500/20 to-rose-500/20 border-pink-500/30' },
-  { value: 'fuerza', label: 'Fuerza', icon: <Heart className="w-5 h-5" />, color: 'from-red-500/20 to-orange-500/20 border-red-500/30' },
+  { value: 'fuerza', label: 'Fuerza', icon: <Heart className="w-5 h-5" />, color: 'from-red-500/20 to-primary/20 border-red-500/30' },
   { value: 'relajacion', label: 'Relajación', icon: <Flower2 className="w-5 h-5" />, color: 'from-indigo-500/20 to-purple-500/20 border-indigo-500/30' },
 ];
 
@@ -117,17 +117,17 @@ export default function YogaPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-10"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-orange-500/20 to-purple-500/20 border border-orange-500/30 mb-5 shadow-[0_0_30px_rgba(249,115,22,0.15)]">
-            <Flower2 className="w-8 h-8 text-orange-400" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 border border-primary/30 mb-5 shadow-[0_0_30px_rgba(19,236,91,0.15)]">
+            <Flower2 className="w-8 h-8 text-green-400" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-tight">Yoga para la <span className="text-orange-500">Mente</span></h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-tight">Yoga para la <span className="text-primary">Mente</span></h1>
           <p className="text-gray-400 font-medium">Encuentra tu equilibrio y paz interior.</p>
         </motion.div>
 
         {/* Filter & Search Section */}
         <div className="bg-[#111111] border border-white/5 rounded-xl p-6 sm:p-8 mb-8 backdrop-blur-sm relative overflow-hidden">
           {/* Subtle Background Glow for filters */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-orange-500/10 blur-[80px] rounded-full pointer-events-none" />
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 blur-[80px] rounded-full pointer-events-none" />
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end relative z-10">
             {/* Search - Takes 5/12 columns on large screens */}
@@ -136,13 +136,13 @@ export default function YogaPage() {
                  <Search className="w-3 h-3" /> Buscador
               </label>
               <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-orange-500 transition-colors" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-primary transition-colors" />
                 <input
                   type="text"
                   placeholder="¿Qué buscas hoy?"
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-4 focus:ring-orange-500/5 transition-all"
+                  className="w-full pl-12 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all"
                 />
               </div>
             </div>
@@ -158,7 +158,7 @@ export default function YogaPage() {
                   {nivelSeleccionado && (
                     <button 
                       onClick={() => setNivelSeleccionado(null)}
-                      className="text-[10px] text-orange-500/60 hover:text-orange-500 font-bold uppercase transition-colors"
+                      className="text-[10px] text-primary/60 hover:text-primary font-bold uppercase transition-colors"
                     >
                       Limpiar
                     </button>
@@ -191,7 +191,7 @@ export default function YogaPage() {
                   {objetivoSeleccionado && (
                     <button 
                       onClick={() => setObjetivoSeleccionado(null)}
-                      className="text-[10px] text-orange-500/60 hover:text-orange-500 font-bold uppercase transition-colors"
+                      className="text-[10px] text-primary/60 hover:text-primary font-bold uppercase transition-colors"
                     >
                       Limpiar
                     </button>
@@ -224,7 +224,7 @@ export default function YogaPage() {
             </p>
               <button
               onClick={handleNavigatePosiciones}
-              className="flex items-center gap-2 px-6 py-2 bg-orange-500/10 border border-orange-500/20 text-orange-500 rounded-xl text-sm font-bold hover:bg-orange-500 hover:text-black transition-all group"
+              className="flex items-center gap-2 px-6 py-2 bg-primary/10 border border-primary/20 text-primary rounded-xl text-sm font-bold hover:bg-primary hover:text-black transition-all group"
             >
               Ver Biblioteca Posiciones
               <Flower2 className="w-4 h-4 group-hover:rotate-12 transition-transform" />
@@ -240,7 +240,7 @@ export default function YogaPage() {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden h-64 flex flex-col">
                   {/* Image Placeholder */}
-                  <div className="h-32 bg-gradient-to-br from-orange-500/10 to-purple-500/10" />
+                  <div className="h-32 bg-gradient-to-br from-primary/10 to-purple-500/10" />
                   
                   {/* Content Placeholder */}
                   <div className="p-4 flex flex-col flex-1 justify-between">
@@ -254,7 +254,7 @@ export default function YogaPage() {
                     </div>
                     <div className="flex justify-between items-center mt-3">
                       <div className="w-16 h-4 bg-white/5 rounded-md" />
-                      <div className="w-24 h-8 bg-orange-500/10 rounded-lg" />
+                      <div className="w-24 h-8 bg-primary/10 rounded-lg" />
                     </div>
                   </div>
                 </div>
@@ -312,11 +312,11 @@ export default function YogaPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-orange-500/30 transition-colors group"
+                    className="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-primary/30 transition-colors group"
                   >
                     {/* Card Image Placeholder */}
-                    <div className="h-32 bg-gradient-to-br from-orange-500/20 to-purple-500/20 flex items-center justify-center">
-                      <Flower2 className="w-12 h-12 text-orange-400/50 group-hover:text-orange-400 transition-colors" />
+                    <div className="h-32 bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center">
+                      <Flower2 className="w-12 h-12 text-green-400/50 group-hover:text-green-400 transition-colors" />
                     </div>
                     
                     <div className="p-4">
@@ -344,7 +344,7 @@ export default function YogaPage() {
                         
                         <button
                           onClick={() => handlePracticar(rutina.id)}
-                          className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-black rounded-lg font-medium hover:bg-orange-400 transition-colors"
+                          className="flex items-center gap-2 px-4 py-2 bg-primary text-black rounded-lg font-medium hover:bg-green-400 transition-colors"
                         >
                           <Play className="w-4 h-4" />
                           <span>Iniciar</span>

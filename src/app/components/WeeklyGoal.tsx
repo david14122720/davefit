@@ -77,7 +77,7 @@ export default function WeeklyGoal() {
             className={`p-4 rounded-xl border transition-all ${
                 metaAlcanzada 
                     ? 'bg-gradient-to-br from-green-500/10 to-emerald-500/5 border-green-500/30' 
-                    : 'bg-[#141414] border-white/5 hover:border-orange-500/20'
+                    : 'bg-[#141414] border-white/5 hover:border-primary/20'
             }`}
         >
             <div className="flex items-center justify-between mb-3">

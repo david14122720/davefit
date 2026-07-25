@@ -115,14 +115,14 @@ const YogaTimer = React.memo(function YogaTimer({
             cy="100"
             r="90"
             fill="none"
-            stroke={isComplete ? '#22c55e' : '#ff6b00'}
+            stroke={isComplete ? '#22c55e' : '#13ec5b'}
             strokeWidth="8"
             strokeLinecap="round"
             initial={{ strokeDashoffset: circumference }}
             animate={{ strokeDashoffset }}
             transition={{ duration: 0.5, ease: 'linear' }}
             style={{
-              filter: 'drop-shadow(0 0 15px rgba(249, 115, 22, 0.5))',
+              filter: 'drop-shadow(0 0 15px rgba(19, 236, 91, 0.5))',
             }}
           />
         </svg>
@@ -168,12 +168,12 @@ const YogaTimer = React.memo(function YogaTimer({
             isComplete
               ? 'bg-green-500 text-black'
               : isRunning
-              ? 'bg-orange-500 text-black'
+              ? 'bg-primary text-black'
               : 'bg-white text-black'
           } shadow-lg transition-colors`}
           style={{
             boxShadow: isRunning
-              ? '0 0 30px rgba(249, 115, 22, 0.5)'
+              ? '0 0 30px rgba(19, 236, 91, 0.5)'
               : '0 0 20px rgba(255,255,255,0.2)',
           }}
         >
@@ -202,7 +202,7 @@ const YogaTimer = React.memo(function YogaTimer({
             }}
             className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
               seconds === preset && !isRunning
-                ? 'bg-orange-500 text-black'
+                ? 'bg-primary text-black'
                 : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
             }`}
           >

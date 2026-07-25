@@ -15,7 +15,7 @@ interface LeaderboardUser {
 const PODIUM_COLORS = {
   1: { bg: 'from-amber-400/20 to-amber-600/10', border: 'border-yellow-500', crown: 'text-yellow-400', text: 'text-yellow-400' },
   2: { bg: 'from-gray-400/20 to-gray-500/10', border: 'border-gray-400', crown: 'text-gray-300', text: 'text-gray-300' },
-  3: { bg: 'from-orange-600/20 to-orange-700/10', border: 'border-orange-600', crown: 'text-orange-500', text: 'text-orange-500' },
+  3: { bg: 'from-green-600/20 to-green-700/10', border: 'border-green-600', crown: 'text-green-500', text: 'text-green-500' },
 };
 
 const Avatar = ({ src, name, size = 'md' }: { src?: string; name: string; size?: 'sm' | 'md' | 'lg' | 'xl' }) => {
@@ -26,7 +26,7 @@ const Avatar = ({ src, name, size = 'md' }: { src?: string; name: string; size?:
   }
   
   return (
-    <div className={`${sizeClasses[size]} rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center font-bold text-black ring-2 ring-white/20`}>
+    <div className={`${sizeClasses[size]} rounded-full bg-gradient-to-br from-primary to-green-600 flex items-center justify-center font-bold text-black ring-2 ring-white/20`}>
       {(name || 'U').charAt(0).toUpperCase()}
     </div>
   );
@@ -76,8 +76,8 @@ const PodiumCard = ({ user, position }: { user: LeaderboardUser; position: 1 | 2
         {user.username}
       </h3>
       
-      <div className="mt-3 sm:mt-2 px-4 py-1.5 sm:px-3 sm:py-1 bg-orange-500/20 border border-orange-500/30 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.2)]">
-        <span className="text-orange-400 font-bold text-base sm:text-sm">{user.total_score.toLocaleString()}</span>
+      <div className="mt-3 sm:mt-2 px-4 py-1.5 sm:px-3 sm:py-1 bg-primary/20 border border-primary/30 rounded-full shadow-[0_0_10px_rgba(19,236,91,0.2)]">
+        <span className="text-green-400 font-bold text-base sm:text-sm">{user.total_score.toLocaleString()}</span>
         <span className="text-gray-400 text-xs sm:text-[10px] ml-1 uppercase">pts</span>
       </div>
     </motion.div>
@@ -87,7 +87,7 @@ const PodiumCard = ({ user, position }: { user: LeaderboardUser; position: 1 | 2
 const LeaderboardRow = ({ user }: { user: LeaderboardUser }) => {
   const getRankColor = (rank: number) => {
     if (rank <= 3) return 'text-yellow-400';
-    if (rank <= 10) return 'text-orange-400';
+    if (rank <= 10) return 'text-green-400';
     return 'text-gray-400';
   };
   
@@ -107,13 +107,13 @@ const LeaderboardRow = ({ user }: { user: LeaderboardUser }) => {
       <Avatar src={user.avatar_url} name={user.username} size="md" />
       
       <div className="flex-1 min-w-0">
-        <div className="font-bold text-white text-base sm:text-sm truncate group-hover:text-orange-400 transition-colors">
+        <div className="font-bold text-white text-base sm:text-sm truncate group-hover:text-primary transition-colors">
           {user.username}
         </div>
       </div>
       
-      <div className="px-4 py-1.5 sm:px-3 sm:py-1 bg-orange-500/10 border border-orange-500/20 rounded-xl group-hover:bg-orange-500/20 transition-colors">
-        <span className="text-orange-400 font-bold text-base sm:text-sm">{user.total_score.toLocaleString()}</span>
+      <div className="px-4 py-1.5 sm:px-3 sm:py-1 bg-primary/10 border border-primary/20 rounded-xl group-hover:bg-primary/20 transition-colors">
+        <span className="text-green-400 font-bold text-base sm:text-sm">{user.total_score.toLocaleString()}</span>
       </div>
     </motion.div>
   );
@@ -191,11 +191,11 @@ export default function ComunidadPage() {
   return (
     <div className="max-w-5xl mx-auto pb-20 px-4">
       <header className="flex flex-col items-center justify-center gap-4 mb-10 text-center">
-        <div className="w-16 h-16 bg-orange-500/10 border border-orange-500/20 text-orange-500 rounded-lg flex items-center justify-center shadow-[0_0_40px_rgba(249,115,22,0.15)] ring-1 ring-orange-500/20">
+        <div className="w-16 h-16 bg-primary/10 border border-primary/20 text-primary rounded-lg flex items-center justify-center shadow-[0_0_40px_rgba(19,236,91,0.15)] ring-1 ring-primary/20">
             <TrophyIcon />
         </div>
         <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">Comunidad <span className="text-orange-500">DaveFit</span></h1>
+            <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">Comunidad <span className="text-primary">DaveFit</span></h1>
             <p className="text-gray-400 mt-2 font-medium max-w-sm sm:max-w-none">Domina el ranking y alcanza la cima del Olimpo.</p>
         </div>
       </header>
@@ -222,7 +222,7 @@ export default function ComunidadPage() {
         <div className="w-full flex flex-col items-center animate-pulse">
             <div className="flex flex-col sm:flex-row justify-center items-end gap-4 mb-20 mt-10 w-full px-4">
                 <div className="w-32 sm:w-40 h-48 bg-[#1a1a1a] border border-white/5 rounded-[2rem] order-2 sm:order-1" />
-                <div className="w-40 sm:w-48 h-64 bg-gradient-to-t from-orange-500/10 to-[#1a1a1a] border border-orange-500/20 rounded-[2.5rem] order-1 sm:order-2" />
+                <div className="w-40 sm:w-48 h-64 bg-gradient-to-t from-primary/10 to-[#1a1a1a] border border-primary/20 rounded-[2.5rem] order-1 sm:order-2" />
                 <div className="w-32 sm:w-40 h-40 bg-[#1a1a1a] border border-white/5 rounded-[2rem] order-3 sm:order-3" />
             </div>
             <div className="max-w-2xl w-full space-y-4">
@@ -234,7 +234,7 @@ export default function ComunidadPage() {
                         <div className="flex-1">
                             <div className="w-32 h-4 bg-white/10 rounded-md mb-2" />
                         </div>
-                        <div className="w-20 h-8 rounded-xl bg-orange-500/10" />
+                        <div className="w-20 h-8 rounded-xl bg-primary/10" />
                     </div>
                 ))}
             </div>
@@ -255,8 +255,8 @@ export default function ComunidadPage() {
                     <div className="order-3 sm:order-3 w-full flex justify-center sm:w-auto">{top3[2] && <PodiumCard user={top3[2]} position={3} />}</div>
                 </div>
                 
-                <div className="max-w-md mx-auto bg-gradient-to-r from-orange-500/0 via-orange-500/10 to-orange-500/0 p-4 text-center">
-                <p className="text-orange-400 font-bold tracking-wide">
+                <div className="max-w-md mx-auto bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 p-4 text-center">
+                <p className="text-green-400 font-bold tracking-wide">
                     ¡Sigue así! El podio te espera 🔥
                 </p>
                 </div>

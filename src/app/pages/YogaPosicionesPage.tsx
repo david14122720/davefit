@@ -49,8 +49,8 @@ export default function YogaPosicionesPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-orange-500/20 to-purple-500/20 border border-orange-500/30 mb-4">
-            <Flower2 className="w-8 h-8 text-orange-400" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 border border-primary/30 mb-4">
+            <Flower2 className="w-8 h-8 text-green-400" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Posiciones de Yoga</h1>
           <p className="text-gray-400">Aprende cada postura con instrucciones paso a paso</p>
@@ -65,7 +65,7 @@ export default function YogaPosicionesPage() {
               placeholder="Buscar posiciones..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 transition-colors"
+              className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
         </div>
@@ -76,7 +76,7 @@ export default function YogaPosicionesPage() {
             onClick={() => setFiltroNivel(null)}
             className={`px-4 py-2 rounded-full border transition-all ${
               filtroNivel === null
-                ? 'bg-orange-500/20 border-orange-500/30 text-white'
+                ? 'bg-primary/20 border-primary/30 text-white'
                 : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'
             }`}
           >
@@ -100,7 +100,7 @@ export default function YogaPosicionesPage() {
         {/* Loading State */}
         {loadingPosiciones && (
           <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
@@ -127,7 +127,7 @@ export default function YogaPosicionesPage() {
                     className="w-full p-4 flex items-center gap-4 text-left hover:bg-white/5 transition-colors"
                   >
                     {/* Image */}
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-orange-500/20 to-purple-500/20 flex items-center justify-center flex-shrink-0">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center flex-shrink-0">
                       {posicion.imagen_url ? (
                         <img 
                           src={posicion.imagen_url} 
@@ -135,7 +135,7 @@ export default function YogaPosicionesPage() {
                           className="w-full h-full object-cover rounded-lg"
                         />
                       ) : (
-                        <Flower2 className="w-8 h-8 text-orange-400/50" />
+                        <Flower2 className="w-8 h-8 text-green-400/50" />
                       )}
                     </div>
 
@@ -150,7 +150,7 @@ export default function YogaPosicionesPage() {
                         </span>
                       </div>
                       {posicion.nombre_sanscrito && (
-                        <p className="text-orange-400 text-sm">{posicion.nombre_sanscrito}</p>
+                        <p className="text-green-400 text-sm">{posicion.nombre_sanscrito}</p>
                       )}
                       {posicion.descripcion && (
                         <p className="text-gray-400 text-sm truncate">{posicion.descripcion}</p>
@@ -204,7 +204,7 @@ export default function YogaPosicionesPage() {
                               <ol className="space-y-3">
                                 {posicion.instrucciones.map((instruccion, i) => (
                                   <li key={i} className="flex items-start gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-500/20 text-orange-400 text-sm font-bold flex items-center justify-center">
+                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-green-400 text-sm font-bold flex items-center justify-center">
                                       {i + 1}
                                     </span>
                                     <span className="text-gray-300">{instruccion}</span>

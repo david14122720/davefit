@@ -138,7 +138,7 @@ export default function FileUpload({
                     onClick={() => inputRef.current?.click()}
                     className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
                         dragOver 
-                            ? 'border-orange-500 bg-orange-500/10' 
+                            ? 'border-primary bg-primary/10' 
                             : 'border-white/10 hover:border-white/20 hover:bg-white/5'
                     }`}
                 >
@@ -150,7 +150,7 @@ export default function FileUpload({
                         className="hidden"
                     />
                     {uploading ? (
-                        <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-orange-500" />
+                        <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-primary" />
                     ) : isImage ? (
                         <Image className="w-8 h-8 mx-auto mb-2 text-gray-500" />
                     ) : (

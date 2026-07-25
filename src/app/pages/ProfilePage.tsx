@@ -216,13 +216,13 @@ export default function ProfilePage() {
                 <div className="animate-pulse">
                     {/* Header Skeleton */}
                     <div className="bg-[#141414] border border-white/5 p-6 sm:p-10 rounded-xl flex flex-col items-center gap-6 mb-8">
-                        <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-xl bg-orange-500/10 border-4 border-white/5 rotate-3" />
+                        <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-xl bg-primary/10 border-4 border-white/5 rotate-3" />
                         <div className="flex flex-col items-center gap-2 w-full mt-2">
                             <div className="h-8 w-48 bg-white/10 rounded-xl mb-1" />
                             <div className="h-4 w-32 bg-white/5 rounded-lg mb-6" />
                             <div className="flex gap-2 mb-8">
                                 <div className="w-20 h-6 bg-white/5 rounded-full" />
-                                <div className="w-20 h-6 bg-orange-500/10 rounded-full" />
+                                <div className="w-20 h-6 bg-primary/10 rounded-full" />
                                 <div className="w-16 h-6 bg-blue-500/10 rounded-full" />
                             </div>
                             <div className="w-full sm:w-48 h-14 bg-white/5 rounded-2xl" />
@@ -280,23 +280,23 @@ export default function ProfilePage() {
             {/* Header Card - Premium Mobile Design */}
             <motion.div variants={itemVariants} className="bg-[#141414]/80 backdrop-blur-3xl p-6 sm:p-10 rounded-xl border border-white/5 flex flex-col items-center gap-6 mb-8 shadow-2xl relative overflow-hidden group">
                 {/* Background Decoration */}
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-orange-500/10 blur-[80px] rounded-full pointer-events-none group-hover:bg-orange-500/20 transition-colors duration-700" />
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 blur-[80px] rounded-full pointer-events-none group-hover:bg-primary/20 transition-colors duration-700" />
                 
                 {/* Avatar Section */}
                 <div className="relative z-10 flex-shrink-0">
-                    <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-xl bg-orange-500/10 flex items-center justify-center text-4xl sm:text-5xl border-4 border-white/5 shadow-2xl overflow-hidden relative rotate-3 group-hover:rotate-0 transition-all duration-500">
+                    <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-xl bg-primary/10 flex items-center justify-center text-4xl sm:text-5xl border-4 border-white/5 shadow-2xl overflow-hidden relative rotate-3 group-hover:rotate-0 transition-all duration-500">
                         {avatarUrl ? (
                             <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         ) : (
-                            <span className="font-black text-orange-500">{userName[0]?.toUpperCase() || 'U'}</span>
+                            <span className="font-black text-primary">{userName[0]?.toUpperCase() || 'U'}</span>
                         )}
                         {uploadingAvatar && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                                <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+                                <Loader2 className="w-8 h-8 text-primary animate-spin" />
                             </div>
                         )}
                     </div>
-                    <label className="absolute -bottom-2 -right-2 w-10 h-10 bg-orange-500 rounded-2xl flex items-center justify-center hover:bg-orange-400 hover:scale-110 transition-all shadow-xl cursor-pointer z-20 border-4 border-[#141414]">
+                    <label className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary rounded-2xl flex items-center justify-center hover:bg-green-400 hover:scale-110 transition-all shadow-xl cursor-pointer z-20 border-4 border-[#141414]">
                         <UploadCloud className="w-4 h-4 text-black" />
                         <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" disabled={uploadingAvatar} />
                     </label>
@@ -318,7 +318,7 @@ export default function ProfilePage() {
                             </span>
                         )}
                         {perfil?.objetivo && (
-                            <span className="px-4 py-1.5 bg-orange-500/10 text-orange-400 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border border-orange-500/20">
+                            <span className="px-4 py-1.5 bg-primary/10 text-green-400 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border border-primary/20">
                                 {perfil.objetivo.replace('_', ' ').replace('perder peso', 'Bajar grasa')}
                             </span>
                         )}
@@ -331,7 +331,7 @@ export default function ProfilePage() {
 
                     <button
                         onClick={() => setEditing(!editing)}
-                        className={`w-full sm:w-auto px-10 h-14 font-black uppercase tracking-[0.15em] rounded-2xl transition-all flex items-center justify-center gap-3 text-sm ${editing ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-orange-500 hover:bg-orange-400 text-black shadow-[0_10px_30px_rgba(249,115,22,0.3)] hover:shadow-[0_15px_40px_rgba(249,115,22,0.4)]'}`}
+                        className={`w-full sm:w-auto px-10 h-14 font-black uppercase tracking-[0.15em] rounded-2xl transition-all flex items-center justify-center gap-3 text-sm ${editing ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-primary hover:bg-green-400 text-black shadow-[0_10px_30px_rgba(19,236,91,0.3)] hover:shadow-[0_15px_40px_rgba(19,236,91,0.4)]'}`}
                     >
                         {editing ? <><X className="w-5 h-5" /> Cancelar</> : <><Edit3 className="w-5 h-5" /> Editar Perfil</>}
                     </button>
@@ -349,7 +349,7 @@ export default function ProfilePage() {
                         className="bg-[#141414]/90 backdrop-blur-3xl p-6 sm:p-8 rounded-xl border border-white/10 mb-8 shadow-2xl overflow-hidden"
                     >
                         <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                            <Sparkles className="w-4 h-4 text-orange-500" /> Datos Personales
+                            <Sparkles className="w-4 h-4 text-primary" /> Datos Personales
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             {[
@@ -362,12 +362,12 @@ export default function ProfilePage() {
                                 <div key={field.id} className="space-y-1.5 focus-within:translate-x-1 transition-transform">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{field.label}</label>
                                     <div className="relative">
-                                        <field.icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 group-focus-within:text-orange-500 transition-colors" />
+                                        <field.icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 group-focus-within:text-primary transition-colors" />
                                         <input 
                                             {...register(field.id as any)} 
                                             type={field.type || 'text'}
                                             step={field.step}
-                                            className={`w-full pl-12 pr-4 h-12 rounded-xl bg-black/40 border text-sm font-bold text-white focus:ring-2 outline-none transition-all ${errors[field.id as keyof typeof errors] ? 'border-red-500/50 focus:ring-red-500/50' : 'border-white/5 focus:ring-orange-500/50 focus:border-orange-500'}`} 
+                                            className={`w-full pl-12 pr-4 h-12 rounded-xl bg-black/40 border text-sm font-bold text-white focus:ring-2 outline-none transition-all ${errors[field.id as keyof typeof errors] ? 'border-red-500/50 focus:ring-red-500/50' : 'border-white/5 focus:ring-primary/50 focus:border-primary'}`} 
                                         />
                                     </div>
                                     {errors[field.id as keyof typeof errors] && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{errors[field.id as keyof typeof errors]?.message}</p>}
@@ -377,7 +377,7 @@ export default function ProfilePage() {
                             {/* Selects */}
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Género</label>
-                                <select {...register('genero')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-orange-500/50 outline-none">
+                                <select {...register('genero')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-primary/50 outline-none">
                                     <option value="">No especificar</option>
                                     <option value="masculino">Masculino</option>
                                     <option value="femenino">Femenino</option>
@@ -386,7 +386,7 @@ export default function ProfilePage() {
                             </div>
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Nivel</label>
-                                <select {...register('nivel')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-orange-500/50 outline-none">
+                                <select {...register('nivel')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-primary/50 outline-none">
                                     <option value="principiante">Principiante</option>
                                     <option value="intermedio">Intermedio</option>
                                     <option value="avanzado">Avanzado</option>
@@ -394,7 +394,7 @@ export default function ProfilePage() {
                             </div>
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Objetivo</label>
-                                <select {...register('objetivo')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-orange-500/50 outline-none">
+                                <select {...register('objetivo')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-primary/50 outline-none">
                                     <option value="perder_peso">Bajar grasa</option>
                                     <option value="tonificar">Tonificar</option>
                                     <option value="ganar_fuerza">Ganar músculo</option>
@@ -402,7 +402,7 @@ export default function ProfilePage() {
                                 </select>
                             </div>
                         </div>
-                        <button type="submit" disabled={isSubmitting} className="w-full mt-10 h-14 bg-orange-500 text-black font-black uppercase tracking-widest rounded-2xl hover:bg-orange-400 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl">
+                        <button type="submit" disabled={isSubmitting} className="w-full mt-10 h-14 bg-primary text-black font-black uppercase tracking-widest rounded-2xl hover:bg-green-400 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl">
                             {isSubmitting ? <><Loader2 className="w-5 h-5 animate-spin" /> Guardando...</> : '💾 Guardar Cambios'}
                         </button>
                     </motion.form>
@@ -416,16 +416,16 @@ export default function ProfilePage() {
                          {/* Metabolism Card */}
                          <div className="bg-[#141414]/90 backdrop-blur-3xl p-8 rounded-xl border border-white/5 relative overflow-hidden group">
                              <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                                 <Flame className="w-12 h-12 text-orange-500" />
+                                 <Flame className="w-12 h-12 text-primary" />
                              </div>
                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1">Metabolismo Basal (BMR)</p>
                              <div className="flex items-baseline gap-2 mb-4">
                                  <span className="text-5xl font-black text-white tracking-tighter">{bmr || '--'}</span>
                                  <span className="text-gray-600 text-xs font-bold uppercase tracking-widest">kcal/día</span>
                              </div>
-                             <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-500/5 border border-orange-500/10 rounded-full w-fit">
-                                 <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                                 <span className="text-[9px] text-orange-500 font-black uppercase tracking-tighter">Calorías en reposo</span>
+                             <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/5 border border-primary/10 rounded-full w-fit">
+                                 <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                                 <span className="text-[9px] text-primary font-black uppercase tracking-tighter">Calorías en reposo</span>
                              </div>
                              {bmr !== null && (
                                  <p className="text-[10px] text-gray-400 font-black mt-2 max-w-xs">
@@ -459,12 +459,12 @@ export default function ProfilePage() {
                     {/* Stats Grid */}
                     <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {[
-                            { label: 'Peso', value: perfil.peso_actual, unit: 'kg', icon: Scale, color: 'text-orange-500' },
+                            { label: 'Peso', value: perfil.peso_actual, unit: 'kg', icon: Scale, color: 'text-primary' },
                             { label: 'Altura', value: perfil.altura, unit: 'cm', icon: Ruler, color: 'text-blue-500' },
                             { label: 'IMC', value: imc?.toFixed(1), unit: categoriaIMC, icon: Target, color: 'text-purple-500' },
                             { label: 'Edad', value: edad, unit: 'años', icon: Calendar, color: 'text-green-500' },
                         ].map((d, i) => (
-                            <div key={i} className="p-5 sm:p-6 bg-[#141414]/50 backdrop-blur-3xl rounded-xl border border-white/5 flex flex-col items-center text-center group hover:border-orange-500/20 transition-all">
+                            <div key={i} className="p-5 sm:p-6 bg-[#141414]/50 backdrop-blur-3xl rounded-xl border border-white/5 flex flex-col items-center text-center group hover:border-primary/20 transition-all">
                                 <d.icon className={`w-5 h-5 mb-4 ${d.color} opacity-40 group-hover:opacity-100 transition-all duration-300`} />
                                 <p className="text-[9px] text-gray-500 font-black uppercase tracking-[0.15em] mb-1">{d.label}</p>
                                 <div className="text-2xl font-black text-white leading-none mb-1">
@@ -477,24 +477,24 @@ export default function ProfilePage() {
                     
                     {/* Gamification Stats */}
                     {userStats && (
-                        <motion.div variants={itemVariants} className="bg-gradient-to-br from-orange-500/10 to-transparent p-8 rounded-xl border border-orange-500/10 shadow-2xl">
+                        <motion.div variants={itemVariants} className="bg-gradient-to-br from-primary/10 to-transparent p-8 rounded-xl border border-primary/10 shadow-2xl">
                             <div className="flex justify-between items-center mb-8">
                                 <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <Sparkles className="w-4 h-4 text-orange-500" /> Camino del Guerrero
+                                    <Sparkles className="w-4 h-4 text-primary" /> Camino del Guerrero
                                 </h3>
-                                <span className="text-3xl font-black text-orange-500">LVL {userStats.nivel || 1}</span>
+                                <span className="text-3xl font-black text-primary">LVL {userStats.nivel || 1}</span>
                             </div>
                             
                             <div className="space-y-4">
                                 <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
                                     <span className="text-gray-400">Progreso de XP</span>
-                                    <span className="text-orange-400">{userStats.xp_total} / {(userStats.nivel || 1) * 100}</span>
+                                    <span className="text-green-400">{userStats.xp_total} / {(userStats.nivel || 1) * 100}</span>
                                 </div>
                                 <div className="h-4 bg-black/60 rounded-full p-1 border border-white/5">
                                     <motion.div 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${Math.min(((userStats.xp_total || 0) % 100) / 100 * 100, 100)}%` }}
-                                        className="h-full bg-gradient-to-r from-orange-600 to-orange-400 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+                                        className="h-full bg-gradient-to-r from-green-600 to-primary rounded-full shadow-[0_0_15px_rgba(19,236,91,0.4)]"
                                     />
                                 </div>
                             </div>
@@ -510,10 +510,10 @@ export default function ProfilePage() {
                         <div className="relative w-full max-w-md aspect-square bg-[#111111] rounded-xl overflow-hidden border border-white/10 shadow-3xl">
                             <Cropper image={imageSrc} crop={crop} zoom={zoom} aspect={1} cropShape="round" showGrid={false} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} />
                             <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col gap-6">
-                                <input type="range" value={zoom} min={1} max={3} step={0.1} onChange={(e) => setZoom(Number(e.target.value))} className="w-full accent-orange-500" />
+                                <input type="range" value={zoom} min={1} max={3} step={0.1} onChange={(e) => setZoom(Number(e.target.value))} className="w-full accent-primary" />
                                 <div className="flex gap-3">
                                     <button onClick={() => setImageSrc(null)} className="flex-1 h-12 rounded-2xl bg-white/5 text-white font-bold text-sm">Cancelar</button>
-                                    <button onClick={processAndUploadCrop} className="flex-1 h-12 rounded-2xl bg-orange-500 text-black font-black uppercase tracking-widest text-sm shadow-xl">Confirmar</button>
+                                    <button onClick={processAndUploadCrop} className="flex-1 h-12 rounded-2xl bg-primary text-black font-black uppercase tracking-widest text-sm shadow-xl">Confirmar</button>
                                 </div>
                             </div>
                         </div>

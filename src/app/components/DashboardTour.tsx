@@ -25,22 +25,22 @@ export default function DashboardTour({ isOpen, onComplete }: DashboardTourProps
         {
             title: "Tu Dashboard",
             description: "Aquí verás un resumen de tu actividad, tus rachas de entrenamiento y tu progreso de XP. ¡Gana puntos por cada sesión!",
-            icon: <LayoutDashboard className="w-8 h-8 text-orange-500" />
+            icon: <LayoutDashboard className="w-8 h-8 text-primary" />
         },
         {
             title: "Arsenal de Rutinas",
             description: "En la sección de Rutinas encontrarás entrenamientos diseñados para espacios pequeños. ¡Filtra por tiempo y nivel!",
-            icon: <Dumbbell className="w-8 h-8 text-orange-500" />
+            icon: <Dumbbell className="w-8 h-8 text-primary" />
         },
         {
             title: "Tu Historial",
             description: "Cada gota de sudor cuenta. Revisa tus sesiones pasadas, calorías quemadas y minutos totales aquí.",
-            icon: <History className="w-8 h-8 text-orange-500" />
+            icon: <History className="w-8 h-8 text-primary" />
         },
         {
             title: "⚔️ ¡Paso Vital!",
             description: "Para darte las mejores recomendaciones, necesitamos conocerte. Completa tu perfil físico y tus objetivos ahora.",
-            icon: <User className="w-8 h-8 text-orange-500" />,
+            icon: <User className="w-8 h-8 text-primary" />,
             actionLabel: "Ir a mi Perfil",
             actionPath: "/perfil"
         }
@@ -88,7 +88,7 @@ export default function DashboardTour({ isOpen, onComplete }: DashboardTourProps
                         {steps.map((_, i) => (
                             <div 
                                 key={i}
-                                className={`h-1 rounded-full transition-all duration-300 ${i === currentStep ? 'w-8 bg-orange-500' : 'w-4 bg-white/10'}`}
+                                className={`h-1 rounded-full transition-all duration-300 ${i === currentStep ? 'w-8 bg-primary' : 'w-4 bg-white/10'}`}
                             />
                         ))}
                     </div>
@@ -113,7 +113,7 @@ export default function DashboardTour({ isOpen, onComplete }: DashboardTourProps
                             {steps[currentStep].actionLabel ? (
                                 <button
                                     onClick={handleAction}
-                                    className="flex-1 py-4 bg-orange-500 hover:bg-orange-400 text-white font-black uppercase tracking-widest rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 group"
+                                    className="flex-1 py-4 bg-primary hover:bg-green-400 text-black font-black uppercase tracking-widest rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 group"
                                 >
                                     {steps[currentStep].actionLabel}
                                     <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

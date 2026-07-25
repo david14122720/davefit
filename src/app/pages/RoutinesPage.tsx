@@ -41,7 +41,7 @@ const objetivoLabels: Record<string, string> = {
 const nivelColors: Record<string, string> = {
     principiante: 'from-green-500/20 to-emerald-500/10 text-green-400 border-green-500/20',
     intermedio: 'from-yellow-500/20 to-amber-500/10 text-yellow-400 border-yellow-500/20',
-    avanzado: 'from-red-500/20 to-orange-500/10 text-orange-400 border-red-500/20',
+    avanzado: 'from-red-500/20 to-primary/10 text-green-400 border-red-500/20',
 };
 
 export default function RoutinesPage() {
@@ -213,7 +213,7 @@ export default function RoutinesPage() {
                 <p className="text-gray-400 mb-8">{error}</p>
                 <button 
                     onClick={() => { setLoaded(false); /* The effect will not re-run, need to force reload or change state nicely, we'll reload full page for simplicity if the user clicks since the effect depends on accessToken */ window.location.reload(); }}
-                    className="w-full py-4 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase tracking-widest rounded-xl transition-all shadow-[0_10px_20px_rgba(249,115,22,0.3)]"
+                    className="w-full py-4 bg-primary hover:bg-green-400 text-black font-black uppercase tracking-widest rounded-xl transition-all shadow-[0_10px_20px_rgba(19,236,91,0.3)]"
                 >
                     Reintentar Conexión
                 </button>
@@ -228,10 +228,10 @@ export default function RoutinesPage() {
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 relative z-10">
                         <div className="pr-2">
                             <h1 className="text-xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight leading-none">
-                                Tu <span className="text-orange-500">Arsenal</span>
+                                Tu <span className="text-primary">Arsenal</span>
                             </h1>
                             <p className="text-gray-500 text-xs sm:text-sm font-medium mt-1.5 flex items-center gap-2">
-                                 <MonitorPlay className="w-3.5 h-3.5 text-orange-500/50 shrink-0" />
+                                 <MonitorPlay className="w-3.5 h-3.5 text-primary/50 shrink-0" />
                                 Selecciona tu plan de ataque hoy.
                             </p>
                         </div>
@@ -240,7 +240,7 @@ export default function RoutinesPage() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 onClick={clearDurationFilter}
-                                className="shrink-0 flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all"
+                                className="shrink-0 flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/10 border border-primary/20 text-green-400 rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all"
                             >
                                 Express: ≤ {durationFilter}m <X className="w-3 h-3" />
                             </motion.button>
@@ -250,7 +250,7 @@ export default function RoutinesPage() {
 
                 {/* Filter Panel */}
                 <div className="bg-[#111111] border border-white/5 rounded-xl p-5 sm:p-6 mb-6 sm:mb-8 backdrop-blur-sm relative overflow-hidden">
-                    <div className="absolute -top-16 -right-16 w-40 h-40 bg-orange-500/5 blur-[80px] rounded-full pointer-events-none" />
+                    <div className="absolute -top-16 -right-16 w-40 h-40 bg-primary/5 blur-[80px] rounded-full pointer-events-none" />
 
                     {/* Search & Filters */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-end relative z-10">
@@ -260,13 +260,13 @@ export default function RoutinesPage() {
                                 <Search className="w-3 h-3" /> Buscador
                             </label>
                             <div className="relative group">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-orange-500 transition-colors" />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-primary transition-colors" />
                                 <input
                                     type="text"
                                     placeholder="¿Qué rutina buscas?"
                                     value={busqueda}
                                     onChange={(e) => setBusqueda(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 bg-black/40 border border-white/10 rounded-2xl text-white text-sm placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-4 focus:ring-orange-500/5 transition-all"
+                                    className="w-full pl-10 pr-4 py-3 bg-black/40 border border-white/10 rounded-2xl text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all"
                                 />
                             </div>
                         </div>
@@ -280,7 +280,7 @@ export default function RoutinesPage() {
                                 {filter !== 'todos' && (
                                     <button
                                         onClick={() => setFilter('todos')}
-                                        className="text-[10px] text-orange-500/60 hover:text-orange-500 font-bold uppercase transition-colors"
+                                        className="text-[10px] text-primary/60 hover:text-primary font-bold uppercase transition-colors"
                                     >
                                         Limpiar
                                     </button>
@@ -290,10 +290,10 @@ export default function RoutinesPage() {
                                 {niveles.map((n) => {
                                     const isActive = filter === n;
                                     const levelColor: Record<string, string> = {
-                                        todos: 'from-orange-500/20 to-orange-600/10 border-orange-500/30',
+                                        todos: 'from-primary/20 to-green-600/10 border-primary/30',
                                         principiante: 'from-green-500/20 to-emerald-500/10 border-green-500/30',
                                         intermedio: 'from-yellow-500/20 to-amber-500/10 border-yellow-500/30',
-                                        avanzado: 'from-red-500/20 to-orange-500/10 border-red-500/30',
+                                        avanzado: 'from-red-500/20 to-primary/10 border-red-500/30',
                                     };
                                     return (
                                         <button
@@ -323,7 +323,7 @@ export default function RoutinesPage() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 onClick={clearDurationFilter}
-                                className="shrink-0 flex items-center gap-2 px-4 py-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all"
+                                className="shrink-0 flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 text-green-400 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all"
                             >
                                 ≤ {durationFilter}m <X className="w-3 h-3" />
                             </motion.button>
@@ -346,7 +346,7 @@ export default function RoutinesPage() {
                                     transition={{ delay: idx * 0.05 }}
                                     key={r.id}
                                     onClick={() => handleOpenRutina(r)}
-                                    className="group bg-[#141414] rounded-2xl sm:rounded-xl overflow-hidden border border-white/5 hover:border-orange-500/30 transition-all duration-500 text-left w-full"
+                                    className="group bg-[#141414] rounded-2xl sm:rounded-xl overflow-hidden border border-white/5 hover:border-primary/30 transition-all duration-500 text-left w-full"
                                 >
                                     {/* Card Image */}
                                     <div className="h-32 sm:h-40 md:h-48 relative overflow-hidden">
@@ -367,7 +367,7 @@ export default function RoutinesPage() {
                                                     e.currentTarget.style.display = 'none';
                                                     const parent = e.currentTarget.parentElement;
                                                     if (parent) {
-                                                        parent.classList.add('bg-gradient-to-br', 'from-orange-700/30', 'to-black');
+                                                        parent.classList.add('bg-gradient-to-br', 'from-green-700/30', 'to-black');
                                                     }
                                                 }}
                                             />
@@ -382,7 +382,7 @@ export default function RoutinesPage() {
                                                 {r.nivel || 'principiante'}
                                             </span>
                                             <span className="bg-black/50 backdrop-blur-md border border-white/10 rounded-md px-2 py-0.5 text-[9px] font-bold text-white flex items-center gap-1">
-                                                <Clock className="w-3 h-3 text-orange-500" />
+                                                <Clock className="w-3 h-3 text-primary" />
                                                 {r.duracion_estimada || 30}m
                                             </span>
                                         </div>
@@ -402,7 +402,7 @@ export default function RoutinesPage() {
                                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider truncate">
                                                 {objetivoLabels[r.objetivo || ''] || 'GENERAL'}
                                             </span>
-                                            <div className="w-8 h-8 rounded-full bg-orange-500/10 text-orange-500 group-hover:bg-orange-500 group-hover:text-black transition-all flex items-center justify-center shrink-0">
+                                            <div className="w-8 h-8 rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-black transition-all flex items-center justify-center shrink-0">
                                                 <ChevronRight className="w-4 h-4" />
                                             </div>
                                         </div>
@@ -450,7 +450,7 @@ export default function RoutinesPage() {
                                 {selectedRutina.imagen_cover_url ? (
                                     <img src={selectedRutina.imagen_cover_url} alt="" className="w-full h-full object-cover brightness-[0.5]" />
                                 ) : (
-                                    <div className="w-full h-full bg-gradient-to-br from-orange-600/30 to-black" />
+                                    <div className="w-full h-full bg-gradient-to-br from-green-600/30 to-black" />
                                 )}
                                 <div className="absolute inset-0 bg-gradient-to-t from-[#111111] to-transparent" />
 
@@ -471,17 +471,17 @@ export default function RoutinesPage() {
                                 {/* Stats Grid */}
                                 <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6 sm:mb-8">
                                     <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center gap-1 sm:gap-1.5">
-                                        <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500" />
+                                        <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                                         <span className="text-[8px] sm:text-[10px] text-gray-500 font-black uppercase tracking-tighter">Nivel</span>
                                         <span className="text-[11px] sm:text-xs text-white font-bold capitalize">{selectedRutina.nivel}</span>
                                     </div>
                                     <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center gap-1 sm:gap-1.5">
-                                        <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500" />
+                                        <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                                         <span className="text-[8px] sm:text-[10px] text-gray-500 font-black uppercase tracking-tighter">Meta</span>
                                         <span className="text-[11px] sm:text-xs text-white font-bold">{objetivoLabels[selectedRutina.objetivo || '']?.split(' ')[0] || 'Gral.'}</span>
                                     </div>
                                     <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center gap-1 sm:gap-1.5">
-                                        <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500" />
+                                        <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                                         <span className="text-[8px] sm:text-[10px] text-gray-500 font-black uppercase tracking-tighter">Tiempo</span>
                                         <span className="text-[11px] sm:text-xs text-white font-bold">{selectedRutina.duracion_estimada || 30}m</span>
                                     </div>
@@ -491,13 +491,13 @@ export default function RoutinesPage() {
                                     <h3 className="text-xs sm:text-sm font-black text-gray-500 uppercase tracking-[0.2em] mb-2 px-1">Ejercicios ({ejercicios.length})</h3>
 
                                     {loadingEjercicios ? (
-                                        <div className="py-10 sm:py-12 flex justify-center"><div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>
+                                        <div className="py-10 sm:py-12 flex justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
                                     ) : ejercicios.length === 0 ? (
                                         <p className="text-gray-500 text-xs text-center py-8">Sin ejercicios registrados.</p>
                                     ) : (
                                         ejercicios.map((ej, index) => (
                                             <div key={ej.id} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white/5 rounded-xl sm:rounded-2xl border border-white/5">
-                                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center font-black text-[11px] sm:text-sm shrink-0">
+                                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black text-[11px] sm:text-sm shrink-0">
                                                     {index + 1}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -505,7 +505,7 @@ export default function RoutinesPage() {
                                                     <p className="text-[9px] sm:text-[10px] text-gray-500 font-bold uppercase">{ej.ejercicio?.grupo_muscular || ''}</p>
                                                 </div>
                                                 <div className="text-right shrink-0">
-                                                    <p className="text-orange-500 font-black text-[12px] sm:text-sm">{ej.series} × {ej.repeticiones}</p>
+                                                    <p className="text-primary font-black text-[12px] sm:text-sm">{ej.series} × {ej.repeticiones}</p>
                                                     <p className="text-[8px] sm:text-[9px] text-gray-600 font-bold">{ej.descanso_segundos}s desc.</p>
                                                 </div>
                                             </div>
@@ -517,7 +517,7 @@ export default function RoutinesPage() {
                             <div className="p-4 sm:p-6 bg-[#0a0a0a]/80 backdrop-blur-3xl border-t border-white/5">
                                 <button
                                     onClick={handleIniciarRutina}
-                                    className="w-full h-12 sm:h-14 bg-orange-500 hover:bg-orange-400 text-black rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-[12px] sm:text-sm transition-all shadow-[0_15px_30px_rgba(249,115,22,0.3)] flex items-center justify-center gap-2 sm:gap-3"
+                                    className="w-full h-12 sm:h-14 bg-primary hover:bg-green-400 text-black rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-[12px] sm:text-sm transition-all shadow-[0_15px_30px_rgba(19,236,91,0.3)] flex items-center justify-center gap-2 sm:gap-3"
                                 >
                                     <Play className="w-4 h-4 fill-current" />
                                     Empezar Entrenamiento

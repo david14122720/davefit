@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 const timeOptions = [
     { value: 10, label: '10 min', icon: <Zap className="w-5 h-5 text-yellow-400" />, shadow: 'shadow-yellow-500/20' },
-    { value: 20, label: '20 min', icon: <Timer className="w-5 h-5 text-orange-500" />, shadow: 'shadow-orange-500/20' },
+    { value: 20, label: '20 min', icon: <Timer className="w-5 h-5 text-primary" />, shadow: 'shadow-primary/20' },
     { value: 40, label: '40 min', icon: <Flame className="w-5 h-5 text-red-500" />, shadow: 'shadow-red-500/20' },
 ];
 

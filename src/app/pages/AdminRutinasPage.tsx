@@ -562,7 +562,7 @@ export default function AdminRutinasPage() {
                                         {ejercicio.imagen_url ? (
                                             <img src={ejercicio.imagen_url} alt={ejercicio.nombre} className="w-10 h-10 rounded-lg object-cover" />
                                         ) : (
-                                            <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center text-lg">💪</div>
+                                            <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-lg">💪</div>
                                         )}
                                         <div className="flex-1 text-left">
                                             <p className="text-white font-medium text-sm">{ejercicio.nombre}</p>

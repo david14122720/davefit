@@ -30,8 +30,8 @@ export default function WelcomeModal({ isOpen, onClose, userName }: WelcomeModal
                         className="relative w-full max-w-lg bg-[#141414] border border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden"
                     >
                         {/* Decorative Background */}
-                        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-orange-500/20 to-transparent -z-10" />
-                        <div className="absolute -top-12 -right-12 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl -z-10" />
+                        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-primary/20 to-transparent -z-10" />
+                        <div className="absolute -top-12 -right-12 w-48 h-48 bg-primary/10 rounded-full blur-3xl -z-10" />
 
                         {/* Close Button */}
                         <button
@@ -46,7 +46,7 @@ export default function WelcomeModal({ isOpen, onClose, userName }: WelcomeModal
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
                                 transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-                                className="w-20 h-20 bg-orange-500/20 text-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(249,115,22,0.3)]"
+                                className="w-20 h-20 bg-primary/20 text-primary rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(19,236,91,0.3)]"
                             >
                                 <PartyPopper className="w-10 h-10" />
                             </motion.div>
@@ -57,7 +57,7 @@ export default function WelcomeModal({ isOpen, onClose, userName }: WelcomeModal
                                 transition={{ delay: 0.3 }}
                                 className="text-3xl sm:text-4xl font-black text-white mb-4 tracking-tight leading-tight"
                             >
-                                ¡Felicidades por empezar, <span className="text-orange-500">{userName}</span>!
+                                ¡Felicidades por empezar, <span className="text-primary">{userName}</span>!
                             </motion.h2>
 
                             <motion.p
@@ -77,7 +77,7 @@ export default function WelcomeModal({ isOpen, onClose, userName }: WelcomeModal
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={onClose}
-                                className="w-full py-4 bg-orange-500 hover:bg-orange-400 text-white font-black uppercase tracking-widest rounded-2xl shadow-[0_10px_30px_rgba(249,115,22,0.4)] transition-all flex items-center justify-center gap-2 group"
+                                className="w-full py-4 bg-primary hover:bg-green-400 text-black font-black font-black uppercase tracking-widest rounded-2xl shadow-[0_10px_30px_rgba(19,236,91,0.4)] transition-all flex items-center justify-center gap-2 group"
                             >
                                 <Sparkles className="w-5 h-5 group-hover:animate-spin-slow" />
                                 ¡Vamos a entrenar!

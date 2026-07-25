@@ -41,9 +41,9 @@ export const BenefitsGrid = () => {
         return (
           <div
             key={item.title}
-            className="p-6 rounded-2xl bg-background-card border border-white/5 flex gap-4 hover:bg-white/5 hover:border-primary/30 transition-all hover:shadow-[0_0_20px_rgba(255,107,0,0.15)] group"
+            className="p-6 rounded-2xl bg-background-card border border-white/5 flex gap-4 hover:bg-white/5 hover:border-primary/30 transition-all hover:shadow-[0_0_20px_rgba(19,236,91,0.15)] group"
           >
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold flex-shrink-0 shadow-[0_0_15px_rgba(255,107,0,0.4)] group-hover:shadow-[0_0_25px_rgba(255,107,0,0.6)] transition-all">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold flex-shrink-0 shadow-[0_0_15px_rgba(19,236,91,0.4)] group-hover:shadow-[0_0_25px_rgba(19,236,91,0.6)] transition-all">
               <IconComponent size={24} strokeWidth={2} />
             </div>
             <div>

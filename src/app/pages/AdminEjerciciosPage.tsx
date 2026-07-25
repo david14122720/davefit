@@ -139,7 +139,7 @@ export default function AdminEjerciciosPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-10 h-10 animate-spin text-orange-500" />
+                <Loader2 className="w-10 h-10 animate-spin text-primary" />
             </div>
         );
     }
@@ -161,7 +161,7 @@ export default function AdminEjerciciosPage() {
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-green-600 text-white rounded-xl font-medium transition-colors"
                 >
                     <Plus className="w-5 h-5" />
                     Nuevo Ejercicio
@@ -176,7 +176,7 @@ export default function AdminEjerciciosPage() {
                     placeholder="Buscar ejercicios..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-[#141414] border border-white/5 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 transition-colors"
+                    className="w-full pl-12 pr-4 py-3 bg-[#141414] border border-white/5 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
                 />
             </div>
 
@@ -200,7 +200,7 @@ export default function AdminEjerciciosPage() {
                                         {e.imagen_url ? (
                                             <img src={e.imagen_url} alt={e.nombre} className="w-12 h-12 rounded-xl object-cover border border-white/10" />
                                         ) : (
-                                            <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-xl border border-orange-500/20">
+                                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-xl border border-primary/20">
                                                 {grupoIcons[e.grupo_muscular] || '💪'}
                                             </div>
                                         )}
@@ -254,7 +254,7 @@ export default function AdminEjerciciosPage() {
                         {e.imagen_url ? (
                             <img src={e.imagen_url} alt={e.nombre} className="w-14 h-14 rounded-xl object-cover border border-white/10 flex-shrink-0" />
                         ) : (
-                            <div className="w-14 h-14 rounded-xl bg-orange-500/10 flex items-center justify-center text-2xl border border-orange-500/20 flex-shrink-0">
+                            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-2xl border border-primary/20 flex-shrink-0">
                                 {grupoIcons[e.grupo_muscular] || '💪'}
                             </div>
                         )}
@@ -287,7 +287,7 @@ export default function AdminEjerciciosPage() {
                     <p className="text-gray-400 mb-6 text-sm">Crea tu primer ejercicio para empezar.</p>
                     <button
                         onClick={() => handleOpenModal()}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-green-600 text-white rounded-xl font-medium transition-colors"
                     >
                         <Plus className="w-5 h-5" />
                         Nuevo Ejercicio
@@ -315,7 +315,7 @@ export default function AdminEjerciciosPage() {
                                     required
                                     value={formData.nombre}
                                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-orange-500/50"
+                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50"
                                     placeholder="Nombre del ejercicio"
                                 />
                             </div>
@@ -324,7 +324,7 @@ export default function AdminEjerciciosPage() {
                                 <textarea
                                     value={formData.descripcion}
                                     onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-orange-500/50 resize-none"
+                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 resize-none"
                                     rows={2}
                                     placeholder="Descripción breve"
                                 />
@@ -336,7 +336,7 @@ export default function AdminEjerciciosPage() {
                                         required
                                         value={formData.grupo_muscular}
                                         onChange={(e) => setFormData({ ...formData, grupo_muscular: e.target.value })}
-                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-orange-500/50"
+                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50"
                                     >
                                         {grupoMuscularOptions.map(g => (
                                             <option key={g} value={g} className="capitalize">{g}</option>
@@ -349,7 +349,7 @@ export default function AdminEjerciciosPage() {
                                         required
                                         value={formData.nivel}
                                         onChange={(e) => setFormData({ ...formData, nivel: e.target.value })}
-                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-orange-500/50"
+                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50"
                                     >
                                         {nivelOptions.map(n => (
                                             <option key={n} value={n} className="capitalize">{n}</option>
@@ -363,7 +363,7 @@ export default function AdminEjerciciosPage() {
                                     required
                                     value={formData.tipo_lugar}
                                     onChange={(e) => setFormData({ ...formData, tipo_lugar: e.target.value })}
-                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-orange-500/50"
+                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50"
                                 >
                                     {tipoLugarOptions.map(t => (
                                         <option key={t} value={t} className="capitalize">{t}</option>
@@ -400,7 +400,7 @@ export default function AdminEjerciciosPage() {
                                             type="text"
                                             value={formData.video_url}
                                             onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
-                                            className="w-full pl-12 pr-4 py-2 bg-[#0a0a0a] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500/50"
+                                            className="w-full pl-12 pr-4 py-2 bg-[#0a0a0a] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-primary/50"
                                             placeholder="O pega un enlace de video (YouTube, etc.)"
                                         />
                                     </div>
@@ -412,7 +412,7 @@ export default function AdminEjerciciosPage() {
                                 <textarea
                                     value={formData.instrucciones}
                                     onChange={(e) => setFormData({ ...formData, instrucciones: e.target.value })}
-                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-orange-500/50 resize-none"
+                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 resize-none"
                                     rows={4}
                                     placeholder="Paso 1&#10;Paso 2&#10;Paso 3"
                                 />
@@ -428,7 +428,7 @@ export default function AdminEjerciciosPage() {
                                 <button
                                     type="submit"
                                     disabled={saving}
-                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium transition-colors disabled:opacity-50"
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-primary hover:bg-green-600 text-white rounded-xl font-medium transition-colors disabled:opacity-50"
                                 >
                                     {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                                     {saving ? 'Guardando...' : 'Guardar'}

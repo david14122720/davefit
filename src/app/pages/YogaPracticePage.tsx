@@ -83,7 +83,7 @@ export default function YogaPracticePage() {
         nextPosition();
         toast.success('¡Posición completada!', {
           description: `Descansa ${REST_TIME} segundos...`,
-          icon: <Sparkles className="w-4 h-4 text-orange-400" />
+          icon: <Sparkles className="w-4 h-4 text-green-400" />
         });
       }
     }
@@ -151,7 +151,7 @@ export default function YogaPracticePage() {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           <p className="text-gray-400 animate-pulse">Preparando tu espacio...</p>
         </div>
       </div>
@@ -198,8 +198,8 @@ export default function YogaPracticePage() {
               {session.rutina?.nombre}
             </h1>
             <div className="flex items-center justify-center gap-2 mt-0.5">
-               <span className="text-xs font-bold text-orange-500 uppercase tracking-widest">
-                 {isResting ? 'Descanso' : 'En práctica'}
+<span className="text-xs font-bold text-primary uppercase tracking-widest">
+                  {isResting ? 'Descanso' : 'En práctica'}
                </span>
                <span className="text-gray-600">•</span>
                <span className="text-xs text-gray-400">
@@ -219,7 +219,7 @@ export default function YogaPracticePage() {
         <div className="max-w-5xl mx-auto mt-4 px-2">
           <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
             <motion.div 
-              className="h-full bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600"
+              className="h-full bg-gradient-to-r from-primary via-pink-500 to-purple-600"
               initial={{ width: 0 }}
               animate={{ width: `${progreso}%` }}
               transition={{ duration: 0.8, ease: "easeOut" }}
@@ -232,7 +232,7 @@ export default function YogaPracticePage() {
       <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 relative overflow-hidden">
         {/* Ambient Background Glow */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] transition-colors duration-1000 ${isResting ? 'bg-purple-500/10' : 'bg-orange-500/10'}`} />
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] transition-colors duration-1000 ${isResting ? 'bg-purple-500/10' : 'bg-primary/10'}`} />
         </div>
 
         <AnimatePresence mode="wait">
@@ -263,11 +263,11 @@ export default function YogaPracticePage() {
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">A continuación</p>
                 <h3 className="text-xl font-bold text-white">{posicionActual.posicion?.nombre}</h3>
                 <p className="text-sm text-gray-400 line-clamp-2">{posicionActual.posicion?.descripcion}</p>
-                <button 
-                   onClick={() => handleTimerComplete()}
-                   className="mt-2 text-sm font-bold text-orange-500 hover:text-orange-400 transition-colors"
-                >
-                   Omitir descanso
+<button 
+                    onClick={() => handleTimerComplete()}
+                    className="mt-2 text-sm font-bold text-primary hover:text-green-400 transition-colors"
+                 >
+                    Omitir descanso
                 </button>
               </div>
             </motion.div>
@@ -281,7 +281,7 @@ export default function YogaPracticePage() {
             >
               {/* Media Section */}
               <div className="flex flex-col gap-6">
-                <div className="aspect-[4/3] bg-gradient-to-br from-orange-500/20 to-purple-500/20 rounded-xl border border-white/10 overflow-hidden shadow-2xl relative group">
+                <div className="aspect-[4/3] bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-xl border border-white/10 overflow-hidden shadow-2xl relative group">
                   {posicionActual.posicion?.imagen_url ? (
                     <img 
                       src={posicionActual.posicion.imagen_url} 
@@ -290,7 +290,7 @@ export default function YogaPracticePage() {
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Flower2 className="w-32 h-32 text-orange-400/20" />
+                      <Flower2 className="w-32 h-32 text-green-400/20" />
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex items-end">
@@ -303,7 +303,7 @@ export default function YogaPracticePage() {
                     <ul className="space-y-3">
                        {posicionActual.posicion?.instrucciones?.slice(0, 3).map((ins, i) => (
                            <li key={i} className="flex gap-3 text-sm text-gray-300">
-                             <span className="text-orange-500">•</span>
+                             <span className="text-primary">•</span>
                              {ins}
                            </li>
                        ))}
@@ -318,7 +318,7 @@ export default function YogaPracticePage() {
                     {posicionActual.posicion?.nombre}
                   </h2>
                   {posicionActual.posicion?.nombre_sanscrito && (
-                    <p className="text-orange-400 text-xl font-medium tracking-tight">
+                    <p className="text-green-400 text-xl font-medium tracking-tight">
                       {posicionActual.posicion.nombre_sanscrito}
                     </p>
                   )}
@@ -351,7 +351,7 @@ export default function YogaPracticePage() {
                   >
                     <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
                       isTimerRunning 
-                        ? 'bg-orange-500 text-black shadow-[0_0_30px_rgba(249,115,22,0.4)]' 
+                        ? 'bg-primary text-black shadow-[0_0_30px_rgba(19,236,91,0.4)]' 
                         : 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]'
                     }`}>
                       {isTimerRunning ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
@@ -410,10 +410,10 @@ export default function YogaPracticePage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="mb-6 p-4 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 rounded-2xl border border-orange-500/20"
+                  className="mb-6 p-4 bg-gradient-to-r from-primary/10 to-yellow-500/10 rounded-2xl border border-primary/20"
                 >
-                  <div className="flex items-center justify-center gap-3 mb-3">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-orange-500/20 rounded-xl">
+<div className="flex items-center justify-center gap-3 mb-3">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-primary/20 rounded-xl">
                       <Star className="w-5 h-5 text-yellow-400" />
                       <span className="text-white font-bold">+{xpResult.xp_ganado} XP</span>
                     </div>
@@ -440,7 +440,7 @@ export default function YogaPracticePage() {
                     resetSession();
                     if (rutinaId) fetchRutina(rutinaId);
                   }}
-                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-orange-500 text-black rounded-2xl font-black hover:bg-orange-400 transition-all shadow-lg active:scale-[0.98]"
+                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-primary text-black rounded-2xl font-black hover:bg-green-400 transition-all shadow-lg active:scale-[0.98]"
                 >
                   <RotateCcw className="w-5 h-5" />
                   Repetir Sesión

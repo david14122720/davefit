@@ -88,10 +88,10 @@ export default function XPBar() {
     const percentage = Math.min((xpEnNivelActual / xpParaSiguiente) * 100, 100);
 
     return (
-        <div className="p-3 bg-[#141414] rounded-xl border border-white/5 hover:border-orange-500/20 transition-all">
+        <div className="p-3 bg-[#141414] rounded-xl border border-white/5 hover:border-primary/20 transition-all">
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-green-600 flex items-center justify-center">
                         <Zap className="w-4 h-4 text-black" />
                     </div>
                     <div>
@@ -103,14 +103,14 @@ export default function XPBar() {
                     <div className="text-right">
                         <p className="text-xs text-gray-400 font-medium">Racha</p>
                         <div className="flex items-center gap-1">
-                            <Flame className={`w-4 h-4 ${diasRacha > 0 ? 'text-orange-500' : 'text-gray-600'}`} />
+                            <Flame className={`w-4 h-4 ${diasRacha > 0 ? 'text-primary' : 'text-gray-600'}`} />
                             <p className="text-sm font-bold text-white">{diasRacha}</p>
                         </div>
                     </div>
                     <div className="w-px h-8 bg-white/10" />
                     <div className="text-right">
                         <p className="text-xs text-gray-400 font-medium">Total XP</p>
-                        <p className="text-sm font-bold text-orange-400">{(xpActual || 0).toLocaleString()}</p>
+                        <p className="text-sm font-bold text-green-400">{(xpActual || 0).toLocaleString()}</p>
                     </div>
                 </div>
             </div>
@@ -125,7 +125,7 @@ export default function XPBar() {
                         initial={{ width: 0 }}
                         animate={{ width: `${percentage}%` }}
                         transition={{ duration: 1, ease: 'easeOut' }}
-                        className="h-full bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+                        className="h-full bg-gradient-to-r from-primary to-yellow-500 rounded-full shadow-[0_0_10px_rgba(19,236,91,0.5)]"
                     />
                 </div>
             </div>

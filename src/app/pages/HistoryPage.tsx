@@ -67,7 +67,7 @@ export default function HistoryPage() {
                 {/* Header Skeleton */}
                 <div className="mb-10 mt-6">
                     <div className="flex gap-3 items-center mb-2">
-                        <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20" />
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20" />
                         <div className="h-10 w-64 bg-white/5 rounded-xl" />
                     </div>
                     <div className="h-4 w-40 bg-white/5 rounded-lg ml-11" />
@@ -137,30 +137,30 @@ export default function HistoryPage() {
         >
             {/* Header section */}
             <motion.div variants={itemVariants} className="relative mb-10">
-                <div className="absolute -top-10 -left-10 w-40 h-40 bg-orange-500/5 blur-[100px] rounded-full pointer-events-none" />
+                <div className="absolute -top-10 -left-10 w-40 h-40 bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
                 <div className="flex flex-col gap-2 relative z-10">
                     <div className="flex items-center gap-3">
-                        <HistoryIcon className="w-6 h-6 text-orange-500" />
+                        <HistoryIcon className="w-6 h-6 text-primary" />
                         <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none uppercase">
-                            Bitácora de <span className="text-orange-500">Guerra</span>
+                            Bitácora de <span className="text-primary">Guerra</span>
                         </h1>
                     </div>
                     <div className="flex flex-wrap gap-2 mt-2">
                         <button 
                             onClick={() => setFiltro('semanal')}
-                            className={`px-4 py-2 bg-[#141414]/50 border border-white/10 rounded-full text-xs font-black text-white transition-all ${filtro === 'semanal' ? 'bg-orange-500/20 border-orange-500/30 text-orange-500' : 'hover:bg-white/5'}`}
+                            className={`px-4 py-2 bg-[#141414]/50 border border-white/10 rounded-full text-xs font-black text-white transition-all ${filtro === 'semanal' ? 'bg-primary/20 border-primary/30 text-primary' : 'hover:bg-white/5'}`}
                         >
                             Semanal
                         </button>
                         <button 
                             onClick={() => setFiltro('mensual')}
-                            className={`px-4 py-2 bg-[#141414]/50 border border-white/10 rounded-full text-xs font-black text-white transition-all ${filtro === 'mensual' ? 'bg-orange-500/20 border-orange-500/30 text-orange-500' : 'hover:bg-white/5'}`}
+                            className={`px-4 py-2 bg-[#141414]/50 border border-white/10 rounded-full text-xs font-black text-white transition-all ${filtro === 'mensual' ? 'bg-primary/20 border-primary/30 text-primary' : 'hover:bg-white/5'}`}
                         >
                             Mensual
                         </button>
                         <button 
                             onClick={() => setFiltro('todas')}
-                            className={`px-4 py-2 bg-[#141414]/50 border border-white/10 rounded-full text-xs font-black text-white transition-all ${filtro === 'todas' ? 'bg-orange-500/20 border-orange-500/30 text-orange-500' : 'hover:bg-white/5'}`}
+                            className={`px-4 py-2 bg-[#141414]/50 border border-white/10 rounded-full text-xs font-black text-white transition-all ${filtro === 'todas' ? 'bg-primary/20 border-primary/30 text-primary' : 'hover:bg-white/5'}`}
                         >
                             Todas
                         </button>
@@ -173,8 +173,8 @@ export default function HistoryPage() {
 
             {/* Premium Stats Dashboard - Mobile Optimized */}
             <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-10">
-                <div className="bg-[#141414]/90 backdrop-blur-xl p-5 sm:p-6 rounded-xl border border-white/5 flex flex-col items-center text-center shadow-xl group hover:border-orange-500/20 transition-all">
-                    <Trophy className="w-5 h-5 text-orange-500 mb-3 opacity-40 group-hover:opacity-100 transition-opacity" />
+                <div className="bg-[#141414]/90 backdrop-blur-xl p-5 sm:p-6 rounded-xl border border-white/5 flex flex-col items-center text-center shadow-xl group hover:border-primary/20 transition-all">
+                    <Trophy className="w-5 h-5 text-primary mb-3 opacity-40 group-hover:opacity-100 transition-opacity" />
                     <span className="text-3xl font-black text-white leading-none mb-1">{historial.length}</span>
                     <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Sesiones</span>
                 </div>
@@ -214,21 +214,21 @@ export default function HistoryPage() {
                                 layout
                                 variants={itemVariants}
                                 exit={{ opacity: 0, x: -20 }}
-                                className="group relative bg-[#141414]/40 backdrop-blur-md border border-white/5 rounded-lg p-4 sm:p-5 flex items-center justify-between hover:bg-[#1a1a1a]/60 hover:border-orange-500/30 transition-all duration-300 shadow-lg overflow-hidden"
+                                className="group relative bg-[#141414]/40 backdrop-blur-md border border-white/5 rounded-lg p-4 sm:p-5 flex items-center justify-between hover:bg-[#1a1a1a]/60 hover:border-primary/30 transition-all duration-300 shadow-lg overflow-hidden"
                             >
                                 <div className="flex items-center gap-4 relative z-10">
-                                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-orange-500/10 text-orange-500 border border-orange-500/20 flex flex-col items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-black transition-all">
+                                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 text-primary border border-primary/20 flex flex-col items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:bg-primary group-hover:text-black transition-all">
                                         <span className="text-xs font-black leading-none">{new Date(entry.fecha).getDate()}</span>
                                         <span className="text-[8px] font-black uppercase tracking-tighter">{new Date(entry.fecha).toLocaleDateString('es-ES', { month: 'short' })}</span>
                                     </div>
                                     
                                     <div className="min-w-0">
-                                        <p className="font-extrabold text-white text-sm sm:text-base mb-1 truncate capitalize tracking-tight group-hover:text-orange-500 transition-colors">
+                                        <p className="font-extrabold text-white text-sm sm:text-base mb-1 truncate capitalize tracking-tight group-hover:text-primary transition-colors">
                                             {entry.rutinas?.nombre || 'Rutina Personalizada'}
                                         </p>
                                         <div className="flex items-center gap-3 flex-wrap">
                                             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white/5 rounded-full border border-white/5">
-                                                <Clock className="w-3 h-3 text-orange-400 opacity-70" />
+                                                <Clock className="w-3 h-3 text-green-400 opacity-70" />
                                                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{entry.duracion_real || 0}m</span>
                                             </div>
                                             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white/5 rounded-full border border-white/5">
@@ -242,11 +242,11 @@ export default function HistoryPage() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 relative z-10 shrink-0">
-                                    <ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-orange-500 transition-all group-hover:translate-x-1" />
+                                    <ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-primary transition-all group-hover:translate-x-1" />
                                 </div>
                                 
                                 {/* Inner glow decoration */}
-                                <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-orange-500/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                             </motion.div>
                         ))}
                     </AnimatePresence>
@@ -260,7 +260,7 @@ export default function HistoryPage() {
                     <div className="text-7xl mb-6">🏜️</div>
                     <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">Archivo Vacío</h3>
                     <p className="text-gray-500 text-sm max-w-xs mx-auto font-medium">Aún no has tallado tu historia en DaveFit. Comienza tu primera sesión ahora.</p>
-                    <Link to="/rutinas" className="inline-block mt-8 px-8 py-3.5 bg-orange-500 text-black font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl hover:bg-orange-400 transition-all hover:scale-105 active:scale-95">
+                    <Link to="/rutinas" className="inline-block mt-8 px-8 py-3.5 bg-primary text-black font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl hover:bg-green-400 transition-all hover:scale-105 active:scale-95">
                         Iniciar Campaña
                     </Link>
                 </motion.div>
