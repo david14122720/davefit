@@ -71,14 +71,15 @@ export default function RegisterPage() {
     return (
         <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0a0a0a] relative overflow-hidden">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-orange-500/10 blur-[120px] animate-pulse" />
-                <div className="absolute bottom-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-orange-400/10 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
+                <div className="absolute top-[-20%] right-[-10%] w-[70%] h-[60%] rounded-full bg-orange-500/15 blur-[150px] animate-pulse" />
+                <div className="absolute bottom-[-20%] left-[-10%] w-[70%] h-[60%] rounded-full bg-purple-500/10 blur-[150px] animate-pulse" style={{ animationDelay: '2s' }} />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] rounded-full bg-orange-400/5 blur-[120px] animate-pulse" style={{ animationDelay: '4s' }} />
             </div>
 
             <motion.div 
-                initial={{ y: 20, opacity: 0 }}
+                initial={{ y: 30, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
+                transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
                 className="w-full max-w-[420px] relative z-10"
             >
                 <a href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6 group text-sm">
@@ -87,14 +88,14 @@ export default function RegisterPage() {
                 </a>
 
                 <div className="text-center mb-6 sm:mb-8">
-                    <a href="/" className="inline-block text-3xl sm:text-4xl font-bold tracking-tighter mb-2">
+                    <a href="/" className="inline-block text-3xl sm:text-4xl font-bold tracking-tighter mb-2 drop-shadow-[0_0_20px_rgba(249,115,22,0.3)]">
                         Dave<span className="text-orange-500">Fit</span>
                     </a>
                     <h1 className="text-xl sm:text-2xl font-bold text-white">Crea tu cuenta</h1>
                     <p className="text-gray-400 mt-2 text-sm">Comienza tu transformación hoy</p>
                 </div>
 
-                <div className="bg-[#141414]/90 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-xl shadow-2xl border border-white/10">
+                <div className="bg-[#141414]/60 backdrop-blur-2xl p-6 sm:p-8 rounded-2xl sm:rounded-xl shadow-[0_25px_80px_rgba(0,0,0,0.5)] border border-white/10">
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-300">Nombre completo</label>
@@ -105,7 +106,7 @@ export default function RegisterPage() {
                                 <input
                                     type="text"
                                     {...register('fullName')}
-                                    className={`w-full pl-11 pr-4 py-3.5 rounded-xl bg-black/40 border text-white placeholder-gray-500 focus:ring-2 outline-none transition-all text-base ${errors.fullName ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500' : 'border-white/10 focus:ring-orange-500/50 focus:border-orange-500'}`}
+                                    className={`w-full pl-11 pr-4 py-3.5 rounded-xl bg-black/40 border text-white placeholder-gray-500 focus:ring-4 outline-none transition-all text-base ${errors.fullName ? 'border-red-500/50 focus:ring-red-500/10 focus:border-red-500/50' : 'border-white/10 focus:ring-orange-500/10 focus:border-orange-500/50'}`}
                                     placeholder="Tu nombre completo"
                                 />
                             </div>
@@ -121,7 +122,7 @@ export default function RegisterPage() {
                                 <input
                                     type="email"
                                     {...register('email')}
-                                    className={`w-full pl-11 pr-4 py-3.5 rounded-xl bg-black/40 border text-white placeholder-gray-500 focus:ring-2 outline-none transition-all text-base ${errors.email ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500' : 'border-white/10 focus:ring-orange-500/50 focus:border-orange-500'}`}
+                                    className={`w-full pl-11 pr-4 py-3.5 rounded-xl bg-black/40 border text-white placeholder-gray-500 focus:ring-4 outline-none transition-all text-base ${errors.email ? 'border-red-500/50 focus:ring-red-500/10 focus:border-red-500/50' : 'border-white/10 focus:ring-orange-500/10 focus:border-orange-500/50'}`}
                                     placeholder="tu@email.com"
                                 />
                             </div>
@@ -137,7 +138,7 @@ export default function RegisterPage() {
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     {...register('password')}
-                                    className={`w-full pl-11 pr-12 py-3.5 rounded-xl bg-black/40 border text-white placeholder-gray-500 focus:ring-2 outline-none transition-all text-base ${errors.password ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500' : 'border-white/10 focus:ring-orange-500/50 focus:border-orange-500'}`}
+                                    className={`w-full pl-11 pr-12 py-3.5 rounded-xl bg-black/40 border text-white placeholder-gray-500 focus:ring-4 outline-none transition-all text-base ${errors.password ? 'border-red-500/50 focus:ring-red-500/10 focus:border-red-500/50' : 'border-white/10 focus:ring-orange-500/10 focus:border-orange-500/50'}`}
                                     placeholder="Mínimo 6 caracteres"
                                 />
                                 <button
@@ -158,7 +159,7 @@ export default function RegisterPage() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full py-4 px-4 bg-orange-500 hover:bg-orange-400 text-black font-bold rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:shadow-[0_0_30px_rgba(249,115,22,0.5)] transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 text-base sm:text-lg"
+                            className="w-full py-4 px-4 bg-orange-500 hover:bg-orange-400 text-black font-bold rounded-xl shadow-[0_10px_30px_rgba(249,115,22,0.3)] hover:shadow-[0_10px_40px_rgba(249,115,22,0.5)] transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 text-base sm:text-lg"
                         >
                             {isSubmitting ? (
                                 <>
@@ -175,9 +176,9 @@ export default function RegisterPage() {
                     </form>
 
                     <div className="relative my-6">
-                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10" /></div>
+                        <div className="absolute inset-0 flex items-center"><div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" /></div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-4 bg-[#141414] text-gray-500">O continúa con</span>
+                            <span className="px-4 bg-[#141414] text-gray-400 text-xs font-medium uppercase tracking-wider">O continúa con</span>
                         </div>
                     </div>
 
@@ -198,7 +199,7 @@ export default function RegisterPage() {
 
                 <p className="text-center mt-6 text-sm text-gray-400">
                     ¿Ya tienes una cuenta?{' '}
-                    <Link to="/login" className="text-orange-500 hover:text-orange-400 font-medium transition-colors hover:underline">
+                    <Link to="/login" className="text-orange-500 hover:text-orange-400 font-medium transition-all duration-300 hover:underline underline-offset-4 decoration-orange-500/50 decoration-2">
                         Inicia sesión
                     </Link>
                 </p>
