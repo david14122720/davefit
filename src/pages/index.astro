@@ -51,8 +51,8 @@ const formatNumber = (num: number): string => {
 ---
 
 <BaseLayout 
-  title="Entrenamientos en Casa para Estudiantes"
-  description="DaveFit - Entrenamientos gratuitos en casa para estudiantes. Rutinas de fitness sin equipo, yoga y ejercicios personalizados. Transforma tu habitación en tu gimnasio personal."
+  title="Acerca de DaveFit — Plataforma de Entrenamiento Inteligente para Estudiantes"
+  description="DaveFit es la plataforma de entrenamiento inteligente diseñada para estudiantes. Sin equipo, sin cuotas, solo resultados. Conoce nuestra misión, explora rutinas gratuitas y transforma tu habitación en tu gimnasio personal."
   image="/og-image.png"
 >
   {fetchError ? (
@@ -120,12 +120,13 @@ const formatNumber = (num: number): string => {
         <h1
           class="text-4xl sm:text-5xl md:text-7xl font-extrabold leading-tight mb-6 drop-shadow-[0_0_30px_rgba(255,107,0,0.3)]"
         >
-          Transforma Tu <br />
-          <span class="text-primary">Habitación</span> en Tu Gimnasio.
+          La Plataforma de Entrenamiento<br />
+          <span class="text-primary">Inteligente para Estudiantes</span>
         </h1>
         <p class="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0">
-          Entrenamientos accesibles y sin equipo diseñados específicamente para
-          estudiantes que viven en espacios pequeños.
+          DaveFit ofrece entrenamientos accesibles y sin equipo diseñados
+          específicamente para estudiantes que viven en espacios pequeños.
+          Tu habitación, tu gimnasio. Resultados reales sin pagar cuotas.
         </p>
         <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
           <a
@@ -136,10 +137,11 @@ const formatNumber = (num: number): string => {
             Comenzar gratis
           </a>
           <a
-            href="#como-funciona"
+            href="/app/biblioteca"
+            data-astro-reload
             class="w-full sm:w-auto px-8 py-4 bg-white/5 border border-white/10 rounded-xl font-bold hover:bg-white/10 hover:border-primary/30 transition-all backdrop-blur-sm"
           >
-            Ver demo
+            Explorar Biblioteca
           </a>
         </div>
 
@@ -357,6 +359,19 @@ const formatNumber = (num: number): string => {
       </div>
 
       <BenefitsGrid client:load />
+
+      <div class="text-center mt-12">
+        <a
+          href="/app/biblioteca"
+          data-astro-reload
+          class="inline-flex items-center gap-2 px-8 py-4 bg-primary hover:bg-primary-light text-white font-bold rounded-xl text-lg shadow-[0_0_30px_rgba(255,107,0,0.4)] hover:shadow-[0_0_40px_rgba(255,107,0,0.6)] transition-all hover:scale-105"
+        >
+          Explorar Biblioteca
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
     </div>
   </section>
 
