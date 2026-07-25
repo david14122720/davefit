@@ -5,18 +5,35 @@ export default {
         extend: {
             colors: {
                 primary: {
-                    DEFAULT: '#ff6b00',
-                    light: '#ff8533',
-                    dark: '#e65100',
-                    glow: 'rgba(255, 107, 0, 0.3)',
+                    DEFAULT: '#13ec5b',
+                    hover: '#10cc4e',
+                    light: '#4cff84',
+                    dark: '#0ba33e',
+                    glow: 'rgba(19, 236, 91, 0.3)',
+                    on: '#0a2e14',
+                },
+                surface: {
+                    DEFAULT: '#2b1c16',
+                    container: '#2b1c16',
+                    high: '#362720',
+                    highest: '#41312a',
+                    low: '#261812',
+                    lowest: '#170b06',
                 },
                 background: {
-                    dark: '#0a0a0a',
-                    darker: '#050505',
-                    card: '#141414',
-                    surface: '#1e1e1e',
-                    elevated: '#252525',
-                    glass: 'rgba(20, 20, 20, 0.8)',
+                    dark: '#1d100a',
+                    darker: '#170b06',
+                    card: '#2b1c16',
+                    surface: '#3a281f',
+                    elevated: '#4a3428',
+                    glass: 'rgba(43, 28, 22, 0.8)',
+                },
+                on: {
+                    surface: '#f8ddd2',
+                    'surface-variant': '#e2bfb0',
+                },
+                text: {
+                    muted: '#94a3b8',
                 },
             },
             fontFamily: {

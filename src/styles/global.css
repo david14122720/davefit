@@ -3,8 +3,20 @@
 @tailwind utilities;
 
 @layer base {
+    :root {
+        --surface-lowest: #170b06;
+        --surface-low: #261812;
+        --surface-default: #2b1c16;
+        --surface-high: #362720;
+        --surface-highest: #41312a;
+        --bg-base: #1d100a;
+        --primary-green: #13ec5b;
+        --on-surface: #f8ddd2;
+        --on-surface-variant: #e2bfb0;
+    }
+
     body {
-        @apply bg-background-dark text-white font-sans antialiased min-h-screen selection:bg-orange-500/30 selection:text-white;
+        @apply bg-background-dark text-white font-sans antialiased min-h-screen selection:bg-green-500/30 selection:text-white;
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
