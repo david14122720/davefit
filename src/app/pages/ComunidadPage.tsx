@@ -76,7 +76,7 @@ const PodiumCard = ({ user, position }: { user: LeaderboardUser; position: 1 | 2
         {user.username}
       </h3>
       
-      <div className="mt-3 sm:mt-2 px-4 py-1.5 sm:px-3 sm:py-1 bg-primary/20 border border-primary/30 rounded-full shadow-[0_0_10px_rgba(19,236,91,0.2)]">
+      <div className="mt-3 sm:mt-2 px-4 py-1.5 sm:px-3 sm:py-1 bg-primary/20 border border-primary/30 rounded-full shadow-[0_0_10px_rgba(255,107,0,0.2)]">
         <span className="text-green-400 font-bold text-base sm:text-sm">{user.total_score.toLocaleString()}</span>
         <span className="text-gray-400 text-xs sm:text-[10px] ml-1 uppercase">pts</span>
       </div>
@@ -191,7 +191,7 @@ export default function ComunidadPage() {
   return (
     <div className="max-w-5xl mx-auto pb-20 px-4">
       <header className="flex flex-col items-center justify-center gap-4 mb-10 text-center">
-        <div className="w-16 h-16 bg-primary/10 border border-primary/20 text-primary rounded-lg flex items-center justify-center shadow-[0_0_40px_rgba(19,236,91,0.15)] ring-1 ring-primary/20">
+        <div className="w-16 h-16 bg-primary/10 border border-primary/20 text-primary rounded-lg flex items-center justify-center shadow-[0_0_40px_rgba(255,107,0,0.15)] ring-1 ring-primary/20">
             <TrophyIcon />
         </div>
         <div>

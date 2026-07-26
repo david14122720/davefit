@@ -1,4 +1,4 @@
-export const createImage = (url: string): Promise<HTMLImageElement> =>
+const createImage = (url: string): Promise<HTMLImageElement> =>
     new Promise((resolve, reject) => {
         const image = new Image();
         image.addEventListener('load', () => resolve(image));
@@ -6,10 +6,6 @@ export const createImage = (url: string): Promise<HTMLImageElement> =>
         image.setAttribute('crossOrigin', 'anonymous');
         image.src = url;
     });
-
-export function getRadianAngle(degreeValue: number) {
-    return (degreeValue * Math.PI) / 180;
-}
 
 export default async function getCroppedImg(
     imageSrc: string,

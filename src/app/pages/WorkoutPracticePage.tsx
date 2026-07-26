@@ -158,13 +158,13 @@ export default function WorkoutPracticePage() {
             </div>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-xl">
-            <Timer className="w-3.5 h-3.5 text-green-400" />
-            <span className="text-[11px] font-black text-green-400 font-mono tracking-tighter">{formatTime(currentTime)}</span>
+            <Timer className="w-3.5 h-3.5 text-primary-light" />
+            <span className="text-[11px] font-black text-primary-light font-mono tracking-tighter">{formatTime(currentTime)}</span>
           </div>
         </div>
         <div className="h-2 bg-white/5 rounded-full overflow-hidden p-[2px] border border-white/5">
           <motion.div 
-            className="h-full bg-gradient-to-r from-green-600 via-primary to-yellow-500 rounded-full shadow-[0_0_15px_rgba(19,236,91,0.5)]"
+            className="h-full bg-gradient-to-r from-primary-dark via-primary to-yellow-500 rounded-full shadow-[0_0_15px_rgba(255,107,0,0.5)]"
             initial={{ width: 0 }}
             animate={{ width: `${progreso}%` }}
             transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
@@ -251,7 +251,7 @@ export default function WorkoutPracticePage() {
             </button>
             <button
                onClick={handleSiguiente}
-               className="col-span-3 h-20 bg-primary text-black rounded-xl flex items-center justify-center gap-4 shadow-[0_15px_40px_rgba(19,236,91,0.4)] active:scale-95 transition-all group"
+               className="col-span-3 h-20 bg-primary text-black rounded-xl flex items-center justify-center gap-4 shadow-[0_15px_40px_rgba(255,107,0,0.4)] active:scale-95 transition-all group"
             >
                <span className="text-lg font-black uppercase tracking-[0.2em]">{currentIndex + 1 >= totalEjercicios ? 'Finalizar' : 'Continuar'}</span>
                <ChevronRight className="w-6 h-6 stroke-[3px] group-hover:translate-x-1 transition-transform" />
@@ -283,7 +283,7 @@ export default function WorkoutPracticePage() {
                 <div className="space-y-6">
                     {currentEjercicio.ejercicio?.instrucciones?.map((ins, i) => (
                       <div key={i} className="flex gap-4">
-                         <span className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 text-green-400 font-black text-xs flex items-center justify-center flex-shrink-0">{i+1}</span>
+                         <span className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 text-primary-light font-black text-xs flex items-center justify-center flex-shrink-0">{i+1}</span>
                          <p className="text-gray-400 text-sm leading-relaxed font-medium">{ins}</p>
                       </div>
                     ))}
@@ -302,7 +302,7 @@ export default function WorkoutPracticePage() {
             <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="w-full max-w-sm text-center">
               <div className="relative inline-block mb-10">
                  <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 10, ease: "linear" }} className="absolute inset-0 bg-gradient-to-r from-primary via-yellow-500 to-primary rounded-full blur-3xl opacity-20 scale-150" />
-                 <div className="relative w-24 h-24 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_50px_rgba(19,236,91,0.5)]">
+                 <div className="relative w-24 h-24 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_50px_rgba(255,107,0,0.5)]">
                     <Trophy className="w-12 h-12 text-black" />
                  </div>
               </div>

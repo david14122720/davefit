@@ -76,14 +76,14 @@ export default function WeeklyGoal() {
             animate={{ opacity: 1, y: 0 }}
             className={`p-4 rounded-xl border transition-all ${
                 metaAlcanzada 
-                    ? 'bg-gradient-to-br from-green-500/10 to-emerald-500/5 border-green-500/30' 
+                    ? 'bg-gradient-to-br from-primary/10 to-primary-dark/5 border-primary/30' 
                     : 'bg-[#141414] border-white/5 hover:border-primary/20'
             }`}
         >
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                     {metaAlcanzada ? (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
                             <Trophy className="w-5 h-5 text-black" />
                         </div>
                     ) : (
@@ -99,7 +99,7 @@ export default function WeeklyGoal() {
                     </div>
                 </div>
                 {metaAlcanzada && (
-                    <div className="flex items-center gap-1 text-green-400 text-sm font-bold">
+                    <div className="flex items-center gap-1 text-primary-light text-sm font-bold">
                         <CheckCircle2 className="w-4 h-4" />
                         <span>¡Hecho!</span>
                     </div>
@@ -118,7 +118,7 @@ export default function WeeklyGoal() {
                         transition={{ duration: 0.8, ease: 'easeOut' }}
                         className={`h-full rounded-full ${
                             metaAlcanzada
-                                ? 'bg-gradient-to-r from-green-500 to-emerald-500 shadow-[0_0_15px_rgba(34,197,94,0.5)]'
+                                ? 'bg-gradient-to-r from-primary to-primary-dark shadow-[0_0_15px_rgba(255,107,0,0.5)]'
                                 : 'bg-gradient-to-r from-blue-500 to-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]'
                         }`}
                     />
@@ -129,7 +129,7 @@ export default function WeeklyGoal() {
                 <motion.p 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-center text-xs text-green-400 font-medium mt-2"
+                    className="text-center text-xs text-primary-light font-medium mt-2"
                 >
                     ¡Felicidades! Has alcanzado tu meta semanal 🎉
                 </motion.p>

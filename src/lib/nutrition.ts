@@ -149,37 +149,6 @@ export function calcularCaloriasObjetivo(perfil: PerfilData): {
 }
 
 
-// Obtener información del nivel de actividad
-export function getInfoActividad(nivel: string | null, diasSemana: number): {
-    nivel: string;
-    factor: number;
-    descripcion: string;
-} {
-    const factor = getFactorActividad(nivel, diasSemana);
-    
-    let nivelTexto: string;
-    let descripcion: string;
-    
-    if (factor <= 1.2) {
-        nivelTexto = 'Sedentario';
-        descripcion = 'Poco o nada de ejercicio';
-    } else if (factor <= 1.375) {
-        nivelTexto = 'Ligero';
-        descripcion = '1-3 días/semana';
-    } else if (factor <= 1.55) {
-        nivelTexto = 'Moderado';
-        descripcion = '3-5 días/semana';
-    } else if (factor <= 1.725) {
-        nivelTexto = 'Activo';
-        descripcion = '6-7 días/semana';
-    } else {
-        nivelTexto = 'Muy activo';
-        descripcion = 'Entrenamiento intenso diario';
-    }
-    
-    return { nivel: nivelTexto, factor, descripcion };
-}
-
 // Calcular IMC (Índice de Masa Corporal)
 export function calcularIMC(peso: number | null, altura: number | null): number | null {
     if (!peso || !altura || altura <= 0) return null;

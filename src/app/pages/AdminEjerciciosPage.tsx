@@ -161,7 +161,7 @@ export default function AdminEjerciciosPage() {
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-green-600 text-white rounded-xl font-medium transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-medium transition-colors"
                 >
                     <Plus className="w-5 h-5" />
                     Nuevo Ejercicio
@@ -287,7 +287,7 @@ export default function AdminEjerciciosPage() {
                     <p className="text-gray-400 mb-6 text-sm">Crea tu primer ejercicio para empezar.</p>
                     <button
                         onClick={() => handleOpenModal()}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-green-600 text-white rounded-xl font-medium transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-xl font-medium transition-colors"
                     >
                         <Plus className="w-5 h-5" />
                         Nuevo Ejercicio
@@ -428,7 +428,7 @@ export default function AdminEjerciciosPage() {
                                 <button
                                     type="submit"
                                     disabled={saving}
-                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-primary hover:bg-green-600 text-white rounded-xl font-medium transition-colors disabled:opacity-50"
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-medium transition-colors disabled:opacity-50"
                                 >
                                     {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                                     {saving ? 'Guardando...' : 'Guardar'}

@@ -21,17 +21,6 @@ export interface XpCalculation {
     xp_en_nivel_actual: number;
 }
 
-function calcularXpParaSiguienteNivel(nivel: number): number {
-    return Math.floor(100 * Math.pow(nivel, 1.5));
-}
-
-function calcularRachaBonus(diasRacha: number): number {
-    if (diasRacha <= 0) return 0;
-    if (diasRacha <= 2) return 20;
-    if (diasRacha <= 4) return 30;
-    return 70;
-}
-
 export async function getUserStats(userId: string): Promise<UserStats | null> {
     const { data, error } = await insforge.database
         .from('user_stats')
@@ -70,12 +59,6 @@ export async function getOrCreateUserStats(userId: string): Promise<UserStats> {
     return stats!;
 }
 
-export function calcularXpAlCompletarRutina(duracionMinutos: number, rachaActual: number): number {
-    const baseXp = Math.min(duracionMinutos * 5, 200);
-    const bonusRacha = calcularRachaBonus(rachaActual);
-    return baseXp + bonusRacha;
-}
-
 /**
  * Calcula calorías estimadas quemadas
  * @param duracionMinutos 
@@ -95,34 +78,6 @@ export function calcularCalorias(duracionMinutos: number, tipo: 'ejercicio' | 'y
     const calorias = (metByTipo[tipo] * 3.5 * pesoPromedio / 200) * duracionMinutos;
     
     return Math.round(calorias);
-}
-
-export function calculateXpProgress(stats: UserStats): XpCalculation {
-    const xpActual = stats.xp_total;
-    let nivel = stats.nivel;
-    let xpAcumuladoEnNivelesAnteriores = 0;
-
-    for (let n = 1; n < nivel; n++) {
-        xpAcumuladoEnNivelesAnteriores += calcularXpParaSiguienteNivel(n);
-    }
-
-    const xpEnNivelActual = xpActual - xpAcumuladoEnNivelesAnteriores;
-    const xpParaSiguiente = calcularXpParaSiguienteNivel(nivel);
-    const nivelAnterior = nivel;
-
-    while (xpEnNivelActual >= xpParaSiguiente) {
-        nivel++;
-        xpAcumuladoEnNivelesAnteriores += xpParaSiguiente;
-    }
-
-    return {
-        xp_ganado: 0,
-        nivel_anterior: nivelAnterior,
-        nivel_nuevo: nivel,
-        subio_nivel: nivel > nivelAnterior,
-        xp_para_siguiente_nivel: calcularXpParaSiguienteNivel(nivel),
-        xp_en_nivel_actual: nivel === nivelAnterior ? xpEnNivelActual : xpEnNivelActual - (xpActual - xpAcumuladoEnNivelesAnteriores),
-    };
 }
 
 export async function processWorkoutCompletion(

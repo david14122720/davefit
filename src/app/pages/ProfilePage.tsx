@@ -296,7 +296,7 @@ export default function ProfilePage() {
                             </div>
                         )}
                     </div>
-                    <label className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary rounded-2xl flex items-center justify-center hover:bg-green-400 hover:scale-110 transition-all shadow-xl cursor-pointer z-20 border-4 border-[#141414]">
+                    <label className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary rounded-2xl flex items-center justify-center hover:bg-primary-light hover:scale-110 transition-all shadow-xl cursor-pointer z-20 border-4 border-[#141414]">
                         <UploadCloud className="w-4 h-4 text-black" />
                         <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" disabled={uploadingAvatar} />
                     </label>
@@ -318,7 +318,7 @@ export default function ProfilePage() {
                             </span>
                         )}
                         {perfil?.objetivo && (
-                            <span className="px-4 py-1.5 bg-primary/10 text-green-400 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border border-primary/20">
+                            <span className="px-4 py-1.5 bg-primary/10 text-primary-light rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border border-primary/20">
                                 {perfil.objetivo.replace('_', ' ').replace('perder peso', 'Bajar grasa')}
                             </span>
                         )}
@@ -331,7 +331,7 @@ export default function ProfilePage() {
 
                     <button
                         onClick={() => setEditing(!editing)}
-                        className={`w-full sm:w-auto px-10 h-14 font-black uppercase tracking-[0.15em] rounded-2xl transition-all flex items-center justify-center gap-3 text-sm ${editing ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-primary hover:bg-green-400 text-black shadow-[0_10px_30px_rgba(19,236,91,0.3)] hover:shadow-[0_15px_40px_rgba(19,236,91,0.4)]'}`}
+                        className={`w-full sm:w-auto px-10 h-14 font-black uppercase tracking-[0.15em] rounded-2xl transition-all flex items-center justify-center gap-3 text-sm ${editing ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-primary hover:bg-primary-light text-black shadow-[0_10px_30px_rgba(255,107,0,0.3)] hover:shadow-[0_15px_40px_rgba(255,107,0,0.4)]'}`}
                     >
                         {editing ? <><X className="w-5 h-5" /> Cancelar</> : <><Edit3 className="w-5 h-5" /> Editar Perfil</>}
                     </button>
@@ -402,7 +402,7 @@ export default function ProfilePage() {
                                 </select>
                             </div>
                         </div>
-                        <button type="submit" disabled={isSubmitting} className="w-full mt-10 h-14 bg-primary text-black font-black uppercase tracking-widest rounded-2xl hover:bg-green-400 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl">
+                        <button type="submit" disabled={isSubmitting} className="w-full mt-10 h-14 bg-primary text-black font-black uppercase tracking-widest rounded-2xl hover:bg-primary-light transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl">
                             {isSubmitting ? <><Loader2 className="w-5 h-5 animate-spin" /> Guardando...</> : '💾 Guardar Cambios'}
                         </button>
                     </motion.form>
@@ -494,7 +494,7 @@ export default function ProfilePage() {
                                     <motion.div 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${Math.min(((userStats.xp_total || 0) % 100) / 100 * 100, 100)}%` }}
-                                        className="h-full bg-gradient-to-r from-green-600 to-primary rounded-full shadow-[0_0_15px_rgba(19,236,91,0.4)]"
+                                        className="h-full bg-gradient-to-r from-primary-dark to-primary rounded-full shadow-[0_0_15px_rgba(255,107,0,0.4)]"
                                     />
                                 </div>
                             </div>

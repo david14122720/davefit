@@ -171,7 +171,7 @@ const defaultJsonLd = {
       }
 
       ::selection {
-        background: rgba(19, 236, 91, 0.3);
+        background: rgba(255, 107, 0, 0.3);
         color: white;
       }
 
@@ -187,7 +187,7 @@ const defaultJsonLd = {
 
     <ClientRouter />
   </head>
-  <body class="bg-background-dark text-white min-h-screen antialiased selection:bg-green-500/30 selection:text-white overflow-x-hidden">
+  <body class="bg-background-dark text-white min-h-screen antialiased selection:bg-primary/30 selection:text-white overflow-x-hidden">
     {
       showNav && (
         <nav
@@ -221,7 +221,7 @@ const defaultJsonLd = {
               <a
                 href="/register"
                 data-astro-reload
-                class="hidden sm:inline-flex px-4 py-2 bg-primary hover:bg-green-400 text-black text-sm font-bold rounded-lg transition-all hover:scale-105"
+                class="hidden sm:inline-flex px-4 py-2 bg-primary hover:bg-primary-light text-black text-sm font-bold rounded-lg transition-all hover:scale-105"
               >
                 Registro
               </a>
@@ -293,20 +293,7 @@ const defaultJsonLd = {
         }
       });
 
-      // Service Worker Registration (disabled temporalmente)
-      /*
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then((registration) => {
-              console.log('[SW] Registered:', registration.scope);
-            })
-            .catch((error) => {
-              console.log('[SW] Registration failed:', error);
-            });
-        });
-      }
-      */
+      // Service Worker Registration — pendiente para futura implementación PWA
     </script>
   </body>
 </html>

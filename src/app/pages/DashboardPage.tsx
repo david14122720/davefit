@@ -278,7 +278,7 @@ export default function DashboardPage() {
                                                 initial={{ height: 0 }}
                                                 animate={{ height: `${data.height}%` }}
                                                 transition={{ duration: 0.8, delay: i * 0.1, ease: "easeOut" }}
-                                                className="w-full rounded-t-lg bg-gradient-to-t from-primary/20 to-primary/80 shadow-[0_-5px_15px_rgba(19,236,91,0.1)]"
+                                                className="w-full rounded-t-lg bg-gradient-to-t from-primary/20 to-primary/80 shadow-[0_-5px_15px_rgba(255,107,0,0.1)]"
                                             />
                                             <span className="text-xs font-bold text-on-surface-variant">{data.day}</span>
                                         </div>
@@ -366,7 +366,7 @@ export default function DashboardPage() {
                                     initial={{ width: 0 }}
                                     animate={{ width: '75%' }}
                                     transition={{ duration: 1, ease: "easeOut" }}
-                                    className="h-full bg-gradient-to-r from-primary to-primary-light shadow-[0_0_10px_rgba(19,236,91,0.5)]" 
+                                    className="h-full bg-gradient-to-r from-primary to-primary-light shadow-[0_0_10px_rgba(255,107,0,0.5)]" 
                                 />
                             </div>
                         </motion.div>

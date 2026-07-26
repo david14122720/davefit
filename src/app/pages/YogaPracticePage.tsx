@@ -265,7 +265,7 @@ export default function YogaPracticePage() {
                 <p className="text-sm text-gray-400 line-clamp-2">{posicionActual.posicion?.descripcion}</p>
 <button 
                     onClick={() => handleTimerComplete()}
-                    className="mt-2 text-sm font-bold text-primary hover:text-green-400 transition-colors"
+                    className="mt-2 text-sm font-bold text-primary hover:text-primary-light transition-colors"
                  >
                     Omitir descanso
                 </button>
@@ -351,7 +351,7 @@ export default function YogaPracticePage() {
                   >
                     <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
                       isTimerRunning 
-                        ? 'bg-primary text-black shadow-[0_0_30px_rgba(19,236,91,0.4)]' 
+                        ? 'bg-primary text-black shadow-[0_0_30px_rgba(255,107,0,0.4)]' 
                         : 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]'
                     }`}>
                       {isTimerRunning ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
@@ -390,12 +390,12 @@ export default function YogaPracticePage() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-[#141414] border border-white/10 rounded-xl p-10 max-w-md w-full text-center shadow-[0_0_50px_rgba(34,197,94,0.1)]"
+              className="bg-[#141414] border border-white/10 rounded-xl p-10 max-w-md w-full text-center shadow-[0_0_50px_rgba(255,107,0,0.1)]"
             >
               <div className="w-24 h-24 mx-auto mb-8 relative">
-                 <div className="absolute inset-0 bg-green-500 blur-2xl opacity-20 animate-pulse" />
-                 <div className="relative w-24 h-24 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <CheckCircle className="w-12 h-12 text-green-400" />
+<div className="absolute inset-0 bg-primary blur-2xl opacity-20 animate-pulse" />
+                  <div className="relative w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center">
+                     <CheckCircle className="w-12 h-12 text-primary-light" />
                  </div>
               </div>
               
@@ -422,10 +422,10 @@ export default function YogaPracticePage() {
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.5, type: 'spring' }}
-                        className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-xl"
+                        className="flex items-center gap-2 px-4 py-2 bg-primary/20 rounded-xl"
                       >
-                        <Trophy className="w-5 h-5 text-green-400" />
-                        <span className="text-green-400 font-bold">Nivel {xpResult.nivel_nuevo}!</span>
+                        <Trophy className="w-5 h-5 text-primary-light" />
+                        <span className="text-primary-light font-bold">Nivel {xpResult.nivel_nuevo}!</span>
                       </motion.div>
                     )}
                   </div>
@@ -440,7 +440,7 @@ export default function YogaPracticePage() {
                     resetSession();
                     if (rutinaId) fetchRutina(rutinaId);
                   }}
-                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-primary text-black rounded-2xl font-black hover:bg-green-400 transition-all shadow-lg active:scale-[0.98]"
+                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-primary text-black rounded-2xl font-black hover:bg-primary-light transition-all shadow-lg active:scale-[0.98]"
                 >
                   <RotateCcw className="w-5 h-5" />
                   Repetir Sesión

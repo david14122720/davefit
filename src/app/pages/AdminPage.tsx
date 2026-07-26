@@ -77,7 +77,7 @@ export default function AdminPage() {
         <div className="max-w-6xl mx-auto">
             <div className="mb-8">
                 <h1 className="text-3xl font-extrabold text-white mb-2">
-                    Panel de <span className="text-green-500">Administración</span>
+                    Panel de <span className="text-primary">Administración</span>
                 </h1>
                 <p className="text-gray-400">Gestiona todo el contenido de DaveFit</p>
             </div>
@@ -91,13 +91,13 @@ export default function AdminPage() {
                         <Link
                             key={card.key}
                             to={card.link}
-                            className="p-6 rounded-2xl bg-[#141414] border border-white/5 hover:border-green-500/30 transition-all group"
+                            className="p-6 rounded-2xl bg-[#141414] border border-white/5 hover:border-primary/30 transition-all group"
                         >
                             <div className="flex items-center justify-between mb-4">
                                 <div className={`w-12 h-12 rounded-xl ${colors.icon} flex items-center justify-center`}>
                                     <Icon className={`w-6 h-6 ${colors.text}`} />
                                 </div>
-                                <ArrowRight className="w-5 h-5 text-gray-600 group-hover:text-green-500 group-hover:translate-x-1 transition-all" />
+                                <ArrowRight className="w-5 h-5 text-gray-600 group-hover:text-primary group-hover:translate-x-1 transition-all" />
                             </div>
                             <p className="text-gray-400 text-sm mb-1">{card.label}</p>
                             <p className="text-3xl font-bold text-white">

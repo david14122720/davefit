@@ -157,7 +157,7 @@ export default function NutritionPage() {
           <p className="text-gray-400 mb-8 text-sm leading-relaxed">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="w-full py-4 bg-primary hover:bg-primary-hover text-black font-bold rounded-lg transition-all shadow-[0_10px_20px_rgba(19,236,91,0.3)] flex items-center justify-center gap-2"
+            className="w-full py-4 bg-primary hover:bg-primary-hover text-black font-bold rounded-lg transition-all shadow-[0_10px_20px_rgba(255,107,0,0.3)] flex items-center justify-center gap-2"
           >
             <RefreshCw className="w-5 h-5" />
             Reintentar
@@ -177,7 +177,7 @@ export default function NutritionPage() {
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center gap-3 mb-6 sm:mb-8"
       >
-        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-green-700/20 flex items-center justify-center border border-primary/20 shrink-0">
+        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-primary-dark/20 flex items-center justify-center border border-primary/20 shrink-0">
           <ChefHat className="w-6 h-6 text-primary" />
         </div>
         <div>
@@ -257,7 +257,7 @@ export default function NutritionPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
                 transition={{ delay: idx * 0.04, duration: 0.3 }}
-                className="group bg-surface rounded-lg overflow-hidden border border-white/5 hover:border-primary/30 hover:shadow-[0_0_30px_rgba(19,236,91,0.12)] transition-all duration-500"
+                className="group bg-surface rounded-lg overflow-hidden border border-white/5 hover:border-primary/30 hover:shadow-[0_0_30px_rgba(255,107,0,0.12)] transition-all duration-500"
               >
                 {/* Cover Image */}
                 <div className="h-32 sm:h-40 relative overflow-hidden">

@@ -204,7 +204,7 @@ export default function YogaPosicionesPage() {
                               <ol className="space-y-3">
                                 {posicion.instrucciones.map((instruccion, i) => (
                                   <li key={i} className="flex items-start gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-green-400 text-sm font-bold flex items-center justify-center">
+                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary-light text-sm font-bold flex items-center justify-center">
                                       {i + 1}
                                     </span>
                                     <span className="text-gray-300">{instruccion}</span>

@@ -221,7 +221,7 @@ export default function LoginPage() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full py-3.5 px-4 bg-primary hover:bg-primary-hover text-primary-on font-bold rounded-lg shadow-[0_10px_30px_rgba(19,236,91,0.25)] hover:shadow-[0_10px_40px_rgba(19,236,91,0.35)] transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 text-base"
+                            className="w-full py-3.5 px-4 bg-primary hover:bg-primary-hover text-primary-on font-bold rounded-lg shadow-[0_10px_30px_rgba(255,107,0,0.25)] hover:shadow-[0_10px_40px_rgba(255,107,0,0.35)] transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 text-base"
                         >
                             {isSubmitting ? (
                                 <>

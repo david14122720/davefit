@@ -17,14 +17,4 @@ export const nivelColors: Record<string, string> = {
 
 export const tipoLugarOptions = ['gimnasio', 'casa', 'exterior', 'oficina'];
 
-export const objetivoRutinaOptions = [
-    { value: 'mantener_forma', label: 'Mantener Forma' },
-    { value: 'tonificar', label: 'Tonificar' },
-    { value: 'ganar_fuerza', label: 'Ganar Fuerza' },
-];
 
-export const objetivoYogaOptions = [
-    { value: 'flexibilidad', label: 'Flexibilidad' },
-    { value: 'fuerza', label: 'Fuerza' },
-    { value: 'relax', label: 'Relax' },
-];

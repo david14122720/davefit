@@ -18,7 +18,7 @@ export default defineConfig({
     ],
     vite: {
         optimizeDeps: {
-            include: ['react', 'react-dom', 'react-router-dom', 'chart.js'],
+            include: ['react', 'react-dom', 'react-router-dom'],
         },
     },
 });

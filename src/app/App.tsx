@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AuthProvider } from './context/AuthContext';
 import { YogaProvider } from './context/YogaContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import AppLayout from './components/AppLayout';
+import PublicLayout from './components/PublicLayout';
 import AdminLayout from './components/AdminLayout';
 import { Toaster } from 'sonner';
 import { Loader2 } from 'lucide-react';
@@ -16,6 +16,7 @@ const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 import DashboardPage from './pages/DashboardPage';
 const RoutinesPage = lazy(() => import('./pages/RoutinesPage'));
 const ComunidadPage = lazy(() => import('./pages/ComunidadPage'));
+const AcercaDePage = lazy(() => import('./pages/AcercaDePage'));
 const YogaPracticePage = lazy(() => import('./pages/YogaPracticePage'));
 const WorkoutPracticePage = lazy(() => import('./pages/WorkoutPracticePage'));
 const YogaPosicionesPage = lazy(() => import('./pages/YogaPosicionesPage'));
@@ -66,6 +67,10 @@ function MetaUpdater() {
       '/nutricion': {
         title: 'Nutrición',
         description: 'Descubre recetas saludables y planes de alimentación para complementar tu entrenamiento en DaveFit.'
+      },
+      '/acerca-de': {
+        title: 'Acerca de DaveFit',
+        description: 'Conoce más sobre DaveFit, la plataforma de entrenamiento inteligente para estudiantes. Misión, beneficios y comunidad.'
       },
       '/biblioteca': {
         title: 'Biblioteca de Rutinas',
@@ -128,42 +133,50 @@ export default function App() {
                     <Toaster theme="dark" position="top-right" />
                     <Suspense fallback={<PageLoader />}>
                         <Routes>
+                        {/* Root redirects to Biblioteca (landing page) */}
+                        <Route path="/" element={<Navigate to="/biblioteca" replace />} />
+
+                        {/* Public pages — accessible without login */}
+                        <Route path="/biblioteca" element={<><MetaUpdater /><PublicLayout><BibliotecaPage /></PublicLayout></>} />
+                        <Route path="/nutricion" element={<><MetaUpdater /><PublicLayout><NutritionPage /></PublicLayout></>} />
+                        <Route path="/acerca-de" element={<><MetaUpdater /><PublicLayout><AcercaDePage /></PublicLayout></>} />
+
+                        {/* Auth pages — standalone, no layout */}
                         <Route path="/login" element={<><MetaUpdater /><LoginPage /></>} />
                         <Route path="/register" element={<><MetaUpdater /><RegisterPage /></>} />
-                        <Route path="/biblioteca" element={<><MetaUpdater /><AppLayout><BibliotecaPage /></AppLayout></>} />
-                        <Route path="/nutricion" element={<><MetaUpdater /><AppLayout><NutritionPage /></AppLayout></>} />
 
+                        {/* Protected pages — same PublicLayout, just auth-guarded */}
                         <Route path="/dashboard" element={
                             <ProtectedRoute>
-                                <><MetaUpdater /><AppLayout><DashboardPage /></AppLayout></>
+                                <><MetaUpdater /><PublicLayout><DashboardPage /></PublicLayout></>
                             </ProtectedRoute>
                         } />
                         <Route path="/perfil" element={
                             <ProtectedRoute>
-                                <><MetaUpdater /><AppLayout><ProfilePage /></AppLayout></>
+                                <><MetaUpdater /><PublicLayout><ProfilePage /></PublicLayout></>
                             </ProtectedRoute>
                         } />
                         <Route path="/rutinas" element={
                             <ProtectedRoute>
-                                <><MetaUpdater /><AppLayout><RoutinesPage /></AppLayout></>
+                                <><MetaUpdater /><PublicLayout><RoutinesPage /></PublicLayout></>
                             </ProtectedRoute>
                         } />
-                        <Route path="/historial" element={<><MetaUpdater /><Navigate to="/dashboard" replace /></>} />
+                        <Route path="/historial" element={<Navigate to="/dashboard" replace />} />
                         <Route path="/comunidad" element={
-                            <ProtectedRoute>
-                                <><MetaUpdater /><AppLayout><ComunidadPage /></AppLayout></>
-                            </ProtectedRoute>
+                            <><MetaUpdater /><PublicLayout><ComunidadPage /></PublicLayout></>
                         } />
 
-                        <Route path="/yoga" element={<><MetaUpdater /><Navigate to="/biblioteca" replace /></>} />
+                        {/* Yoga & practice routes */}
+                        <Route path="/yoga" element={<Navigate to="/biblioteca" replace />} />
                         <Route path="/yoga/practicar/:rutinaId" element={<><MetaUpdater /><YogaPracticePage /></>} />
                         <Route path="/yoga/posiciones" element={
                             <ProtectedRoute>
-                                <><MetaUpdater /><AppLayout><YogaPosicionesPage /></AppLayout></>
+                                <><MetaUpdater /><PublicLayout><YogaPosicionesPage /></PublicLayout></>
                             </ProtectedRoute>
                         } />
                         <Route path="/rutinas/practicar/:rutinaId" element={<><MetaUpdater /><WorkoutPracticePage /></>} />
 
+                        {/* Admin routes — keep AdminLayout */}
                         <Route path="/admin" element={
                             <ProtectedRoute adminOnly>
                                 <><MetaUpdater /><AdminLayout><AdminPage /></AdminLayout></>
@@ -190,8 +203,8 @@ export default function App() {
                             </ProtectedRoute>
                         } />
 
-                        <Route path="/" element={<Navigate to="/" replace />} />
-                        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                        {/* Catch-all → biblioteca */}
+                        <Route path="*" element={<Navigate to="/biblioteca" replace />} />
                     </Routes>
                 </Suspense>
                 </YogaProvider>

@@ -115,14 +115,14 @@ const YogaTimer = React.memo(function YogaTimer({
             cy="100"
             r="90"
             fill="none"
-            stroke={isComplete ? '#22c55e' : '#13ec5b'}
+            stroke={isComplete ? '#22c55e' : '#ff6b00'}
             strokeWidth="8"
             strokeLinecap="round"
             initial={{ strokeDashoffset: circumference }}
             animate={{ strokeDashoffset }}
             transition={{ duration: 0.5, ease: 'linear' }}
             style={{
-              filter: 'drop-shadow(0 0 15px rgba(19, 236, 91, 0.5))',
+              filter: 'drop-shadow(0 0 15px rgba(255, 107, 0, 0.5))',
             }}
           />
         </svg>
@@ -133,7 +133,7 @@ const YogaTimer = React.memo(function YogaTimer({
             key={seconds}
             initial={{ scale: 1.1, opacity: 0.8 }}
             animate={{ scale: 1, opacity: 1 }}
-            className={`text-5xl font-extrabold ${isComplete ? 'text-green-400' : 'text-white'}`}
+            className={`text-5xl font-extrabold ${isComplete ? 'text-primary-light' : 'text-white'}`}
           >
             {formatTime(seconds)}
           </motion.span>
@@ -141,7 +141,7 @@ const YogaTimer = React.memo(function YogaTimer({
             <motion.span
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-green-400 font-bold mt-2"
+              className="text-primary-light font-bold mt-2"
             >
               ✓ Completo
             </motion.span>
@@ -166,14 +166,14 @@ const YogaTimer = React.memo(function YogaTimer({
           onClick={handlePlayPause}
           className={`p-4 rounded-full ${
             isComplete
-              ? 'bg-green-500 text-black'
+              ? 'bg-primary text-black'
               : isRunning
               ? 'bg-primary text-black'
               : 'bg-white text-black'
           } shadow-lg transition-colors`}
           style={{
             boxShadow: isRunning
-              ? '0 0 30px rgba(19, 236, 91, 0.5)'
+              ? '0 0 30px rgba(255, 107, 0, 0.5)'
               : '0 0 20px rgba(255,255,255,0.2)',
           }}
         >

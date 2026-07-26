@@ -213,7 +213,7 @@ export default function RoutinesPage() {
                 <p className="text-gray-400 mb-8">{error}</p>
                 <button 
                     onClick={() => { setLoaded(false); /* The effect will not re-run, need to force reload or change state nicely, we'll reload full page for simplicity if the user clicks since the effect depends on accessToken */ window.location.reload(); }}
-                    className="w-full py-4 bg-primary hover:bg-green-400 text-black font-black uppercase tracking-widest rounded-xl transition-all shadow-[0_10px_20px_rgba(19,236,91,0.3)]"
+                    className="w-full py-4 bg-primary hover:bg-primary-light text-black font-black uppercase tracking-widest rounded-xl transition-all shadow-[0_10px_20px_rgba(255,107,0,0.3)]"
                 >
                     Reintentar Conexión
                 </button>
@@ -240,7 +240,7 @@ export default function RoutinesPage() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 onClick={clearDurationFilter}
-                                className="shrink-0 flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/10 border border-primary/20 text-green-400 rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all"
+                                className="shrink-0 flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/10 border border-primary/20 text-primary-light rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all"
                             >
                                 Express: ≤ {durationFilter}m <X className="w-3 h-3" />
                             </motion.button>
@@ -290,7 +290,7 @@ export default function RoutinesPage() {
                                 {niveles.map((n) => {
                                     const isActive = filter === n;
                                     const levelColor: Record<string, string> = {
-                                        todos: 'from-primary/20 to-green-600/10 border-primary/30',
+                                        todos: 'from-primary/20 to-primary-dark/10 border-primary/30',
                                         principiante: 'from-green-500/20 to-emerald-500/10 border-green-500/30',
                                         intermedio: 'from-yellow-500/20 to-amber-500/10 border-yellow-500/30',
                                         avanzado: 'from-red-500/20 to-primary/10 border-red-500/30',
@@ -323,7 +323,7 @@ export default function RoutinesPage() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 onClick={clearDurationFilter}
-                                className="shrink-0 flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 text-green-400 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all"
+                                className="shrink-0 flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 text-primary-light rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all"
                             >
                                 ≤ {durationFilter}m <X className="w-3 h-3" />
                             </motion.button>
@@ -367,7 +367,7 @@ export default function RoutinesPage() {
                                                     e.currentTarget.style.display = 'none';
                                                     const parent = e.currentTarget.parentElement;
                                                     if (parent) {
-                                                        parent.classList.add('bg-gradient-to-br', 'from-green-700/30', 'to-black');
+                                                        parent.classList.add('bg-gradient-to-br', 'from-primary-dark/30', 'to-black');
                                                     }
                                                 }}
                                             />
@@ -450,7 +450,7 @@ export default function RoutinesPage() {
                                 {selectedRutina.imagen_cover_url ? (
                                     <img src={selectedRutina.imagen_cover_url} alt="" className="w-full h-full object-cover brightness-[0.5]" />
                                 ) : (
-                                    <div className="w-full h-full bg-gradient-to-br from-green-600/30 to-black" />
+                                    <div className="w-full h-full bg-gradient-to-br from-primary-dark/30 to-black" />
                                 )}
                                 <div className="absolute inset-0 bg-gradient-to-t from-[#111111] to-transparent" />
 
@@ -517,7 +517,7 @@ export default function RoutinesPage() {
                             <div className="p-4 sm:p-6 bg-[#0a0a0a]/80 backdrop-blur-3xl border-t border-white/5">
                                 <button
                                     onClick={handleIniciarRutina}
-                                    className="w-full h-12 sm:h-14 bg-primary hover:bg-green-400 text-black rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-[12px] sm:text-sm transition-all shadow-[0_15px_30px_rgba(19,236,91,0.3)] flex items-center justify-center gap-2 sm:gap-3"
+                                    className="w-full h-12 sm:h-14 bg-primary hover:bg-primary-light text-black rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-[12px] sm:text-sm transition-all shadow-[0_15px_30px_rgba(255,107,0,0.3)] flex items-center justify-center gap-2 sm:gap-3"
                                 >
                                     <Play className="w-4 h-4 fill-current" />
                                     Empezar Entrenamiento

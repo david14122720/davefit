@@ -91,7 +91,7 @@ export default function XPBar() {
         <div className="p-3 bg-[#141414] rounded-xl border border-white/5 hover:border-primary/20 transition-all">
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-green-600 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
                         <Zap className="w-4 h-4 text-black" />
                     </div>
                     <div>
@@ -110,7 +110,7 @@ export default function XPBar() {
                     <div className="w-px h-8 bg-white/10" />
                     <div className="text-right">
                         <p className="text-xs text-gray-400 font-medium">Total XP</p>
-                        <p className="text-sm font-bold text-green-400">{(xpActual || 0).toLocaleString()}</p>
+                        <p className="text-sm font-bold text-primary-light">{(xpActual || 0).toLocaleString()}</p>
                     </div>
                 </div>
             </div>
@@ -125,7 +125,7 @@ export default function XPBar() {
                         initial={{ width: 0 }}
                         animate={{ width: `${percentage}%` }}
                         transition={{ duration: 1, ease: 'easeOut' }}
-                        className="h-full bg-gradient-to-r from-primary to-yellow-500 rounded-full shadow-[0_0_10px_rgba(19,236,91,0.5)]"
+                        className="h-full bg-gradient-to-r from-primary to-yellow-500 rounded-full shadow-[0_0_10px_rgba(255,107,0,0.5)]"
                     />
                 </div>
             </div>
