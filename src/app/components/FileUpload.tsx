@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Upload, X, Loader2, Image, Video } from 'lucide-react';
+import { toast } from 'sonner';
 import { insforge } from '../../lib/insforge';
 import { validateFile } from '../../lib/fileValidation';
 
@@ -35,7 +36,7 @@ export default function FileUpload({
         try {
             const validation = await validateFile(file, accept, maxSizeMB);
             if (!validation.valid) {
-                alert(validation.error);
+                toast.error(validation.error);
                 setUploading(false);
                 return;
             }
@@ -56,7 +57,7 @@ export default function FileUpload({
             }
         } catch (err: any) {
             console.error('[FileUpload] Error:', err);
-            alert('Error al subir archivo: ' + err.message);
+            toast.error('Error al subir archivo: ' + err.message);
         } finally {
             setUploading(false);
         }

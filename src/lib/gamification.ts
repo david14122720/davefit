@@ -1,16 +1,4 @@
-import { insforge, invokeRpc } from './insforge';
-
-export interface UserStats {
-    id: string;
-    user_id: string;
-    xp_total: number;
-    nivel: number;
-    dias_racha: number;
-    ultimo_entreno: string | null;
-    racha_bonus: number;
-    created_at: string;
-    updated_at: string;
-}
+import { invokeRpc } from './insforge';
 
 export interface XpCalculation {
     xp_ganado: number;
@@ -19,44 +7,6 @@ export interface XpCalculation {
     subio_nivel: boolean;
     xp_para_siguiente_nivel: number;
     xp_en_nivel_actual: number;
-}
-
-export async function getUserStats(userId: string): Promise<UserStats | null> {
-    const { data, error } = await insforge.database
-        .from('user_stats')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-    if (error) {
-        console.error('[Gamification] Error getting user stats:', error);
-        return null;
-    }
-
-    return data;
-}
-
-export async function createUserStats(userId: string): Promise<UserStats | null> {
-    const { data, error } = await insforge.database
-        .from('user_stats')
-        .insert([{ user_id: userId }])
-        .select()
-        .single();
-
-    if (error) {
-        console.error('[Gamification] Error creating user stats:', error);
-        return null;
-    }
-
-    return data;
-}
-
-export async function getOrCreateUserStats(userId: string): Promise<UserStats> {
-    let stats = await getUserStats(userId);
-    if (!stats) {
-        stats = await createUserStats(userId);
-    }
-    return stats!;
 }
 
 /**

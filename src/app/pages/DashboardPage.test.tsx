@@ -73,7 +73,7 @@ describe('DashboardPage', () => {
 
     // Skeleton uses animate-pulse
     expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
-    // Tabs should NOT be visible during loading
+    // During loading, tabs are NOT rendered (skeleton-only state)
     expect(screen.queryByText('Resumen')).not.toBeInTheDocument();
   });
 

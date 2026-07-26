@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { insforge } from '../../lib/insforge';
+import { queryWithRetry } from '../../lib/db';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, X, Clock, Target, BarChart3, Sparkles, ChevronRight, MonitorPlay, Search, SlidersHorizontal } from 'lucide-react';
 
@@ -64,10 +65,9 @@ export default function RoutinesPage() {
             setLoaded(false);
             setError(null);
             try {
-                const { data, error: fetchError } = await insforge.database
-                    .from('rutinas')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                const { data, error: fetchError } = await queryWithRetry<any[]>(() =>
+                    insforge.database.from('rutinas').select('*').order('created_at', { ascending: false })
+                );
                 
                 if (fetchError) throw fetchError;
                 setRutinas(data || []);
@@ -84,18 +84,15 @@ export default function RoutinesPage() {
     const loadEjerciciosRutina = async (rutinaId: string) => {
         setLoadingEjercicios(true);
         try {
-            const { data } = await insforge.database
-                .from('rutinas_ejercicios')
-                .select('*')
-                .eq('rutina_id', rutinaId)
-                .order('orden', { ascending: true });
+            const { data } = await queryWithRetry<any[]>(() =>
+                insforge.database.from('rutinas_ejercicios').select('*').eq('rutina_id', rutinaId).order('orden', { ascending: true })
+            );
 
             if (data && data.length > 0) {
                 const ejercicioIds = data.map(d => d.ejercicio_id);
-                const { data: ejerciciosData } = await insforge.database
-                    .from('ejercicios')
-                    .select('id, nombre, grupo_muscular, imagen_url')
-                    .in('id', ejercicioIds);
+                const { data: ejerciciosData } = await queryWithRetry<any[]>(() =>
+                    insforge.database.from('ejercicios').select('id, nombre, grupo_muscular, imagen_url').in('id', ejercicioIds)
+                );
 
                 const ejerciciosMap = new Map(ejerciciosData?.map(e => [e.id, e]));
 

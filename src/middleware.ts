@@ -1,12 +1,14 @@
 import { defineMiddleware } from 'astro:middleware';
 
+const INSFORGE_URL = import.meta.env.PUBLIC_INSFORGE_URL?.replace(/^https?:\/\//, '') || 'insforge.tesh.online';
+
 const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://accounts.google.com",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
-  "font-src 'self'",
-  "connect-src 'self' https://insforge.tesh.online",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  `img-src 'self' data: blob: https://${INSFORGE_URL}`,
+  "font-src 'self' https://fonts.gstatic.com",
+  `connect-src 'self' https://${INSFORGE_URL}`,
   "frame-src https://accounts.google.com",
   "object-src 'none'",
   "base-uri 'self'",

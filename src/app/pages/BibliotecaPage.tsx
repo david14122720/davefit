@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { insforge } from '../../lib/insforge';
+import { queryWithRetry } from '../../lib/db';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     BookOpen, Search, Clock, Sparkles,
@@ -102,15 +103,12 @@ export default function BibliotecaPage() {
             setError(null);
             try {
                 const [rutinasResult, yogaResult] = await Promise.all([
-                    insforge.database
-                        .from('rutinas')
-                        .select('*')
-                        .eq('es_publica', true)
-                        .order('created_at', { ascending: false }),
-                    insforge.database
-                        .from('yoga_rutinas')
-                        .select('*')
-                        .order('created_at', { ascending: false }),
+                    queryWithRetry<any[]>(() =>
+                        insforge.database.from('rutinas').select('*').eq('es_publica', true).order('created_at', { ascending: false })
+                    ),
+                    queryWithRetry<any[]>(() =>
+                        insforge.database.from('yoga_rutinas').select('*').order('created_at', { ascending: false })
+                    ),
                 ]);
 
                 if (rutinasResult.error) throw rutinasResult.error;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { insforge } from '../../lib/insforge';
+import { queryWithRetry } from '../../lib/db';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Clock, ChefHat, Lock, Crown,
@@ -56,10 +57,9 @@ export default function NutritionPage() {
       setLoaded(false);
       setError(null);
       try {
-        const { data, error: fetchError } = await insforge.database
-          .from('recetas')
-          .select('*', { count: 'exact' })
-          .order('created_at', { ascending: false });
+        const { data, error: fetchError } = await queryWithRetry<any[]>(() =>
+          insforge.database.from('recetas').select('*', { count: 'exact' }).order('created_at', { ascending: false })
+        );
 
         if (fetchError) throw fetchError;
         setRecetas(data || []);

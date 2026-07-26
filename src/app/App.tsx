@@ -1,214 +1,126 @@
-import React, { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { YogaProvider } from './context/YogaContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicLayout from './components/PublicLayout';
 import AdminLayout from './components/AdminLayout';
+import ErrorBoundary from './components/ErrorBoundary';
+import MetaUpdater from './components/MetaUpdater';
+import { PageLoader } from './components/Skeleton';
 import { Toaster } from 'sonner';
-import { Loader2 } from 'lucide-react';
 
+// === Lazy imports (code splitting consistente) ===
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const BibliotecaPage = lazy(() => import('./pages/BibliotecaPage'));
 const NutritionPage = lazy(() => import('./pages/NutritionPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
-import LoginPage from './pages/LoginPage';
-const RegisterPage = lazy(() => import('./pages/RegisterPage'));
-import DashboardPage from './pages/DashboardPage';
 const RoutinesPage = lazy(() => import('./pages/RoutinesPage'));
 const ComunidadPage = lazy(() => import('./pages/ComunidadPage'));
 const AcercaDePage = lazy(() => import('./pages/AcercaDePage'));
 const YogaPracticePage = lazy(() => import('./pages/YogaPracticePage'));
 const WorkoutPracticePage = lazy(() => import('./pages/WorkoutPracticePage'));
 const YogaPosicionesPage = lazy(() => import('./pages/YogaPosicionesPage'));
-
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const AdminEjerciciosPage = lazy(() => import('./pages/AdminEjerciciosPage'));
 const AdminRutinasPage = lazy(() => import('./pages/AdminRutinasPage'));
 const AdminYogaPosicionesPage = lazy(() => import('./pages/AdminYogaPosicionesPage'));
 const AdminYogaRutinasPage = lazy(() => import('./pages/AdminYogaRutinasPage'));
 
-const PageLoader = () => (
-    <div className="flex bg-[#0a0a0a] min-h-screen items-center justify-center text-white flex-col gap-4">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        <span className="text-sm font-medium animate-pulse">Iniciando aplicación...</span>
-    </div>
-);
-
-// Meta tag updater component
-function MetaUpdater() {
-  const location = useLocation();
-
-  useEffect(() => {
-    const metaConfig: Record<string, { title: string; description: string }> = {
-      '/dashboard': {
-        title: 'Dashboard',
-        description: 'Tu progreso fitness personalizado. Revisa tus estadísticas, avances y objetivos semanales en DaveFit.'
-      },
-      '/perfil': {
-        title: 'Mi Perfil',
-        description: 'Gestiona tu información personal, avatar, objetivos y preferencias de entrenamiento en DaveFit.'
-      },
-      '/rutinas': {
-        title: 'Rutinas de Ejercicios',
-        description: 'Explora y gestiona tus rutinas de fitness personalizadas. Entrenamientos sin equipo para estudiantes.'
-      },
-      '/historial': {
-        title: 'Historial de Entrenamientos',
-        description: 'Revisa tu historial completo de ejercicios y sesiones de yoga. Seguimiento de tu progreso fitness.'
-      },
-      '/comunidad': {
-        title: 'Comunidad DaveFit',
-        description: 'Conéctate con otros estudiantes, comparte logros y participa en desafíos fitness.'
-      },
-      '/yoga': {
-        title: 'Rutinas de Yoga',
-        description: 'Sesiones de yoga guiadas para estudiantes. Mejora tu flexibilidad, fuerza y bienestar mental.'
-      },
-      '/nutricion': {
-        title: 'Nutrición',
-        description: 'Descubre recetas saludables y planes de alimentación para complementar tu entrenamiento en DaveFit.'
-      },
-      '/acerca-de': {
-        title: 'Acerca de DaveFit',
-        description: 'Conoce más sobre DaveFit, la plataforma de entrenamiento inteligente para estudiantes. Misión, beneficios y comunidad.'
-      },
-      '/biblioteca': {
-        title: 'Biblioteca de Rutinas',
-        description: 'Explora todas las rutinas de ejercicios y yoga. Entrena sin equipo, en casa, gratis.'
-      },
-      '/login': {
-        title: 'Iniciar Sesión',
-        description: 'Accede a tu cuenta de DaveFit para continuar tu viaje fitness.'
-      },
-      '/register': {
-        title: 'Registro',
-        description: 'Crea tu cuenta gratuita en DaveFit y comienza tu transformación fitness hoy mismo.'
-      },
-      '/admin': {
-        title: 'Panel de Administración',
-        description: 'Panel de control para administradores. Gestiona ejercicios, rutinas y contenido.'
-      }
-    };
-
-    const path = location.pathname;
-    let meta = metaConfig[path];
-
-    // Handle dynamic routes
-    if (!meta && path.startsWith('/yoga/practicar')) {
-      meta = { title: 'Practicar Yoga', description: 'Sigue una sesión de yoga en tiempo real con instrucciones paso a paso.' };
-    } else if (!meta && path.startsWith('/rutinas/practicar')) {
-      meta = { title: 'Practicar Rutina', description: 'Entrenamiento en progreso. Sigue los ejercicios de tu rutina personalizada.' };
-    } else if (!meta && path.startsWith('/admin/')) {
-      meta = { title: 'Administración', description: 'Panel de administración de DaveFit.' };
-    }
-
-    if (meta) {
-      document.title = `${meta.title} | DaveFit`;
-
-      const descriptionTag = document.querySelector('meta[name="description"]');
-      if (descriptionTag) {
-        descriptionTag.setAttribute('content', meta.description);
-      }
-
-      const ogTitle = document.querySelector('meta[property="og:title"]');
-      const ogDescription = document.querySelector('meta[property="og:description"]');
-      const twitterTitle = document.querySelector('meta[name="twitter:title"]');
-      const twitterDescription = document.querySelector('meta[name="twitter:description"]');
-
-      if (ogTitle) ogTitle.setAttribute('content', `${meta.title} | DaveFit`);
-      if (ogDescription) ogDescription.setAttribute('content', meta.description);
-      if (twitterTitle) twitterTitle.setAttribute('content', `${meta.title} | DaveFit`);
-      if (twitterDescription) twitterDescription.setAttribute('content', meta.description);
-    }
-  }, [location]);
-
-  return null;
+// === Wrapper para aplicar MetaUpdater + ErrorBoundary a cada ruta ===
+function RouteWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <ErrorBoundary>
+      <MetaUpdater />
+      {children}
+    </ErrorBoundary>
+  );
 }
 
 export default function App() {
-    return (
-        <BrowserRouter>
-            <AuthProvider>
-                <YogaProvider>
-                    <Toaster theme="dark" position="top-right" />
-                    <Suspense fallback={<PageLoader />}>
-                        <Routes>
-                        {/* Root redirects to Biblioteca (landing page) */}
-                        <Route path="/" element={<Navigate to="/biblioteca" replace />} />
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <YogaProvider>
+          <Toaster theme="dark" position="top-right" />
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Root redirects to Biblioteca (landing page) */}
+              <Route path="/" element={<Navigate to="/biblioteca" replace />} />
 
-                        {/* Public pages — accessible without login */}
-                        <Route path="/biblioteca" element={<><MetaUpdater /><PublicLayout><BibliotecaPage /></PublicLayout></>} />
-                        <Route path="/nutricion" element={<><MetaUpdater /><PublicLayout><NutritionPage /></PublicLayout></>} />
-                        <Route path="/acerca-de" element={<><MetaUpdater /><PublicLayout><AcercaDePage /></PublicLayout></>} />
+              {/* Public pages — accessible without login */}
+              <Route path="/biblioteca" element={<RouteWrapper><PublicLayout><BibliotecaPage /></PublicLayout></RouteWrapper>} />
+              <Route path="/nutricion" element={<RouteWrapper><PublicLayout><NutritionPage /></PublicLayout></RouteWrapper>} />
+              <Route path="/acerca-de" element={<RouteWrapper><PublicLayout><AcercaDePage /></PublicLayout></RouteWrapper>} />
 
-                        {/* Auth pages — standalone, no layout */}
-                        <Route path="/login" element={<><MetaUpdater /><LoginPage /></>} />
-                        <Route path="/register" element={<><MetaUpdater /><RegisterPage /></>} />
+              {/* Auth pages — standalone, no layout */}
+              <Route path="/login" element={<RouteWrapper><LoginPage /></RouteWrapper>} />
+              <Route path="/register" element={<RouteWrapper><RegisterPage /></RouteWrapper>} />
 
-                        {/* Protected pages — same PublicLayout, just auth-guarded */}
-                        <Route path="/dashboard" element={
-                            <ProtectedRoute>
-                                <><MetaUpdater /><PublicLayout><DashboardPage /></PublicLayout></>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/perfil" element={
-                            <ProtectedRoute>
-                                <><MetaUpdater /><PublicLayout><ProfilePage /></PublicLayout></>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/rutinas" element={
-                            <ProtectedRoute>
-                                <><MetaUpdater /><PublicLayout><RoutinesPage /></PublicLayout></>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/historial" element={<Navigate to="/dashboard" replace />} />
-                        <Route path="/comunidad" element={
-                            <><MetaUpdater /><PublicLayout><ComunidadPage /></PublicLayout></>
-                        } />
+              {/* Protected pages — same PublicLayout, just auth-guarded */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <RouteWrapper><PublicLayout><DashboardPage /></PublicLayout></RouteWrapper>
+                </ProtectedRoute>
+              } />
+              <Route path="/perfil" element={
+                <ProtectedRoute>
+                  <RouteWrapper><PublicLayout><ProfilePage /></PublicLayout></RouteWrapper>
+                </ProtectedRoute>
+              } />
+              <Route path="/rutinas" element={
+                <ProtectedRoute>
+                  <RouteWrapper><PublicLayout><RoutinesPage /></PublicLayout></RouteWrapper>
+                </ProtectedRoute>
+              } />
+              <Route path="/comunidad" element={
+                <RouteWrapper><PublicLayout><ComunidadPage /></PublicLayout></RouteWrapper>
+              } />
 
-                        {/* Yoga & practice routes */}
-                        <Route path="/yoga" element={<Navigate to="/biblioteca" replace />} />
-                        <Route path="/yoga/practicar/:rutinaId" element={<><MetaUpdater /><YogaPracticePage /></>} />
-                        <Route path="/yoga/posiciones" element={
-                            <ProtectedRoute>
-                                <><MetaUpdater /><PublicLayout><YogaPosicionesPage /></PublicLayout></>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/rutinas/practicar/:rutinaId" element={<><MetaUpdater /><WorkoutPracticePage /></>} />
+              {/* Yoga & practice routes */}
+              <Route path="/yoga/practicar/:rutinaId" element={<RouteWrapper><YogaPracticePage /></RouteWrapper>} />
+              <Route path="/yoga/posiciones" element={
+                <ProtectedRoute>
+                  <RouteWrapper><PublicLayout><YogaPosicionesPage /></PublicLayout></RouteWrapper>
+                </ProtectedRoute>
+              } />
+              <Route path="/rutinas/practicar/:rutinaId" element={<RouteWrapper><WorkoutPracticePage /></RouteWrapper>} />
 
-                        {/* Admin routes — keep AdminLayout */}
-                        <Route path="/admin" element={
-                            <ProtectedRoute adminOnly>
-                                <><MetaUpdater /><AdminLayout><AdminPage /></AdminLayout></>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/admin/ejercicios" element={
-                            <ProtectedRoute adminOnly>
-                                <><MetaUpdater /><AdminLayout><AdminEjerciciosPage /></AdminLayout></>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/admin/rutinas" element={
-                            <ProtectedRoute adminOnly>
-                                <><MetaUpdater /><AdminLayout><AdminRutinasPage /></AdminLayout></>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/admin/yoga-posiciones" element={
-                            <ProtectedRoute adminOnly>
-                                <><MetaUpdater /><AdminLayout><AdminYogaPosicionesPage /></AdminLayout></>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/admin/yoga-rutinas" element={
-                            <ProtectedRoute adminOnly>
-                                <><MetaUpdater /><AdminLayout><AdminYogaRutinasPage /></AdminLayout></>
-                            </ProtectedRoute>
-                        } />
+              {/* Admin routes */}
+              <Route path="/admin" element={
+                <ProtectedRoute adminOnly>
+                  <RouteWrapper><AdminLayout><AdminPage /></AdminLayout></RouteWrapper>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/ejercicios" element={
+                <ProtectedRoute adminOnly>
+                  <RouteWrapper><AdminLayout><AdminEjerciciosPage /></AdminLayout></RouteWrapper>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/rutinas" element={
+                <ProtectedRoute adminOnly>
+                  <RouteWrapper><AdminLayout><AdminRutinasPage /></AdminLayout></RouteWrapper>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/yoga-posiciones" element={
+                <ProtectedRoute adminOnly>
+                  <RouteWrapper><AdminLayout><AdminYogaPosicionesPage /></AdminLayout></RouteWrapper>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/yoga-rutinas" element={
+                <ProtectedRoute adminOnly>
+                  <RouteWrapper><AdminLayout><AdminYogaRutinasPage /></AdminLayout></RouteWrapper>
+                </ProtectedRoute>
+              } />
 
-                        {/* Catch-all → biblioteca */}
-                        <Route path="*" element={<Navigate to="/biblioteca" replace />} />
-                    </Routes>
-                </Suspense>
-                </YogaProvider>
-            </AuthProvider>
-        </BrowserRouter>
-    );
+              {/* Catch-all → biblioteca */}
+              <Route path="*" element={<Navigate to="/biblioteca" replace />} />
+            </Routes>
+          </Suspense>
+        </YogaProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }

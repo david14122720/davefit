@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { insforge } from '../../lib/insforge';
+import { queryWithRetry, getById } from '../../lib/db';
 import { processWorkoutCompletion, calcularCalorias } from '../../lib/gamification';
 import { useAuth } from '../context/AuthContext';
 import { useCelebration } from '../hooks/useCelebration';
@@ -85,13 +86,17 @@ export default function WorkoutPracticePage() {
     const loadRutina = async () => {
       if (!rutinaId) return;
       try {
-        const { data: rutinaData } = await insforge.database.from('rutinas').select('*').eq('id', rutinaId).maybeSingle();
+        const { data: rutinaData } = await getById<any>('rutinas', rutinaId);
         if (!rutinaData) { setError('Rutina no encontrada'); return; }
         setRutina(rutinaData);
-        const { data: ejerciciosData } = await insforge.database.from('rutinas_ejercicios').select('*').eq('rutina_id', rutinaId).order('orden', { ascending: true });
+        const { data: ejerciciosData } = await queryWithRetry<any[]>(() =>
+          insforge.database.from('rutinas_ejercicios').select('*').eq('rutina_id', rutinaId).order('orden', { ascending: true })
+        );
         if (ejerciciosData && ejerciciosData.length > 0) {
           const ejercicioIds = ejerciciosData.map(e => e.ejercicio_id);
-          const { data: ejerciciosInfo } = await insforge.database.from('ejercicios').select('*').in('id', ejercicioIds);
+          const { data: ejerciciosInfo } = await queryWithRetry<any[]>(() =>
+            insforge.database.from('ejercicios').select('*').in('id', ejercicioIds)
+          );
           const ejerciciosMap = new Map(ejerciciosInfo?.map(e => [e.id, e]));
           setEjercicios(ejerciciosData.map(re => ({ ...re, ejercicio: ejerciciosMap.get(re.ejercicio_id) })));
         }

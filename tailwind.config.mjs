@@ -8,6 +8,8 @@ export default {
                     DEFAULT: '#ff6b00',
                     light: '#ff8533',
                     dark: '#e65100',
+                    hover: '#e65a00',
+                    on: '#ffffff',
                     glow: 'rgba(255, 107, 0, 0.3)',
                 },
                 background: {
@@ -17,6 +19,17 @@ export default {
                     surface: '#1e1e1e',
                     elevated: '#252525',
                     glass: 'rgba(20, 20, 20, 0.8)',
+                },
+                surface: {
+                    DEFAULT: '#1e1e1e',
+                    dark: '#141414',
+                },
+                'on-surface': {
+                    DEFAULT: '#f8ddd2',
+                    variant: '#9ca3af',
+                },
+                'text-muted': {
+                    DEFAULT: '#9ca3af',
                 },
             },
             fontFamily: {

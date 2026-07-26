@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { insforge } from '../../lib/insforge';
+import { queryWithRetry } from '../../lib/db';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface LeaderboardUser {
@@ -128,9 +129,9 @@ export default function ComunidadPage() {
   const loadLeaderboard = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: perfilesData, error: pError } = await insforge.database
-        .from('perfiles')
-        .select('id, nombre_completo, avatar_url');
+      const { data: perfilesData, error: pError } = await queryWithRetry<any[]>(() =>
+        insforge.database.from('perfiles').select('id, nombre_completo, avatar_url')
+      );
 
       if (pError) {
         console.error('Error loading perfiles:', pError);
@@ -138,9 +139,9 @@ export default function ComunidadPage() {
         return;
       }
 
-      const { data: statsData, error: sError } = await insforge.database
-        .from('user_stats')
-        .select('*');
+      const { data: statsData, error: sError } = await queryWithRetry<any[]>(() =>
+        insforge.database.from('user_stats').select('*')
+      );
 
       if (sError) {
         console.error('Error loading stats:', sError);

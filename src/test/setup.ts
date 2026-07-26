@@ -25,8 +25,7 @@ class ResizeObserver {
 window.ResizeObserver = ResizeObserver;
 
 // Mock scrollIntoView (not available in jsdom)
-window.scrollIntoView = vi.fn();
-Element.prototype.scrollIntoView = vi.fn() as any;
+Element.prototype.scrollIntoView = vi.fn();
 
 // Mock AudioContext for jsdom (used by useCelebration hook in XPBar)
 class MockAudioContext {

@@ -211,13 +211,14 @@ export async function saveProgreso(data: {
                 notas: 'Sesión de Yoga completada',
                 fecha: data.fecha_completado || new Date().toISOString()
             }]);
-        } catch (e) {
+        } catch (e: unknown) {
             console.error('[YogaAPI] Error al registrar progreso unificado:', e);
         }
 
         return { data: result as ProgresoYoga, error: null };
-    } catch (e: any) {
-        return { data: null, error: e.message || 'Error al guardar progreso' };
+    } catch (e: unknown) {
+        console.error('[YogaApi] Error en saveProgreso:', e);
+        return { data: null, error: e instanceof Error ? e.message : 'Error desconocido' };
     }
 }
 

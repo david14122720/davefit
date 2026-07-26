@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { insforge } from '../../lib/insforge';
+import { queryWithRetry } from '../../lib/db';
 import { calcularBMR, calcularTDEE, calcularCaloriasObjetivo, calcularIMC, getCategoriaIMC } from '../../lib/nutrition';
 import { toast } from 'sonner';
 import { motion, type Variants, AnimatePresence } from 'framer-motion';
@@ -41,24 +42,21 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (!user) return;
-        setLoadingStats(true);
-        setError(null);
-        insforge.database
-            .from('user_stats')
-            .select('*')
-            .eq('user_id', user.id)
-            .maybeSingle()
-            .then(({ data, error: fetchError }) => {
-                if (fetchError) throw fetchError;
-                setUserStats(data);
-            })
-            .catch((err) => {
-                console.error('Error loading stats:', err);
+        const loadStats = async () => {
+            setLoadingStats(true);
+            setError(null);
+            const { data, error } = await queryWithRetry<any>(() =>
+                insforge.database.from('user_stats').select('*').eq('user_id', user.id).maybeSingle()
+            );
+            if (error) {
+                console.error('Error loading stats:', error);
                 setError('No pudimos cargar toda tu información clasificada.');
-            })
-            .finally(() => {
-                setLoadingStats(false);
-            });
+            } else {
+                setUserStats(data);
+            }
+            setLoadingStats(false);
+        };
+        loadStats();
     }, [user]);
 
     const {
