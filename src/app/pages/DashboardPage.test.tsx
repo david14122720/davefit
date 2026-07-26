@@ -54,7 +54,6 @@ describe('DashboardPage', () => {
     mockAuth.user = { id: '1', email: 'test@davefit.com' };
     mockAuth.perfil = { nombre_completo: 'David Test', objetivo: 'ganar_fuerza', nivel: 'intermedio' };
     mockAuth.accessToken = 'fake-token';
-    // Reset URL hash to avoid tab state leaking between tests
     window.history.replaceState(null, '', window.location.pathname);
   });
 
@@ -73,23 +72,8 @@ describe('DashboardPage', () => {
 
     // Skeleton uses animate-pulse
     expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
-    // During loading, tabs are NOT rendered (skeleton-only state)
-    expect(screen.queryByText('Resumen')).not.toBeInTheDocument();
-  });
-
-  it('muestra las tabs Resumen, Biblioteca de Ejercicios y Mi Calendario después de cargar', async () => {
-    vi.mocked(insforge.database.from).mockImplementation(() =>
-      mockDashboardChain({ data: [], error: null, count: 0 })
-    );
-
-    renderPage();
-
-    await waitFor(() => {
-      expect(screen.getByText('Resumen')).toBeInTheDocument();
-    });
-
-    expect(screen.getByText('Biblioteca de Ejercicios')).toBeInTheDocument();
-    expect(screen.getByText('Mi Calendario')).toBeInTheDocument();
+    // During loading, full content is NOT rendered
+    expect(screen.queryByText(/David/)).not.toBeInTheDocument();
   });
 
   it('muestra el saludo y nombre de usuario', async () => {
@@ -100,8 +84,6 @@ describe('DashboardPage', () => {
     renderPage();
 
     await waitFor(() => {
-      // The greeting is time-based (Buenos días/tardes/noches), so we check
-      // for the user's first name anywhere in the page
       expect(screen.getByText(/David/)).toBeInTheDocument();
     });
   });
@@ -114,18 +96,18 @@ describe('DashboardPage', () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText('Sin actividad registrada')).toBeInTheDocument();
+      expect(screen.getByText(/David/)).toBeInTheDocument();
     });
 
-    // Should show empty next workout state
+    // Chart empty state
+    expect(screen.getByText('Sin actividad registrada')).toBeInTheDocument();
+    // Empty next workout state
     expect(screen.getByText('Sin entrenos aún')).toBeInTheDocument();
-    // Should show the user's objective (from mock: ganar_fuerza → 'ganar fuerza')
+    // User objective (from mock: ganar_fuerza → 'ganar fuerza')
     expect(screen.getByText('ganar fuerza')).toBeInTheDocument();
   });
 
-  // --- Task 2.4: DashboardPage tabs switch content panels, green accent on active tab ---
-
-  it('cambia el panel de contenido al hacer clic en las tabs y muestra acento verde en tab activa', async () => {
+  it('muestra streak badge y level badge', async () => {
     vi.mocked(insforge.database.from).mockImplementation(() =>
       mockDashboardChain({ data: [], error: null, count: 0 })
     );
@@ -133,81 +115,12 @@ describe('DashboardPage', () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText('Resumen')).toBeInTheDocument();
-    });
-
-    // Get tab buttons (there are 3 buttons in the tab bar)
-    const tabButtons = document.querySelectorAll('.sticky button');
-    const resumenTab = tabButtons[0] as HTMLElement;
-    const bibliotecaTab = tabButtons[1] as HTMLElement;
-    const calendarioTab = tabButtons[2] as HTMLElement;
-
-    expect(resumenTab.className).toContain('text-primary');
-    expect(bibliotecaTab.className).not.toContain('text-primary');
-    expect(calendarioTab.className).not.toContain('text-primary');
-
-    // Resumen content should be visible
-    expect(screen.getByText('Entrenamientos')).toBeInTheDocument();
-    expect(screen.getByText('Calorías')).toBeInTheDocument();
-    expect(screen.getByText('Minutos')).toBeInTheDocument();
-
-    // Click "Biblioteca de Ejercicios" tab
-    fireEvent.click(bibliotecaTab);
-
-    // Now Biblioteca should be active
-    await waitFor(() => {
-      expect(bibliotecaTab.className).toContain('text-primary');
-    });
-    expect(resumenTab.className).not.toContain('text-primary');
-    expect(calendarioTab.className).not.toContain('text-primary');
-
-    // Biblioteca content heading should be visible
-    expect(screen.getByText('Biblioteca de Ejercicios', { selector: 'h2' })).toBeInTheDocument();
-
-    // Click "Mi Calendario" tab
-    fireEvent.click(calendarioTab);
-
-    // Now Calendario should be active
-    await waitFor(() => {
-      expect(calendarioTab.className).toContain('text-primary');
-    });
-    expect(resumenTab.className).not.toContain('text-primary');
-    expect(bibliotecaTab.className).not.toContain('text-primary');
-
-    // Calendario content should be visible
-    expect(screen.getByText('Mi Calendario', { selector: 'h2' })).toBeInTheDocument();
-    expect(screen.getByText('Esta Semana')).toBeInTheDocument();
-  });
-
-  it('muestra streak badge y level badge en el resumen', async () => {
-    vi.mocked(insforge.database.from).mockImplementation(() =>
-      mockDashboardChain({ data: [], error: null, count: 0 })
-    );
-
-    renderPage();
-
-    await waitFor(() => {
-      // Level badge should render (inside a pill badge with purple-500 classes)
       const nivelElements = screen.getAllByText(/Nivel/);
-      // At least one should be the level badge
       const levelBadge = nivelElements.find(el => el.className.includes('rounded-full'));
       expect(levelBadge).toBeTruthy();
     });
 
-    // Streak badge
     expect(screen.getByText(/días racha/)).toBeInTheDocument();
-  });
-
-  it('muestra la CTA Explora la Biblioteca', async () => {
-    vi.mocked(insforge.database.from).mockImplementation(() =>
-      mockDashboardChain({ data: [], error: null, count: 0 })
-    );
-
-    renderPage();
-
-    await waitFor(() => {
-      expect(screen.getByText('Explora la Biblioteca')).toBeInTheDocument();
-    });
   });
 
   it('muestra el botón Entrenar ahora', async () => {
@@ -220,5 +133,113 @@ describe('DashboardPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Entrenar ahora')).toBeInTheDocument();
     });
+  });
+
+  // ============== T3.1: No tab bar ==============
+
+  it('no tiene barra de navegación por tabs (vista única)', async () => {
+    vi.mocked(insforge.database.from).mockImplementation(() =>
+      mockDashboardChain({ data: [], error: null, count: 0 })
+    );
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText(/David/)).toBeInTheDocument();
+    });
+
+    // No tab buttons should exist — page is a single continuous view
+    expect(screen.queryByText('Resumen')).not.toBeInTheDocument();
+    expect(screen.queryByText('Biblioteca de Ejercicios')).not.toBeInTheDocument();
+    expect(screen.queryByText('Mi Calendario')).not.toBeInTheDocument();
+
+    // No sticky tab navigation bar
+    expect(document.querySelector('.sticky')).not.toBeInTheDocument();
+  });
+
+  // ============== T3.2: Sections in correct order with calendar content integrated ==============
+
+  it('integra el calendario semanal e historial completo en la vista principal', async () => {
+    vi.mocked(insforge.database.from).mockImplementation(() =>
+      mockDashboardChain({ data: [], error: null, count: 0 })
+    );
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText(/David/)).toBeInTheDocument();
+    });
+
+    // Calendar content (formerly in Mi Calendario tab) is now visible in main flow
+    expect(screen.getByText('Esta Semana')).toBeInTheDocument();
+    // Training history section is visible (empty state since no historial data)
+    expect(
+      screen.getByText('Sin entrenamientos registrados')
+    ).toBeInTheDocument();
+  });
+
+  // ============== T3.4: Empty data renders gracefully ==============
+
+  it('maneja correctamente datos vacíos en todas las secciones', async () => {
+    vi.mocked(insforge.database.from).mockImplementation(() =>
+      mockDashboardChain({ data: [], error: null, count: 0 })
+    );
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText(/David/)).toBeInTheDocument();
+    });
+
+    // Hero is visible with badges
+    expect(screen.getByText(/días racha/)).toBeInTheDocument();
+    const nivelElements = screen.getAllByText(/Nivel/);
+    expect(nivelElements.length).toBeGreaterThanOrEqual(1);
+
+    // Time selector and "Entrenar ahora" are visible
+    expect(screen.getByText('Entrenar ahora')).toBeInTheDocument();
+
+    // Stats show zero/empty data
+    expect(screen.getByText('Entrenamientos')).toBeInTheDocument();
+    expect(screen.getByText('Calorías')).toBeInTheDocument();
+    expect(screen.getByText('Minutos')).toBeInTheDocument();
+    // Stat values exist (empty data shows 0)
+    const zeroMatches = screen.getAllByText('0');
+    expect(zeroMatches.length).toBeGreaterThanOrEqual(1);
+
+    // Chart shows empty state
+    expect(screen.getByText('Sin actividad registrada')).toBeInTheDocument();
+
+    // No crash or error toast visible
+    expect(screen.queryByText(/Error al cargar/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/No pudimos cargar/i)).not.toBeInTheDocument();
+  });
+
+  // ============== T3.4b: Empty training history with calendar ==============
+
+  it('muestra calendario e historial vacío cuando no hay entrenamientos', async () => {
+    vi.mocked(insforge.database.from).mockImplementation(() =>
+      mockDashboardChain({ data: [], error: null, count: 0 })
+    );
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText(/David/)).toBeInTheDocument();
+    });
+
+    // Weekly mini calendar heading is visible
+    expect(screen.getByText('Esta Semana')).toBeInTheDocument();
+    // Day headers should render (Lun, Mar, Mié, etc.)
+    expect(screen.getByText('Lun')).toBeInTheDocument();
+    expect(screen.getByText('Mar')).toBeInTheDocument();
+    expect(screen.getByText('Dom')).toBeInTheDocument();
+
+    // With no historial data, we expect either "Sin entrenamientos registrados"
+    // or "Entrenamientos Recientes" is visible (the section renders)
+    // Since data is empty (count=0), the history section's empty state appears
+    expect(
+      screen.getByText('Sin entrenamientos registrados')
+    ).toBeInTheDocument();
   });
 });

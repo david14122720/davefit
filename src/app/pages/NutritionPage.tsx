@@ -3,7 +3,7 @@ import { insforge } from '../../lib/insforge';
 import { queryWithRetry } from '../../lib/db';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search, Clock, ChefHat, Lock, Crown,
+  Search, Clock, ChefHat,
   AlertCircle, RefreshCw, Sparkles, Flame, UtensilsCrossed
 } from 'lucide-react';
 
@@ -372,59 +372,9 @@ export default function NutritionPage() {
                   ? 'No encontramos recetas para este filtro.'
                   : 'Estamos preparando contenido nutritivo para potenciar tus entrenamientos.'}
             </p>
-
-            {/* Premium Upgrade CTA */}
-            {!busqueda && filterChip === 'todas' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="mt-10 max-w-sm mx-auto bg-gradient-to-br from-primary/10 via-primary/5 to-surface border border-primary/20 rounded-lg p-6"
-              >
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                  <Lock className="w-6 h-6 text-primary" />
-                </div>
-                <h4 className="text-base font-bold text-white mb-2">
-                  Desbloquea recetas premium
-                </h4>
-                <p className="text-on-surface-variant text-xs mb-5 leading-relaxed">
-                  Accede a planes de alimentación personalizados, recetas exclusivas
-                  y seguimiento nutricional avanzado.
-                </p>
-                <button className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-primary-on font-bold text-sm rounded-lg hover:bg-primary-hover transition-all active:scale-95 shadow-lg shadow-primary/20">
-                  <Crown className="w-4 h-4" />
-                  Actualizar a Premium
-                </button>
-              </motion.div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Subscription CTA (always shown when there are recipes too) */}
-      {filtered.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8 bg-gradient-to-br from-primary/10 via-primary/5 to-surface border border-primary/20 rounded-lg p-6 sm:p-8 text-center"
-        >
-          <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-            <Crown className="w-6 h-6 text-primary" />
-          </div>
-          <h3 className="text-lg font-bold text-white mb-2">
-            Desbloquea todas las recetas premium
-          </h3>
-          <p className="text-on-surface-variant text-sm max-w-md mx-auto mb-5 leading-relaxed">
-            Obtén acceso ilimitado a planes de alimentación personalizados,
-            recetas exclusivas y seguimiento nutricional avanzado.
-          </p>
-          <button className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-on font-bold text-sm rounded-lg hover:bg-primary-hover transition-all active:scale-95 shadow-lg shadow-primary/20">
-            <Lock className="w-4 h-4" />
-            Actualizar a Premium
-          </button>
-        </motion.div>
-      )}
     </div>
   );
 }
