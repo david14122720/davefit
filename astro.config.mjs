@@ -8,6 +8,7 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
     site: 'https://davefit.app',
     output: 'server',
+    compressHTML: true,
     adapter: node({ mode: 'standalone' }),
     integrations: [
         react(),
