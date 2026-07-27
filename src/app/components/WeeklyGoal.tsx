@@ -63,7 +63,7 @@ export default function WeeklyGoal() {
             <div className="p-4 bg-[#141414] rounded-xl border border-white/5">
                 <div className="flex items-center gap-3 mb-3">
                     <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
-                    <div className="h-4 bg-white/10 rounded w-24 animate-pulse" />
+                    <div className="h-4 bg-white/10 rounded-sm w-24 animate-pulse" />
                 </div>
                 <div className="h-3 bg-white/10 rounded-full animate-pulse" />
             </div>
@@ -76,18 +76,18 @@ export default function WeeklyGoal() {
             animate={{ opacity: 1, y: 0 }}
             className={`p-4 rounded-xl border transition-all ${
                 metaAlcanzada 
-                    ? 'bg-gradient-to-br from-primary/10 to-primary-dark/5 border-primary/30' 
+                    ? 'bg-linear-to-br from-primary/10 to-primary-dark/5 border-primary/30' 
                     : 'bg-[#141414] border-white/5 hover:border-primary/20'
             }`}
         >
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                     {metaAlcanzada ? (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-linear-to-br from-primary to-primary-dark flex items-center justify-center">
                             <Trophy className="w-5 h-5 text-black" />
                         </div>
                     ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
                             <Target className="w-5 h-5 text-white" />
                         </div>
                     )}
@@ -118,8 +118,8 @@ export default function WeeklyGoal() {
                         transition={{ duration: 0.8, ease: 'easeOut' }}
                         className={`h-full rounded-full ${
                             metaAlcanzada
-                                ? 'bg-gradient-to-r from-primary to-primary-dark shadow-[0_0_15px_rgba(255,107,0,0.5)]'
-                                : 'bg-gradient-to-r from-blue-500 to-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]'
+                                ? 'bg-linear-to-r from-primary to-primary-dark shadow-[0_0_15px_rgba(255,107,0,0.5)]'
+                                : 'bg-linear-to-r from-blue-500 to-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]'
                         }`}
                     />
                 </div>

@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import node from '@astrojs/node';
 
@@ -10,13 +10,11 @@ export default defineConfig({
     output: 'server',
     adapter: node({ mode: 'standalone' }),
     integrations: [
-        tailwind({
-            applyBaseStyles: false,
-        }),
         react(),
         sitemap(),
     ],
     vite: {
+        plugins: [tailwindcss()],
         optimizeDeps: {
             include: ['react', 'react-dom', 'react-router-dom'],
         },

@@ -201,7 +201,7 @@ export default function RoutinesPage() {
             <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="max-w-md w-full bg-[#141414] border border-red-500/20 rounded-[2rem] p-8 text-center shadow-[0_15px_50px_rgba(239,68,68,0.1)]"
+                className="max-w-md w-full bg-[#141414] border border-red-500/20 rounded-4xl p-8 text-center shadow-[0_15px_50px_rgba(239,68,68,0.1)]"
             >
                 <div className="w-20 h-20 bg-red-500/10 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6 transform rotate-3 border border-red-500/20">
                     <MonitorPlay className="w-10 h-10" />
@@ -246,7 +246,7 @@ export default function RoutinesPage() {
                 </div>
 
                 {/* Filter Panel */}
-                <div className="bg-[#111111] border border-white/5 rounded-xl p-5 sm:p-6 mb-6 sm:mb-8 backdrop-blur-sm relative overflow-hidden">
+                <div className="bg-[#111111] border border-white/5 rounded-xl p-5 sm:p-6 mb-6 sm:mb-8 backdrop-blur-xs relative overflow-hidden">
                     <div className="absolute -top-16 -right-16 w-40 h-40 bg-primary/5 blur-[80px] rounded-full pointer-events-none" />
 
                     {/* Search & Filters */}
@@ -263,7 +263,7 @@ export default function RoutinesPage() {
                                     placeholder="¿Qué rutina buscas?"
                                     value={busqueda}
                                     onChange={(e) => setBusqueda(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 bg-black/40 border border-white/10 rounded-2xl text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all"
+                                    className="w-full pl-10 pr-4 py-3 bg-black/40 border border-white/10 rounded-2xl text-white text-sm placeholder-gray-600 focus:outline-hidden focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all"
                                 />
                             </div>
                         </div>
@@ -364,14 +364,14 @@ export default function RoutinesPage() {
                                                     e.currentTarget.style.display = 'none';
                                                     const parent = e.currentTarget.parentElement;
                                                     if (parent) {
-                                                        parent.classList.add('bg-gradient-to-br', 'from-primary-dark/30', 'to-black');
+                                                        parent.classList.add('bg-linear-to-br', 'from-primary-dark/30', 'to-black');
                                                     }
                                                 }}
                                             />
                                         )}
 
                                         {/* Overlay dark */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-transparent" />
+                                        <div className="absolute inset-0 bg-linear-to-t from-[#141414] via-transparent to-transparent" />
 
                                         {/* Badges */}
                                         <div className="absolute top-2 left-2 right-2 flex justify-between">
@@ -424,7 +424,7 @@ export default function RoutinesPage() {
             {/* Modal Detail - Bottom Sheet on Mobile */}
             <AnimatePresence>
                 {selectedRutina && (
-                    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden">
+                    <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden">
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -441,15 +441,15 @@ export default function RoutinesPage() {
                             className="relative bg-[#111111] border-t sm:border border-white/10 w-full max-w-2xl h-[90vh] sm:h-auto sm:max-h-[85vh] rounded-t-lg sm:rounded-xl overflow-hidden flex flex-col shadow-[0_-20px_60px_rgba(0,0,0,0.5)]"
                         >
                             {/* Draggable indicator for mobile */}
-                            <div className="sm:hidden w-12 h-1.5 bg-white/10 rounded-full mx-auto my-3 flex-shrink-0" />
+                            <div className="sm:hidden w-12 h-1.5 bg-white/10 rounded-full mx-auto my-3 shrink-0" />
 
                             <div className="relative h-36 sm:h-48 md:h-56 shrink-0">
                                 {selectedRutina.imagen_cover_url ? (
                                     <img src={selectedRutina.imagen_cover_url} alt="" className="w-full h-full object-cover brightness-[0.5]" />
                                 ) : (
-                                    <div className="w-full h-full bg-gradient-to-br from-primary-dark/30 to-black" />
+                                    <div className="w-full h-full bg-linear-to-br from-primary-dark/30 to-black" />
                                 )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#111111] to-transparent" />
+                                <div className="absolute inset-0 bg-linear-to-t from-[#111111] to-transparent" />
 
                                 <button
                                     onClick={handleCloseRutina}
@@ -511,7 +511,7 @@ export default function RoutinesPage() {
                                 </div>
                             </div>
 
-                            <div className="p-4 sm:p-6 bg-[#0a0a0a]/80 backdrop-blur-3xl border-t border-white/5">
+                            <div className="p-4 sm:p-6 bg-background-dark/80 backdrop-blur-3xl border-t border-white/5">
                                 <button
                                     onClick={handleIniciarRutina}
                                     className="w-full h-12 sm:h-14 bg-primary hover:bg-primary-light text-black rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-[12px] sm:text-sm transition-all shadow-[0_15px_30px_rgba(255,107,0,0.3)] flex items-center justify-center gap-2 sm:gap-3"

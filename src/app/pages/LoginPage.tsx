@@ -142,7 +142,7 @@ export default function LoginPage() {
           {/* Rate-limit warning */}
           {rateLimited && (
             <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 flex items-start gap-3">
-              <ShieldAlert className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <ShieldAlert className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
               <p className="text-sm text-red-400 font-medium">{rateLimited}</p>
             </div>
           )}
@@ -186,7 +186,7 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   {...register('email')}
-                  className={`w-full pl-11 pr-4 py-3.5 rounded-lg bg-surface border text-white placeholder-on-surface-variant/40 focus:ring-4 outline-none transition-all text-base ${
+                  className={`w-full pl-11 pr-4 py-3.5 rounded-lg bg-surface border text-white placeholder-on-surface-variant/40 focus:ring-4 outline-hidden transition-all text-base ${
                     errors.email
                       ? 'border-red-500/50 focus:ring-red-500/10 focus:border-red-500/50'
                       : 'border-white/10 focus:ring-primary/20 focus:border-primary/50'
@@ -213,7 +213,7 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   {...register('password')}
-                  className={`w-full pl-11 pr-12 py-3.5 rounded-lg bg-surface border text-white placeholder-on-surface-variant/40 focus:ring-4 outline-none transition-all text-base ${
+                  className={`w-full pl-11 pr-12 py-3.5 rounded-lg bg-surface border text-white placeholder-on-surface-variant/40 focus:ring-4 outline-hidden transition-all text-base ${
                     errors.password
                       ? 'border-red-500/50 focus:ring-red-500/10 focus:border-red-500/50'
                       : 'border-white/10 focus:ring-primary/20 focus:border-primary/50'

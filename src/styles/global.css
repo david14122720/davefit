@@ -1,6 +1,113 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@source '../**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}';
+
+@theme {
+  --color-primary: #ff6b00;
+  --color-primary-light: #ff8533;
+  --color-primary-dark: #e65100;
+  --color-primary-hover: #e65a00;
+  --color-primary-on: #ffffff;
+  --color-primary-glow: rgba(255, 107, 0, 0.3);
+
+  --color-background-dark: #0a0a0a;
+  --color-background-darker: #050505;
+  --color-background-card: #141414;
+  --color-background-surface: #1e1e1e;
+  --color-background-elevated: #252525;
+  --color-background-glass: rgba(20, 20, 20, 0.8);
+
+  --color-surface: #1e1e1e;
+  --color-surface-dark: #141414;
+
+  --color-on-surface: #f8ddd2;
+  --color-on-surface-variant: #9ca3af;
+
+  --color-text-muted: #9ca3af;
+
+  --font-sans: Inter, system-ui, sans-serif;
+
+  --animate-fade-in: fadeIn 0.5s ease-out forwards;
+  --animate-slide-in: slideIn 0.4s ease-out forwards;
+  --animate-slide-up: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 3s ease-in-out infinite;
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes slideIn {
+    0% {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes slideUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px) scale(0.98);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility touch-target {
+  /* Responsive Utility Classes for Mobile Fitness Experience */
+  @apply min-h-[48px] min-w-[48px] flex items-center justify-center;
+}
+
+@utility custom-scrollbar {
+  &::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+  &::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    @apply bg-white/5 rounded-full hover:bg-white/10;
+  }
+}
 
 @layer base {
     :root {
@@ -27,24 +134,5 @@
 
     p {
         @apply leading-relaxed text-gray-400;
-    }
-}
-
-@layer components {
-    /* Responsive Utility Classes for Mobile Fitness Experience */
-    .touch-target {
-        @apply min-h-[48px] min-w-[48px] flex items-center justify-center;
-    }
-}
-
-@layer utilities {
-    .custom-scrollbar::-webkit-scrollbar {
-        @apply w-1.5 h-1.5;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-        @apply bg-transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        @apply bg-white/5 rounded-full hover:bg-white/10;
     }
 }

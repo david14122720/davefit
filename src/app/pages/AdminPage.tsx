@@ -112,7 +112,7 @@ export default function AdminPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Link 
                     to="/admin/ejercicios" 
-                    className="p-6 rounded-2xl bg-gradient-to-br from-green-500/10 to-transparent border border-green-500/20 hover:border-green-500/40 transition-all group"
+                    className="p-6 rounded-2xl bg-linear-to-br from-green-500/10 to-transparent border border-green-500/20 hover:border-green-500/40 transition-all group"
                 >
                     <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-xl bg-green-500/20 flex items-center justify-center">
@@ -129,7 +129,7 @@ export default function AdminPage() {
 
                 <Link 
                     to="/admin/rutinas" 
-                    className="p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/20 hover:border-blue-500/40 transition-all group"
+                    className="p-6 rounded-2xl bg-linear-to-br from-blue-500/10 to-transparent border border-blue-500/20 hover:border-blue-500/40 transition-all group"
                 >
                     <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-xl bg-blue-500/20 flex items-center justify-center">
@@ -146,7 +146,7 @@ export default function AdminPage() {
 
                 <Link 
                     to="/admin/yoga-posiciones" 
-                    className="p-6 rounded-2xl bg-gradient-to-br from-purple-500/10 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition-all group"
+                    className="p-6 rounded-2xl bg-linear-to-br from-purple-500/10 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition-all group"
                 >
                     <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-xl bg-purple-500/20 flex items-center justify-center">
@@ -163,7 +163,7 @@ export default function AdminPage() {
 
                 <Link 
                     to="/admin/yoga-rutinas" 
-                    className="p-6 rounded-2xl bg-gradient-to-br from-teal-500/10 to-transparent border border-teal-500/20 hover:border-teal-500/40 transition-all group"
+                    className="p-6 rounded-2xl bg-linear-to-br from-teal-500/10 to-transparent border border-teal-500/20 hover:border-teal-500/40 transition-all group"
                 >
                     <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-xl bg-teal-500/20 flex items-center justify-center">

@@ -41,7 +41,7 @@ export default function YogaPosicionesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] p-4 sm:p-6">
+    <div className="min-h-screen bg-background-dark p-4 sm:p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <motion.div 
@@ -49,7 +49,7 @@ export default function YogaPosicionesPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 border border-primary/30 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-linear-to-br from-primary/20 to-purple-500/20 border border-primary/30 mb-4">
             <Flower2 className="w-8 h-8 text-green-400" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Posiciones de Yoga</h1>
@@ -65,7 +65,7 @@ export default function YogaPosicionesPage() {
               placeholder="Buscar posiciones..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-hidden focus:border-primary/50 transition-colors"
             />
           </div>
         </div>
@@ -127,7 +127,7 @@ export default function YogaPosicionesPage() {
                     className="w-full p-4 flex items-center gap-4 text-left hover:bg-white/5 transition-colors"
                   >
                     {/* Image */}
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center flex-shrink-0">
+                    <div className="w-16 h-16 rounded-lg bg-linear-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
                       {posicion.imagen_url ? (
                         <img 
                           src={posicion.imagen_url} 
@@ -158,7 +158,7 @@ export default function YogaPosicionesPage() {
                     </div>
 
                     {/* Duration & Expand Icon */}
-                    <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="flex items-center gap-3 shrink-0">
                       {posicion.duracion_segundos_sugerida && (
                         <div className="flex items-center gap-1 text-gray-400">
                           <Clock className="w-4 h-4" />
@@ -204,7 +204,7 @@ export default function YogaPosicionesPage() {
                               <ol className="space-y-3">
                                 {posicion.instrucciones.map((instruccion, i) => (
                                   <li key={i} className="flex items-start gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary-light text-sm font-bold flex items-center justify-center">
+                                    <span className="shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary-light text-sm font-bold flex items-center justify-center">
                                       {i + 1}
                                     </span>
                                     <span className="text-gray-300">{instruccion}</span>
@@ -224,7 +224,7 @@ export default function YogaPosicionesPage() {
                               <ul className="space-y-2">
                                 {posicion.beneficios.map((beneficio, i) => (
                                   <li key={i} className="flex items-start gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                                    <CheckCircle className="w-4 h-4 text-green-400 shrink-0 mt-0.5" />
                                     <span className="text-gray-300">{beneficio}</span>
                                   </li>
                                 ))}

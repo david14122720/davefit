@@ -175,14 +175,14 @@ export default function AdminYogaRutinasPage() {
                     placeholder="Buscar rutinas..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-[#141414] border border-white/5 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-colors"
+                    className="w-full pl-12 pr-4 py-3 bg-[#141414] border border-white/5 rounded-xl text-white placeholder-gray-500 focus:outline-hidden focus:border-primary/50 transition-colors"
                 />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredRutinas.map((r) => (
                     <div key={r.id} className="bg-[#141414] rounded-2xl border border-white/5 overflow-hidden hover:border-primary/30 transition-colors group">
-                        <div className="h-32 bg-gradient-to-br from-green-500/20 to-teal-500/20 relative flex items-center justify-center">
+                        <div className="h-32 bg-linear-to-br from-green-500/20 to-teal-500/20 relative flex items-center justify-center">
                             <Calendar className="w-14 h-14 text-green-500/30" />
                             <div className="absolute top-3 right-3">
                                 <span className="text-2xl">{objetivoIcons[r.objetivo] || '🧘'}</span>
@@ -234,7 +234,7 @@ export default function AdminYogaRutinasPage() {
             )}
 
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center z-50 p-4">
                     <div className="bg-[#141414] rounded-2xl border border-white/10 w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between p-6 border-b border-white/5">
                             <h2 className="text-xl font-bold text-white">
@@ -252,7 +252,7 @@ export default function AdminYogaRutinasPage() {
                                     required
                                     value={formData.nombre}
                                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50"
+                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-primary/50"
                                 />
                             </div>
                             <div>
@@ -260,7 +260,7 @@ export default function AdminYogaRutinasPage() {
                                 <textarea
                                     value={formData.descripcion}
                                     onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50 resize-none"
+                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-primary/50 resize-none"
                                     rows={2}
                                 />
                             </div>
@@ -271,7 +271,7 @@ export default function AdminYogaRutinasPage() {
                                         required
                                         value={formData.objetivo}
                                         onChange={(e) => setFormData({ ...formData, objetivo: e.target.value })}
-                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50"
+                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-primary/50"
                                     >
                                         {objetivoOptions.map(o => (
                                             <option key={o} value={o} className="capitalize">{objetivoIcons[o]} {o}</option>
@@ -284,7 +284,7 @@ export default function AdminYogaRutinasPage() {
                                         required
                                         value={formData.nivel}
                                         onChange={(e) => setFormData({ ...formData, nivel: e.target.value })}
-                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50"
+                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-primary/50"
                                     >
                                         {nivelOptions.map(n => (
                                             <option key={n} value={n} className="capitalize">{n}</option>
@@ -301,7 +301,7 @@ export default function AdminYogaRutinasPage() {
                                         min="1"
                                         value={formData.duracion_minutos}
                                         onChange={(e) => setFormData({ ...formData, duracion_minutos: e.target.value })}
-                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50"
+                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-primary/50"
                                     />
                                 </div>
                                 <div>
@@ -312,7 +312,7 @@ export default function AdminYogaRutinasPage() {
                                         min="1"
                                         value={formData.calorias_estimadas}
                                         onChange={(e) => setFormData({ ...formData, calorias_estimadas: e.target.value })}
-                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary/50"
+                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-primary/50"
                                     />
                                 </div>
                             </div>
