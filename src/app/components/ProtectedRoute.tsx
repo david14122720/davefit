@@ -12,7 +12,7 @@ export default function ProtectedRoute({ children, adminOnly = false }: Protecte
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+            <div className="min-h-screen flex items-center justify-center bg-background-dark">
                 <div className="text-center">
                     <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <p className="text-gray-400 text-sm">Cargando...</p>

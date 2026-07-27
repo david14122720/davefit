@@ -138,25 +138,25 @@ export default function WorkoutPracticePage() {
   const totalEjercicios = ejercicios.length;
   const progreso = ((currentIndex + 1) / totalEjercicios) * 100;
 
-  if (loading) return <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-8 text-center"><div className="flex flex-col items-center gap-6"><div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" /><p className="text-gray-500 font-black uppercase tracking-[0.2em] animate-pulse">Sincronizando Arsenal...</p></div></div>;
-  if (error || !currentEjercicio) return <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-8 text-center"><Dumbbell className="w-16 h-16 text-red-500 mb-6" /><p className="text-white font-black text-xl mb-8">{error || 'Objetivo Perdido'}</p><button onClick={() => navigate('/biblioteca')} className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3"><ArrowLeft className="w-4 h-4" /> Volver al Cuartel</button></div>;
+  if (loading) return <div className="min-h-screen bg-background-dark flex items-center justify-center p-8 text-center"><div className="flex flex-col items-center gap-6"><div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" /><p className="text-gray-500 font-black uppercase tracking-[0.2em] animate-pulse">Sincronizando Arsenal...</p></div></div>;
+  if (error || !currentEjercicio) return <div className="min-h-screen bg-background-dark flex flex-col items-center justify-center p-8 text-center"><Dumbbell className="w-16 h-16 text-red-500 mb-6" /><p className="text-white font-black text-xl mb-8">{error || 'Objetivo Perdido'}</p><button onClick={() => navigate('/biblioteca')} className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3"><ArrowLeft className="w-4 h-4" /> Volver al Cuartel</button></div>;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col text-white select-none overflow-hidden touch-none sm:touch-auto">
+    <div className="min-h-screen bg-background-dark flex flex-col text-white select-none overflow-hidden touch-none sm:touch-auto">
       {/* Dynamic Background Glow */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/10 via-transparent to-transparent" />
+        <div className="absolute top-0 left-0 w-full h-full bg-linear-to-b from-primary/10 via-transparent to-transparent" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 blur-[120px] rounded-full" />
       </div>
 
       {/* Extreme Mobile Header */}
-      <header className="relative z-40 px-6 py-4 flex flex-col gap-4 bg-[#0a0a0a]/90 backdrop-blur-3xl border-b border-white/5 sticky top-0 shadow-2xl">
+      <header className="relative z-40 px-6 py-4 flex flex-col gap-4 bg-background-dark/90 backdrop-blur-3xl border-b border-white/5 sticky top-0 shadow-2xl">
         <div className="flex items-center justify-between">
           <button onClick={() => navigate('/biblioteca')} className="p-3 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 active:scale-90 transition-all">
             <ArrowLeft className="w-5 h-5 text-gray-400" />
           </button>
           <div className="text-center flex-1 px-4 min-w-0">
-            <h1 className="text-sm font-black text-white uppercase tracking-[0.1em] truncate drop-shadow-sm">{rutina?.nombre}</h1>
+            <h1 className="text-sm font-black text-white uppercase tracking-widest truncate drop-shadow-sm">{rutina?.nombre}</h1>
             <div className="flex items-center justify-center gap-2 mt-1">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{currentIndex + 1} DE {totalEjercicios}</span>
@@ -169,7 +169,7 @@ export default function WorkoutPracticePage() {
         </div>
         <div className="h-2 bg-white/5 rounded-full overflow-hidden p-[2px] border border-white/5">
           <motion.div 
-            className="h-full bg-gradient-to-r from-primary-dark via-primary to-yellow-500 rounded-full shadow-[0_0_15px_rgba(255,107,0,0.5)]"
+            className="h-full bg-linear-to-r from-primary-dark via-primary to-yellow-500 rounded-full shadow-[0_0_15px_rgba(255,107,0,0.5)]"
             initial={{ width: 0 }}
             animate={{ width: `${progreso}%` }}
             transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
@@ -205,7 +205,7 @@ export default function WorkoutPracticePage() {
               </div>
             </div>
 
-            <div className="absolute inset-x-0 bottom-0 p-8 pt-20 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none">
+            <div className="absolute inset-x-0 bottom-0 p-8 pt-20 bg-linear-to-t from-black via-black/40 to-transparent pointer-events-none">
                 <h2 className="text-3xl sm:text-5xl font-black text-white leading-tight uppercase tracking-tighter drop-shadow-2xl">{currentEjercicio.ejercicio?.nombre}</h2>
                 <div className="flex items-center gap-3 mt-2">
                    <div className="px-3 py-1 bg-primary/20 border border-primary/30 rounded-lg text-[10px] font-black text-primary uppercase tracking-widest">{currentEjercicio.ejercicio?.grupo_muscular}</div>
@@ -245,7 +245,7 @@ export default function WorkoutPracticePage() {
       </main>
 
       {/* Ergonomic Navigation Control Center */}
-      <footer className="relative z-40 p-6 pt-0 pb-10 bg-gradient-to-t from-black to-transparent">
+      <footer className="relative z-40 p-6 pt-0 pb-10 bg-linear-to-t from-black to-transparent">
          <div className="max-w-md mx-auto grid grid-cols-5 items-center gap-4">
             <button
                onClick={handleAnterior}
@@ -288,7 +288,7 @@ export default function WorkoutPracticePage() {
                 <div className="space-y-6">
                     {currentEjercicio.ejercicio?.instrucciones?.map((ins, i) => (
                       <div key={i} className="flex gap-4">
-                         <span className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 text-primary-light font-black text-xs flex items-center justify-center flex-shrink-0">{i+1}</span>
+                         <span className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 text-primary-light font-black text-xs flex items-center justify-center shrink-0">{i+1}</span>
                          <p className="text-gray-400 text-sm leading-relaxed font-medium">{ins}</p>
                       </div>
                     ))}
@@ -306,7 +306,7 @@ export default function WorkoutPracticePage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] bg-black/98 flex items-center justify-center p-6 backdrop-blur-3xl">
             <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="w-full max-w-sm text-center">
               <div className="relative inline-block mb-10">
-                 <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 10, ease: "linear" }} className="absolute inset-0 bg-gradient-to-r from-primary via-yellow-500 to-primary rounded-full blur-3xl opacity-20 scale-150" />
+                 <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 10, ease: "linear" }} className="absolute inset-0 bg-linear-to-r from-primary via-yellow-500 to-primary rounded-full blur-3xl opacity-20 scale-150" />
                  <div className="relative w-24 h-24 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_50px_rgba(255,107,0,0.5)]">
                     <Trophy className="w-12 h-12 text-black" />
                  </div>

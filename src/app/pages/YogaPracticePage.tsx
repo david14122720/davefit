@@ -149,7 +149,7 @@ export default function YogaPracticePage() {
 
   if (loadingRutinas) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-background-dark flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           <p className="text-gray-400 animate-pulse">Preparando tu espacio...</p>
@@ -160,7 +160,7 @@ export default function YogaPracticePage() {
 
   if (errorRutinas) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-background-dark flex flex-col items-center justify-center p-4">
         <XCircle className="w-16 h-16 text-red-500 mb-4" />
         <p className="text-red-400 mb-6 text-center max-w-sm">{errorRutinas}</p>
         <button
@@ -181,9 +181,9 @@ export default function YogaPracticePage() {
   const progreso = ((session.posicionIndex + (isResting ? 0 : 1)) / totalPosiciones) * 100;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col text-white">
+    <div className="min-h-screen bg-background-dark flex flex-col text-white">
       {/* Header / Nav */}
-      <header className="px-4 py-4 border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-md sticky top-0 z-40">
+      <header className="px-4 py-4 border-b border-white/5 bg-background-dark/80 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <button
             onClick={handleVolverInicio}
@@ -219,7 +219,7 @@ export default function YogaPracticePage() {
         <div className="max-w-5xl mx-auto mt-4 px-2">
           <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
             <motion.div 
-              className="h-full bg-gradient-to-r from-primary via-pink-500 to-purple-600"
+              className="h-full bg-linear-to-r from-primary via-pink-500 to-purple-600"
               initial={{ width: 0 }}
               animate={{ width: `${progreso}%` }}
               transition={{ duration: 0.8, ease: "easeOut" }}
@@ -281,7 +281,7 @@ export default function YogaPracticePage() {
             >
               {/* Media Section */}
               <div className="flex flex-col gap-6">
-                <div className="aspect-[4/3] bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-xl border border-white/10 overflow-hidden shadow-2xl relative group">
+                <div className="aspect-4/3 bg-linear-to-br from-primary/20 to-purple-500/20 rounded-xl border border-white/10 overflow-hidden shadow-2xl relative group">
                   {posicionActual.posicion?.imagen_url ? (
                     <img 
                       src={posicionActual.posicion.imagen_url} 
@@ -293,7 +293,7 @@ export default function YogaPracticePage() {
                       <Flower2 className="w-32 h-32 text-green-400/20" />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex items-end">
+                  <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex items-end">
                      <p className="text-white text-sm font-bold">{posicionActual.posicion?.nombre}</p>
                   </div>
                 </div>
@@ -384,7 +384,7 @@ export default function YogaPracticePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-[#0a0a0a]/95 flex items-center justify-center p-4 z-50 backdrop-blur-xl"
+            className="fixed inset-0 bg-background-dark/95 flex items-center justify-center p-4 z-50 backdrop-blur-xl"
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
@@ -410,7 +410,7 @@ export default function YogaPracticePage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="mb-6 p-4 bg-gradient-to-r from-primary/10 to-yellow-500/10 rounded-2xl border border-primary/20"
+                  className="mb-6 p-4 bg-linear-to-r from-primary/10 to-yellow-500/10 rounded-2xl border border-primary/20"
                 >
 <div className="flex items-center justify-center gap-3 mb-3">
                   <div className="flex items-center gap-2 px-4 py-2 bg-primary/20 rounded-xl">

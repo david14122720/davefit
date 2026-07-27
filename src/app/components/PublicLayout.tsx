@@ -24,9 +24,9 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
+    <div className="min-h-screen bg-background-dark flex flex-col">
       {/* ===== Sticky Top Nav ===== */}
-      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-white/5 bg-[#0a0a0a]/95 backdrop-blur-md px-6 py-4 lg:px-10">
+      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-white/5 bg-background-dark/95 backdrop-blur-md px-6 py-4 lg:px-10">
         {/* Left: Logo + Nav links */}
         <div className="flex items-center gap-8">
           <Link to="/biblioteca" className="flex items-center gap-3">
@@ -48,7 +48,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                   <Search className="w-[20px] h-[20px]" />
                 </div>
                 <input
-                  className="w-full bg-transparent border-none text-sm font-normal text-white placeholder:text-slate-400 focus:ring-0 h-full py-0 outline-none"
+                  className="w-full bg-transparent border-none text-sm font-normal text-white placeholder:text-slate-400 focus:ring-0 h-full py-0 outline-hidden"
                   placeholder="Buscar rutinas..."
                 />
               </div>

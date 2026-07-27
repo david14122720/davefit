@@ -251,7 +251,7 @@ export default function ProfilePage() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="max-w-md w-full bg-[#141414] border border-red-500/20 rounded-[2.5rem] p-8 sm:p-10 text-center shadow-[0_15px_60px_rgba(239,68,68,0.1)] relative overflow-hidden"
                 >
-                    <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-500/0 via-red-500 to-red-500/0" />
+                    <div className="absolute top-0 inset-x-0 h-1 bg-linear-to-r from-red-500/0 via-red-500 to-red-500/0" />
                     <div className="w-24 h-24 bg-red-500/10 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
                         <div className="w-12 h-12 flex items-center justify-center rotate-45 border-4 rounded-xl border-current" />
                     </div>
@@ -281,7 +281,7 @@ export default function ProfilePage() {
                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 blur-[80px] rounded-full pointer-events-none group-hover:bg-primary/20 transition-colors duration-700" />
                 
                 {/* Avatar Section */}
-                <div className="relative z-10 flex-shrink-0">
+                <div className="relative z-10 shrink-0">
                     <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-xl bg-primary/10 flex items-center justify-center text-4xl sm:text-5xl border-4 border-white/5 shadow-2xl overflow-hidden relative rotate-3 group-hover:rotate-0 transition-all duration-500">
                         {avatarUrl ? (
                             <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -289,7 +289,7 @@ export default function ProfilePage() {
                             <span className="font-black text-primary">{userName[0]?.toUpperCase() || 'U'}</span>
                         )}
                         {uploadingAvatar && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-xs">
                                 <Loader2 className="w-8 h-8 text-primary animate-spin" />
                             </div>
                         )}
@@ -365,7 +365,7 @@ export default function ProfilePage() {
                                             {...register(field.id as any)} 
                                             type={field.type || 'text'}
                                             step={field.step}
-                                            className={`w-full pl-12 pr-4 h-12 rounded-xl bg-black/40 border text-sm font-bold text-white focus:ring-2 outline-none transition-all ${errors[field.id as keyof typeof errors] ? 'border-red-500/50 focus:ring-red-500/50' : 'border-white/5 focus:ring-primary/50 focus:border-primary'}`} 
+                                            className={`w-full pl-12 pr-4 h-12 rounded-xl bg-black/40 border text-sm font-bold text-white focus:ring-2 outline-hidden transition-all ${errors[field.id as keyof typeof errors] ? 'border-red-500/50 focus:ring-red-500/50' : 'border-white/5 focus:ring-primary/50 focus:border-primary'}`} 
                                         />
                                     </div>
                                     {errors[field.id as keyof typeof errors] && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{errors[field.id as keyof typeof errors]?.message}</p>}
@@ -375,7 +375,7 @@ export default function ProfilePage() {
                             {/* Selects */}
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Género</label>
-                                <select {...register('genero')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-primary/50 outline-none">
+                                <select {...register('genero')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-primary/50 outline-hidden">
                                     <option value="">No especificar</option>
                                     <option value="masculino">Masculino</option>
                                     <option value="femenino">Femenino</option>
@@ -384,7 +384,7 @@ export default function ProfilePage() {
                             </div>
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Nivel</label>
-                                <select {...register('nivel')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-primary/50 outline-none">
+                                <select {...register('nivel')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-primary/50 outline-hidden">
                                     <option value="principiante">Principiante</option>
                                     <option value="intermedio">Intermedio</option>
                                     <option value="avanzado">Avanzado</option>
@@ -392,7 +392,7 @@ export default function ProfilePage() {
                             </div>
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Objetivo</label>
-                                <select {...register('objetivo')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-primary/50 outline-none">
+                                <select {...register('objetivo')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-primary/50 outline-hidden">
                                     <option value="perder_peso">Bajar grasa</option>
                                     <option value="tonificar">Tonificar</option>
                                     <option value="ganar_fuerza">Ganar músculo</option>
@@ -475,7 +475,7 @@ export default function ProfilePage() {
                     
                     {/* Gamification Stats */}
                     {userStats && (
-                        <motion.div variants={itemVariants} className="bg-gradient-to-br from-primary/10 to-transparent p-8 rounded-xl border border-primary/10 shadow-2xl">
+                        <motion.div variants={itemVariants} className="bg-linear-to-br from-primary/10 to-transparent p-8 rounded-xl border border-primary/10 shadow-2xl">
                             <div className="flex justify-between items-center mb-8">
                                 <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
                                     <Sparkles className="w-4 h-4 text-primary" /> Camino del Guerrero
@@ -492,7 +492,7 @@ export default function ProfilePage() {
                                     <motion.div 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${Math.min(((userStats.xp_total || 0) % 100) / 100 * 100, 100)}%` }}
-                                        className="h-full bg-gradient-to-r from-primary-dark to-primary rounded-full shadow-[0_0_15px_rgba(255,107,0,0.4)]"
+                                        className="h-full bg-linear-to-r from-primary-dark to-primary rounded-full shadow-[0_0_15px_rgba(255,107,0,0.4)]"
                                     />
                                 </div>
                             </div>
@@ -505,9 +505,9 @@ export default function ProfilePage() {
             <AnimatePresence>
                 {imageSrc && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4">
-                        <div className="relative w-full max-w-md aspect-square bg-[#111111] rounded-xl overflow-hidden border border-white/10 shadow-3xl">
+                        <div className="relative w-full max-w-md aspect-square bg-[#111111] rounded-xl overflow-hidden border border-white/10 shadow-2xl">
                             <Cropper image={imageSrc} crop={crop} zoom={zoom} aspect={1} cropShape="round" showGrid={false} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} />
-                            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col gap-6">
+                            <div className="absolute bottom-0 left-0 right-0 p-6 bg-linear-to-t from-black via-black/80 to-transparent flex flex-col gap-6">
                                 <input type="range" value={zoom} min={1} max={3} step={0.1} onChange={(e) => setZoom(Number(e.target.value))} className="w-full accent-primary" />
                                 <div className="flex gap-3">
                                     <button onClick={() => setImageSrc(null)} className="flex-1 h-12 rounded-2xl bg-white/5 text-white font-bold text-sm">Cancelar</button>

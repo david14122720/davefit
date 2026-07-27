@@ -246,7 +246,7 @@ export default function DashboardPage() {
                                             initial={{ height: 0 }}
                                             animate={{ height: `${data.height}%` }}
                                             transition={{ duration: 0.8, delay: i * 0.1, ease: "easeOut" }}
-                                            className="w-full rounded-t-lg bg-gradient-to-t from-primary/20 to-primary/80 shadow-[0_-5px_15px_rgba(255,107,0,0.1)]"
+                                            className="w-full rounded-t-lg bg-linear-to-t from-primary/20 to-primary/80 shadow-[0_-5px_15px_rgba(255,107,0,0.1)]"
                                         />
                                         <span className="text-xs font-bold text-gray-400">{data.day}</span>
                                     </div>
@@ -272,7 +272,7 @@ export default function DashboardPage() {
                     {ultimoEntrenamiento ? (
                         <motion.div
                             variants={itemVariants}
-                            className="p-5 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 group cursor-pointer relative overflow-hidden"
+                            className="p-5 rounded-lg bg-linear-to-br from-primary/20 to-primary/5 border border-primary/20 group cursor-pointer relative overflow-hidden"
                             onClick={() => navigate(`/rutinas/practicar/${ultimoEntrenamiento.rutina_id}`)}
                         >
                             <div className="relative z-10">
@@ -334,7 +334,7 @@ export default function DashboardPage() {
                                 initial={{ width: 0 }}
                                 animate={{ width: '75%' }}
                                 transition={{ duration: 1, ease: "easeOut" }}
-                                className="h-full bg-gradient-to-r from-primary to-primary-light shadow-[0_0_10px_rgba(255,107,0,0.5)]" 
+                                className="h-full bg-linear-to-r from-primary to-primary-light shadow-[0_0_10px_rgba(255,107,0,0.5)]" 
                             />
                         </div>
                     </motion.div>
@@ -351,7 +351,7 @@ export default function DashboardPage() {
                             <div className="grid grid-cols-1 gap-4">
                                 {historial.slice(0, 3).map((entrada: any) => (
                                     <div key={entrada.id} className="p-4 rounded-lg bg-surface border border-white/5 hover:border-primary/30 transition-all flex items-center gap-4 group cursor-pointer">
-                                        <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                        <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                                             <Activity className="w-5 h-5" />
                                         </div>
                                         <div className="flex-1 min-w-0">
@@ -412,7 +412,7 @@ export default function DashboardPage() {
                                     variants={itemVariants}
                                     className="p-4 rounded-lg bg-surface border border-white/5 hover:border-primary/30 transition-all flex items-center gap-4 group"
                                 >
-                                    <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                                         <Dumbbell className="w-5 h-5" />
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -428,7 +428,7 @@ export default function DashboardPage() {
                                             })}
                                         </p>
                                     </div>
-                                    <div className="text-right flex-shrink-0">
+                                    <div className="text-right shrink-0">
                                         <div className="flex items-center gap-2 text-sm">
                                             <span className="flex items-center gap-1 text-primary font-bold">
                                                 <Flame className="w-3.5 h-3.5" />

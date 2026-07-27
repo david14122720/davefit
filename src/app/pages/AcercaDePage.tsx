@@ -24,7 +24,7 @@ function StatCard({ icon: Icon, value, label, suffix, isRating }: {
   return (
     <motion.div
       whileHover={{ scale: 1.03 }}
-      className="p-5 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-primary/30 transition-all group text-center"
+      className="p-5 rounded-xl bg-white/5 backdrop-blur-xs border border-white/10 hover:border-primary/30 transition-all group text-center"
     >
       <Icon className="w-6 h-6 text-primary mb-2 mx-auto" />
       <div className="text-3xl font-bold text-white">{display}{!isRating && value > 0 ? suffix : ''}</div>
@@ -84,7 +84,7 @@ export default function AcercaDePage() {
       <section className="relative py-24 md:py-32 overflow-hidden">
         {/* Background gradient with orange glow */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-b from-background-dark via-background-dark to-background-card" />
+          <div className="absolute inset-0 bg-linear-to-b from-background-dark via-background-dark to-background-card" />
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-primary/8 rounded-full blur-[140px]" />
           <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-primary/5 rounded-full blur-[80px]" />
           <div className="absolute top-1/4 left-1/4 w-[200px] h-[200px] bg-primary/5 rounded-full blur-[60px]" />
@@ -198,7 +198,7 @@ export default function AcercaDePage() {
                     transition={{ duration: 0.4, delay: i * 0.1 }}
                     className="flex items-center gap-3"
                   >
-                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                       <CheckCircle className="w-4 h-4 text-primary" />
                     </div>
                     <span className="text-white text-sm sm:text-base">{item}</span>
@@ -222,12 +222,12 @@ export default function AcercaDePage() {
               transition={{ duration: 0.6 }}
               className="relative"
             >
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-background-dark border border-primary/10 flex items-center justify-center overflow-hidden">
+              <div className="aspect-square rounded-2xl bg-linear-to-br from-primary/20 via-primary/10 to-background-dark border border-primary/10 flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,107,0,0.1),transparent_70%)]" />
                 <Dumbbell className="w-32 h-32 text-primary/20" strokeWidth={1} />
               </div>
               <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
-              <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/5 rounded-full blur-[40px] pointer-events-none" />
+              <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
             </motion.div>
           </div>
         </div>

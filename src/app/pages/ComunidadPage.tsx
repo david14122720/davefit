@@ -27,7 +27,7 @@ const Avatar = ({ src, name, size = 'md' }: { src?: string; name: string; size?:
   }
   
   return (
-    <div className={`${sizeClasses[size]} rounded-full bg-gradient-to-br from-primary to-green-600 flex items-center justify-center font-bold text-black ring-2 ring-white/20`}>
+    <div className={`${sizeClasses[size]} rounded-full bg-linear-to-br from-primary to-green-600 flex items-center justify-center font-bold text-black ring-2 ring-white/20`}>
       {(name || 'U').charAt(0).toUpperCase()}
     </div>
   );
@@ -55,7 +55,7 @@ const PodiumCard = ({ user, position }: { user: LeaderboardUser; position: 1 | 2
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: position * 0.1 }}
         whileHover={{ scale: isFirst ? 1.15 : 1.1 }}
-        className={`relative flex flex-col items-center rounded-xl bg-gradient-to-b ${colors.bg} border ${colors.border} cursor-pointer group
+        className={`relative flex flex-col items-center rounded-xl bg-linear-to-b ${colors.bg} border ${colors.border} cursor-pointer group
           ${isFirst 
             ? 'sm:scale-110 z-10 shadow-[0_0_30px_rgba(255,165,0,0.3)] w-full max-w-[280px] sm:max-w-none sm:w-auto p-6 sm:p-4' 
             : 'w-full max-w-[240px] sm:max-w-none sm:w-auto p-5 sm:p-4'
@@ -222,9 +222,9 @@ export default function ComunidadPage() {
       ) : loading ? (
         <div className="w-full flex flex-col items-center animate-pulse">
             <div className="flex flex-col sm:flex-row justify-center items-end gap-4 mb-20 mt-10 w-full px-4">
-                <div className="w-32 sm:w-40 h-48 bg-[#1a1a1a] border border-white/5 rounded-[2rem] order-2 sm:order-1" />
-                <div className="w-40 sm:w-48 h-64 bg-gradient-to-t from-primary/10 to-[#1a1a1a] border border-primary/20 rounded-[2.5rem] order-1 sm:order-2" />
-                <div className="w-32 sm:w-40 h-40 bg-[#1a1a1a] border border-white/5 rounded-[2rem] order-3 sm:order-3" />
+                <div className="w-32 sm:w-40 h-48 bg-[#1a1a1a] border border-white/5 rounded-4xl order-2 sm:order-1" />
+                <div className="w-40 sm:w-48 h-64 bg-linear-to-t from-primary/10 to-[#1a1a1a] border border-primary/20 rounded-[2.5rem] order-1 sm:order-2" />
+                <div className="w-32 sm:w-40 h-40 bg-[#1a1a1a] border border-white/5 rounded-4xl order-3 sm:order-3" />
             </div>
             <div className="max-w-2xl w-full space-y-4">
                 <div className="h-6 w-48 bg-white/5 rounded-lg mb-6" />
@@ -256,7 +256,7 @@ export default function ComunidadPage() {
                     <div className="order-3 sm:order-3 w-full flex justify-center sm:w-auto">{top3[2] && <PodiumCard user={top3[2]} position={3} />}</div>
                 </div>
                 
-                <div className="max-w-md mx-auto bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 p-4 text-center">
+                <div className="max-w-md mx-auto bg-linear-to-r from-primary/0 via-primary/10 to-primary/0 p-4 text-center">
                 <p className="text-green-400 font-bold tracking-wide">
                     ¡Sigue así! El podio te espera 🔥
                 </p>

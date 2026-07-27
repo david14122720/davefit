@@ -249,7 +249,7 @@ export default function RegisterPage() {
                   type="text"
                   autoComplete="name"
                   {...register('fullName')}
-                  className={`w-full pl-11 pr-4 py-3.5 rounded-lg bg-surface border text-white placeholder-on-surface-variant/40 focus:ring-4 outline-none transition-all text-base ${
+                  className={`w-full pl-11 pr-4 py-3.5 rounded-lg bg-surface border text-white placeholder-on-surface-variant/40 focus:ring-4 outline-hidden transition-all text-base ${
                     errors.fullName
                       ? 'border-red-500/50 focus:ring-red-500/10 focus:border-red-500/50'
                       : 'border-white/10 focus:ring-primary/20 focus:border-primary/50'
@@ -271,7 +271,7 @@ export default function RegisterPage() {
                   type="email"
                   autoComplete="email"
                   {...register('email')}
-                  className={`w-full pl-11 pr-4 py-3.5 rounded-lg bg-surface border text-white placeholder-on-surface-variant/40 focus:ring-4 outline-none transition-all text-base ${
+                  className={`w-full pl-11 pr-4 py-3.5 rounded-lg bg-surface border text-white placeholder-on-surface-variant/40 focus:ring-4 outline-hidden transition-all text-base ${
                     errors.email
                       ? 'border-red-500/50 focus:ring-red-500/10 focus:border-red-500/50'
                       : 'border-white/10 focus:ring-primary/20 focus:border-primary/50'
@@ -293,7 +293,7 @@ export default function RegisterPage() {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   {...register('password')}
-                  className={`w-full pl-11 pr-12 py-3.5 rounded-lg bg-surface border text-white placeholder-on-surface-variant/40 focus:ring-4 outline-none transition-all text-base ${
+                  className={`w-full pl-11 pr-12 py-3.5 rounded-lg bg-surface border text-white placeholder-on-surface-variant/40 focus:ring-4 outline-hidden transition-all text-base ${
                     errors.password
                       ? 'border-red-500/50 focus:ring-red-500/10 focus:border-red-500/50'
                       : 'border-white/10 focus:ring-primary/20 focus:border-primary/50'
@@ -325,7 +325,7 @@ export default function RegisterPage() {
                   type={showConfirm ? 'text' : 'password'}
                   autoComplete="new-password"
                   {...register('confirmPassword')}
-                  className={`w-full pl-11 pr-12 py-3.5 rounded-lg bg-surface border text-white placeholder-on-surface-variant/40 focus:ring-4 outline-none transition-all text-base ${
+                  className={`w-full pl-11 pr-12 py-3.5 rounded-lg bg-surface border text-white placeholder-on-surface-variant/40 focus:ring-4 outline-hidden transition-all text-base ${
                     errors.confirmPassword
                       ? 'border-red-500/50 focus:ring-red-500/10 focus:border-red-500/50'
                       : 'border-white/10 focus:ring-primary/20 focus:border-primary/50'

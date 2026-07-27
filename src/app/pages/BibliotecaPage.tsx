@@ -291,7 +291,7 @@ export default function BibliotecaPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-center gap-3 mb-6 sm:mb-8"
             >
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center border border-primary/20 shrink-0">
+                <div className="w-12 h-12 rounded-lg bg-linear-to-br from-primary/20 to-purple-500/20 flex items-center justify-center border border-primary/20 shrink-0">
                     <BookOpen className="w-6 h-6 text-primary" />
                 </div>
                 <div>
@@ -309,7 +309,7 @@ export default function BibliotecaPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-gradient-to-r from-primary/10 via-primary/5 to-surface border border-primary/20 rounded-lg p-5 mb-6"
+                className="bg-linear-to-r from-primary/10 via-primary/5 to-surface border border-primary/20 rounded-lg p-5 mb-6"
             >
                 <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
@@ -338,7 +338,7 @@ export default function BibliotecaPage() {
                         placeholder="Buscar rutinas por nombre o descripción..."
                         value={busqueda}
                         onChange={(e) => setBusqueda(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 bg-background-darker border border-white/10 rounded-lg text-white text-sm placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all"
+                        className="w-full pl-10 pr-4 py-3 bg-background-darker border border-white/10 rounded-lg text-white text-sm placeholder-text-muted focus:outline-hidden focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all"
                     />
                 </div>
 
@@ -413,7 +413,7 @@ export default function BibliotecaPage() {
                                                     const parent = e.currentTarget.parentElement;
                                                     if (parent) {
                                                         parent.classList.add(
-                                                            'bg-gradient-to-br',
+                                                            'bg-linear-to-br',
                                                             item.tipo === 'yoga'
                                                                 ? 'from-purple-700/30 to-black'
                                                                 : 'from-primary/30 to-black'
@@ -421,14 +421,14 @@ export default function BibliotecaPage() {
                                                     }
                                                 }}
                                             />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
+                                            <div className="absolute inset-0 bg-linear-to-t from-surface via-transparent to-transparent" />
                                         </>
                                     ) : (
                                         <div
                                             className={`w-full h-full flex items-center justify-center ${
                                                 item.tipo === 'yoga'
-                                                    ? 'bg-gradient-to-br from-purple-700/30 via-purple-600/10 to-black'
-                                                    : 'bg-gradient-to-br from-primary/30 via-primary/10 to-black'
+                                                    ? 'bg-linear-to-br from-purple-700/30 via-purple-600/10 to-black'
+                                                    : 'bg-linear-to-br from-primary/30 via-primary/10 to-black'
                                             }`}
                                         >
                                             {item.tipo === 'yoga' ? (
@@ -436,7 +436,7 @@ export default function BibliotecaPage() {
                                             ) : (
                                                 <Dumbbell className="w-12 h-12 text-primary/30" />
                                             )}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
+                                            <div className="absolute inset-0 bg-linear-to-t from-surface via-transparent to-transparent" />
                                         </div>
                                     )}
 

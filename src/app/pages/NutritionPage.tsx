@@ -177,7 +177,7 @@ export default function NutritionPage() {
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center gap-3 mb-6 sm:mb-8"
       >
-        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-primary-dark/20 flex items-center justify-center border border-primary/20 shrink-0">
+        <div className="w-12 h-12 rounded-lg bg-linear-to-br from-primary/20 to-primary-dark/20 flex items-center justify-center border border-primary/20 shrink-0">
           <ChefHat className="w-6 h-6 text-primary" />
         </div>
         <div>
@@ -200,7 +200,7 @@ export default function NutritionPage() {
             placeholder="Buscar recetas por nombre o descripción..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-background-darker border border-white/10 rounded-lg text-white text-sm placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all"
+            className="w-full pl-10 pr-4 py-3 bg-background-darker border border-white/10 rounded-lg text-white text-sm placeholder-text-muted focus:outline-hidden focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all"
           />
         </div>
 
@@ -272,16 +272,16 @@ export default function NutritionPage() {
                           e.currentTarget.style.display = 'none';
                           const parent = e.currentTarget.parentElement;
                           if (parent) {
-                            parent.classList.add('bg-gradient-to-br', 'from-primary/30', 'to-black');
+                            parent.classList.add('bg-linear-to-br', 'from-primary/30', 'to-black');
                           }
                         }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-linear-to-t from-surface via-transparent to-transparent" />
                     </>
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary/20 via-primary/5 to-black flex items-center justify-center">
+                    <div className="w-full h-full bg-linear-to-br from-primary/20 via-primary/5 to-black flex items-center justify-center">
                       <UtensilsCrossed className="w-12 h-12 text-primary/30" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-linear-to-t from-surface via-transparent to-transparent" />
                     </div>
                   )}
 

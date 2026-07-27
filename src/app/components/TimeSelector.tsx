@@ -33,7 +33,7 @@ export default function TimeSelector() {
                             group relative overflow-hidden shadow-lg ${opt.shadow}
                         `}
                     >
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute inset-0 bg-linear-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                         <span className="relative z-10">{opt.icon}</span>
                         <span className="relative z-10 text-white font-black text-sm tracking-tight">{opt.label}</span>
                     </motion.button>

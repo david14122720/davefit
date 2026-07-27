@@ -177,14 +177,14 @@ export default function AdminYogaPosicionesPage() {
                     placeholder="Buscar posiciones..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-[#141414] border border-white/5 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 transition-colors"
+                    className="w-full pl-12 pr-4 py-3 bg-[#141414] border border-white/5 rounded-xl text-white placeholder-gray-500 focus:outline-hidden focus:border-purple-500/50 transition-colors"
                 />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredPosiciones.map((p) => (
                     <div key={p.id} className="bg-[#141414] rounded-2xl border border-white/5 overflow-hidden hover:border-purple-500/30 transition-colors">
-                        <div className="h-40 bg-gradient-to-br from-purple-500/20 to-pink-500/20 relative flex items-center justify-center">
+                        <div className="h-40 bg-linear-to-br from-purple-500/20 to-pink-500/20 relative flex items-center justify-center">
                             {p.imagen_url ? (
                                 <img src={p.imagen_url} alt={p.nombre} className="w-full h-full object-cover" />
                             ) : (
@@ -237,7 +237,7 @@ export default function AdminYogaPosicionesPage() {
             )}
 
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center z-50 p-4">
                     <div className="bg-[#141414] rounded-2xl border border-white/10 w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between p-6 border-b border-white/5">
                             <h2 className="text-xl font-bold text-white">
@@ -255,7 +255,7 @@ export default function AdminYogaPosicionesPage() {
                                     required
                                     value={formData.nombre}
                                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50"
+                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-purple-500/50"
                                 />
                             </div>
                             <div>
@@ -264,7 +264,7 @@ export default function AdminYogaPosicionesPage() {
                                     type="text"
                                     value={formData.nombre_sanscrito}
                                     onChange={(e) => setFormData({ ...formData, nombre_sanscrito: e.target.value })}
-                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50"
+                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-purple-500/50"
                                 />
                             </div>
                             <div>
@@ -272,7 +272,7 @@ export default function AdminYogaPosicionesPage() {
                                 <textarea
                                     value={formData.descripcion}
                                     onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50 resize-none"
+                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-purple-500/50 resize-none"
                                     rows={2}
                                 />
                             </div>
@@ -283,7 +283,7 @@ export default function AdminYogaPosicionesPage() {
                                         required
                                         value={formData.nivel}
                                         onChange={(e) => setFormData({ ...formData, nivel: e.target.value })}
-                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50"
+                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-purple-500/50"
                                     >
                                         {nivelOptions.map(n => (
                                             <option key={n} value={n} className="capitalize">{n}</option>
@@ -298,7 +298,7 @@ export default function AdminYogaPosicionesPage() {
                                         min="5"
                                         value={formData.duracion_segundos_sugerida}
                                         onChange={(e) => setFormData({ ...formData, duracion_segundos_sugerida: e.target.value })}
-                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50"
+                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-purple-500/50"
                                     />
                                 </div>
                             </div>
@@ -318,7 +318,7 @@ export default function AdminYogaPosicionesPage() {
                                 <textarea
                                     value={formData.instrucciones}
                                     onChange={(e) => setFormData({ ...formData, instrucciones: e.target.value })}
-                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50 resize-none"
+                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-purple-500/50 resize-none"
                                     rows={3}
                                 />
                             </div>
@@ -327,7 +327,7 @@ export default function AdminYogaPosicionesPage() {
                                 <textarea
                                     value={formData.beneficios}
                                     onChange={(e) => setFormData({ ...formData, beneficios: e.target.value })}
-                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50 resize-none"
+                                    className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-purple-500/50 resize-none"
                                     rows={3}
                                 />
                             </div>

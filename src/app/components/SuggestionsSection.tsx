@@ -103,7 +103,7 @@ export default function SuggestionsSection() {
                   onClick={() => setRating(star === rating ? 0 : star)}
                   onMouseEnter={() => setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(0)}
-                  className="p-1 transition-all focus:outline-none"
+                  className="p-1 transition-all focus:outline-hidden"
                   aria-label={`${star} estrella${star > 1 ? 's' : ''}`}
                 >
                   <Star
@@ -127,7 +127,7 @@ export default function SuggestionsSection() {
               placeholder="Escribe aquí tu sugerencia, idea o reporte..."
               rows={4}
               maxLength={1000}
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-primary transition-all resize-none"
+              className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder:text-gray-500 focus:outline-hidden focus:border-primary transition-all resize-none"
             />
             <p className="text-xs text-gray-500 mt-1 text-right">{message.length}/1000</p>
           </div>
