@@ -156,7 +156,7 @@ export default function WorkoutPracticePage() {
             <ArrowLeft className="w-5 h-5 text-gray-400" />
           </button>
           <div className="text-center flex-1 px-4 min-w-0">
-            <h1 className="text-sm font-black text-white uppercase tracking-widest truncate drop-shadow-xs">{rutina?.nombre}</h1>
+            <h1 className="text-sm font-black text-white uppercase tracking-widest truncate drop-shadow-sm">{rutina?.nombre}</h1>
             <div className="flex items-center justify-center gap-2 mt-1">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{currentIndex + 1} DE {totalEjercicios}</span>
@@ -273,7 +273,7 @@ export default function WorkoutPracticePage() {
       {/* Instructions Slide-up Panel */}
       <AnimatePresence>
         {showInstructions && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowInstructions(false)} className="fixed inset-0 z-100 bg-black/90 backdrop-blur-2xl flex items-end p-0">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowInstructions(false)} className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-2xl flex items-end p-0">
              <motion.div 
                initial={{ y: '100%' }} 
                animate={{ y: 0 }} 
@@ -303,7 +303,7 @@ export default function WorkoutPracticePage() {
       {/* Extreme Completion HUD */}
       <AnimatePresence>
         {showCompletionModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-200 bg-black/98 flex items-center justify-center p-6 backdrop-blur-3xl">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] bg-black/98 flex items-center justify-center p-6 backdrop-blur-3xl">
             <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="w-full max-w-sm text-center">
               <div className="relative inline-block mb-10">
                  <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 10, ease: "linear" }} className="absolute inset-0 bg-linear-to-r from-primary via-yellow-500 to-primary rounded-full blur-3xl opacity-20 scale-150" />

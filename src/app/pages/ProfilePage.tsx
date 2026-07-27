@@ -504,8 +504,8 @@ export default function ProfilePage() {
             {/* Crop Modal */}
             <AnimatePresence>
                 {imageSrc && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-200 flex items-center justify-center bg-black/90 backdrop-blur-xl p-4">
-                        <div className="relative w-full max-w-md aspect-square bg-[#111111] rounded-xl overflow-hidden border border-white/10 shadow-3xl">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4">
+                        <div className="relative w-full max-w-md aspect-square bg-[#111111] rounded-xl overflow-hidden border border-white/10 shadow-2xl">
                             <Cropper image={imageSrc} crop={crop} zoom={zoom} aspect={1} cropShape="round" showGrid={false} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} />
                             <div className="absolute bottom-0 left-0 right-0 p-6 bg-linear-to-t from-black via-black/80 to-transparent flex flex-col gap-6">
                                 <input type="range" value={zoom} min={1} max={3} step={0.1} onChange={(e) => setZoom(Number(e.target.value))} className="w-full accent-primary" />

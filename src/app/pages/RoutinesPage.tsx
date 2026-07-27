@@ -40,9 +40,9 @@ const objetivoLabels: Record<string, string> = {
 };
 
 const nivelColors: Record<string, string> = {
-    principiante: 'from-green-500/20 to-emerald-500/10 text-green-400 border-green-500/20',
-    intermedio: 'from-yellow-500/20 to-amber-500/10 text-yellow-400 border-yellow-500/20',
-    avanzado: 'from-red-500/20 to-primary/10 text-green-400 border-red-500/20',
+    principiante: 'bg-green-500/10 text-green-400 border-green-500/20',
+    intermedio: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+    avanzado: 'bg-red-500/10 text-green-400 border-red-500/20',
 };
 
 export default function RoutinesPage() {
@@ -287,10 +287,10 @@ export default function RoutinesPage() {
                                 {niveles.map((n) => {
                                     const isActive = filter === n;
                                     const levelColor: Record<string, string> = {
-                                        todos: 'from-primary/20 to-primary-dark/10 border-primary/30',
-                                        principiante: 'from-green-500/20 to-emerald-500/10 border-green-500/30',
-                                        intermedio: 'from-yellow-500/20 to-amber-500/10 border-yellow-500/30',
-                                        avanzado: 'from-red-500/20 to-primary/10 border-red-500/30',
+                                        todos: 'bg-primary/10 border-primary/30',
+                                        principiante: 'bg-green-500/10 border-green-500/30',
+                                        intermedio: 'bg-yellow-500/10 border-yellow-500/30',
+                                        avanzado: 'bg-red-500/10 border-red-500/30',
                                     };
                                     return (
                                         <button
@@ -424,7 +424,7 @@ export default function RoutinesPage() {
             {/* Modal Detail - Bottom Sheet on Mobile */}
             <AnimatePresence>
                 {selectedRutina && (
-                    <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden">
+                    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden">
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
