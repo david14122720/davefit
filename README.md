@@ -1,12 +1,27 @@
 # DaveFit
 
-Plataforma de entrenamiento inteligente para estudiantes. Construida con **Astro** (páginas estáticas) + **React SPA** (app interactiva) + **InsForge** (backend).
+Plataforma de entrenamiento inteligente para estudiantes. Construida con **Astro 7** + **React 19 SPA** + **Tailwind CSS 4** + **InsForge** (backend).
+
+## Stack
+
+| Tecnología | Versión |
+|---|---|
+| Astro | ^7.1.4 |
+| React | ^19.2.4 |
+| Tailwind CSS | ^4.3.3 |
+| InsForge SDK | ^1.1.2 |
+| Vite (bundled) | 8.x |
+| Node.js | 20+ |
 
 ## Inicio Rápido
 
 ```bash
 npm install
-npm run dev
+npm run dev      # http://localhost:4321
+npm run build    # Producción SSR → dist/
+npm run preview  # Vista previa del build
+npx vitest run   # Tests unitarios
+npx playwright test  # Tests E2E
 ```
 
 Configura `.env`:
@@ -17,35 +32,68 @@ PUBLIC_INSFORGE_ANON_KEY=tu-clave
 
 ## Arquitectura
 
-- **`/`** → Landing page (Astro, estático/SSR)
-- **`/app/*`** → App React SPA (cliente routing con React Router)
-- **`/about`**, **`/faq`** → Páginas estáticas Astro
+```
+/              → Landing page (Astro SSR)
+/app/*         → App React SPA (React Router, lazy loading)
+/about, /faq   → Páginas estáticas Astro
+```
 
 ### Estructura
 
 ```
 src/
-├── app/
-│   ├── App.tsx              # Router principal
-│   ├── context/
-│   │   └── AuthContext.tsx  # Auth global (login, logout, perfil)
-│   ├── components/
-│   │   ├── AppLayout.tsx    # Sidebar + navbar
-│   │   └── ProtectedRoute.tsx
-│   └── pages/               # Páginas React
+├── app/                          # React SPA
+│   ├── App.tsx                   # Router con React.lazy() + Suspense
+│   ├── context/AuthContext.tsx   # Auth global (login, logout, perfil)
+│   ├── components/               # Componentes compartidos
+│   │   ├── AppLayout.tsx         # Sidebar + navbar
+│   │   ├── ProtectedRoute.tsx    # Guard de rutas
+│   │   ├── ErrorBoundary.tsx     # Manejo de errores
+│   │   └── Skeleton.tsx          # Skeletons + loaders
+│   └── pages/                    # Páginas lazy-loaded
 │       ├── LoginPage.tsx
-│       ├── DashboardPage.tsx
+│       ├── DashboardPage.tsx     # Centro de control personal
+│       ├── ProfilePage.tsx
+│       ├── NutritionPage.tsx
+│       ├── RoutinesPage.tsx
 │       └── ...
-└── pages/
-    ├── index.astro          # Landing
-    ├── about.astro
-    └── app/[...slug].astro  # Shell que renderiza App.tsx
+├── pages/                        # Astro pages
+│   ├── index.astro               # Landing
+│   ├── faq.astro
+│   └── app/[...slug].astro       # Shell SPA
+├── lib/                          # Lógica de negocio
+│   ├── insforge.ts               # Cliente InsForge singleton
+│   ├── auth.ts                   # Sanitización, CSRF, rate-limit
+│   ├── db.ts                     # queryWithRetry, getById
+│   ├── stats.ts                  # Stats + leaderboard
+│   ├── gamification.ts           # XP, rachas, niveles
+│   └── nutrition.ts              # BMR/TDEE/IMC
+├── middleware.ts                  # CSP, CSRF, security headers
+├── types/index.ts                # Tipos centralizados del dominio
+├── constants/index.ts            # Constantes globales
+└── styles/global.css             # Tailwind v4 @theme + utilidades
 ```
 
 ## Roles
 
-- **Usuario**: Dashboard, Rutinas, Perfil, Historial
-- **Admin**: + Panel de administración (cambiar rol a `admin` en tabla `perfiles`)
+- **Usuario**: Dashboard, Rutinas, Perfil, Historial, Comunidad
+- **Admin**: + Panel de administración (`/admin/*`)
+
+## Rendimiento
+
+- **Code Splitting**: `React.lazy()` en todas las rutas — bundles bajo demanda
+- **Tailwind v4**: Compilación nativa, zero runtime, `@theme` tokens CSS
+- **Memoización**: `React.memo()`, `useMemo`, `useCallback` en componentes críticos
+- **Image Optimization**: Astro `<Image />` con webp automático
+
+## Seguridad
+
+- **CSP**: Content-Security-Policy estricto via middleware
+- **CSRF**: Double-submit cookie pattern en mutaciones `/api/*`
+- **Headers**: HSTS, X-Frame-Options, X-Content-Type-Options, Permissions-Policy
+- **Sanitización**: `sanitizeText()` para input de usuarios
+- **Rate limiting**: Por IP en operaciones sensibles
+- **Trusted proxies**: `security.allowedDomains` para X-Forwarded-Host
 
 ## Optimizaciones de Rendimiento
 Para combatir la carga inicial de archivos grandes y hacer que la transición entre "apartados" de la aplicación sea instantánea o amigable:

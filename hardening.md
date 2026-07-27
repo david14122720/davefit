@@ -153,14 +153,49 @@ Fortalecer la arquitectura del proyecto antes de importar el dataset masivo de e
 - 3 fases (Tailwind → Astro 6 → Astro 7) recomendadas vs Big Bang
 - Riesgos, mitigaciones, y pasos detallados
 
+### 18. Migración Ejecutada: Astro 5→7 + Tailwind 3→4
+
+Completada en branch `feat/migration-astro7-tailwind4` → mergeada a `main`.
+
+**Tailwind CSS v3.4.19 → v4.3.3:**
+- `tailwind.config.mjs` eliminado, tokens migrados a `@theme` en CSS
+- `@tailwind` directives → `@import 'tailwindcss'`
+- `@astrojs/tailwind` → `@tailwindcss/vite` plugin
+- `bg-gradient-to-*` → `bg-linear-to-*` (32+ archivos)
+- `outline-none` → `outline-hidden`, `flex-shrink-0` → `shrink-0`, etc.
+- Admin files migrados manualmente (gitignorados por upgrade tool)
+
+**Astro v5.18.1 → v7.1.4:**
+- Vite 8 con Rolldown (deprecation warnings de `vite:react-babel` son internos)
+- Rust compiler — sin errores HTML en archivos .astro
+- `compressHTML: true` (default cambió a `'jsx'`)
+- Build server: ~1.5s (antes ~9s)
+
+**Post-migration fixes:**
+- DOMPurify server-side crash reparado (`src/pages/api/suggestions.ts`)
+- `shadow-3xl` → `shadow-2xl`, `z-100` → `z-[100]`, `drop-shadow-xs` → `drop-shadow-sm`
+- Standalone `from-*`/`to-*` gradients corregidos
+
+### 19. Hardening Post-Migración (v2)
+
+Basado en Context7 best practices para Astro 7 + Tailwind v4:
+
+1. **`security.allowedDomains`** — Nueva feature de Astro 7 para validar `X-Forwarded-Host` detrás del proxy nginx. Configurado en `astro.config.mjs`.
+2. **CSP granular** — Añadido `script-src-elem` explícito y `frame-ancestors 'none'` en middleware.ts para control más fino de políticas de contenido.
+3. **CSS vars directas** — Reemplazados `@apply` con CSS custom properties (`var(--color-*)`) en `@layer base` de `global.css` para mejor rendimiento en TW4 (recomendación oficial).
+4. **Cleanup** — `migration-plan-astro7-tailwind4.md` eliminado (plan ejecutado).
+5. **README actualizado** — Documentación del stack actual, estructura, seguridad y rendimiento.
+
 ## Build
 
 `npm run build` — exitoso ✅
 `npx vitest run` — 35 tests, todos pasando ✅
+`npx playwright test` — E2E (Playwright config intacta)
 
 ## Pendiente
 
-- Migrar Astro 5→7 + Tailwind 3→4 (plan listo, esperando decisión)
 - `@insforge/sdk` 1.1.2 → 1.5.0 — APIs nuevas que podrían simplificar el código
 - Importación del dataset de ejercicios (bloqueante post-hardening)
 - Tests para middleware CSRF y funciones getCsrfToken/getCsrfHeader
+- Migrar `data-astro-reload` y verificar View Transitions en Astro 7
+- Verificar comportamiento visual de `@utility` con `@apply` en TW4

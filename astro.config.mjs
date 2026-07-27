@@ -9,6 +9,12 @@ export default defineConfig({
     site: 'https://davefit.app',
     output: 'server',
     compressHTML: true,
+    security: {
+        allowedDomains: [
+            { hostname: 'davefit.app', protocol: 'https' },
+            { hostname: '*.davefit.app', protocol: 'https' },
+        ],
+    },
     adapter: node({ mode: 'standalone' }),
     integrations: [
         react(),
