@@ -1,13 +1,5 @@
 import { invokeRpc } from './insforge';
-
-export interface XpCalculation {
-    xp_ganado: number;
-    nivel_anterior: number;
-    nivel_nuevo: number;
-    subio_nivel: boolean;
-    xp_para_siguiente_nivel: number;
-    xp_en_nivel_actual: number;
-}
+import type { XpCalculation } from '../types';
 
 /**
  * Calcula calorías estimadas quemadas

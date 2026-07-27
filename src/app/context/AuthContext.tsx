@@ -132,6 +132,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // ------------------------------------------------------------------
+  // Cierre de sesión (definido antes de los efectos que lo usan)
+  // ------------------------------------------------------------------
+
+  const signOut = async () => {
+    try {
+      await insforge.auth.signOut();
+    } catch {
+      // Forzar cierre aunque falle el backend
+    }
+    setUser(null);
+    setPerfil(null);
+    setAccessToken(null);
+    if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
+    if (inactivityTimerRef.current) clearInterval(inactivityTimerRef.current);
+    window.location.href = '/';
+  };
+
+  // ------------------------------------------------------------------
   // Actividad y session timeout
   // ------------------------------------------------------------------
 
@@ -361,7 +379,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // ------------------------------------------------------------------
-  // OAuth y cierre de sesión
+  // OAuth
   // ------------------------------------------------------------------
 
   const signInWithGoogle = async () => {
@@ -370,20 +388,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       provider: 'google',
       redirectTo: window.location.origin + '/dashboard',
     });
-  };
-
-  const signOut = async () => {
-    try {
-      await insforge.auth.signOut();
-    } catch {
-      // Forzar cierre aunque falle el backend
-    }
-    setUser(null);
-    setPerfil(null);
-    setAccessToken(null);
-    if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
-    if (inactivityTimerRef.current) clearInterval(inactivityTimerRef.current);
-    window.location.href = '/';
   };
 
   // ------------------------------------------------------------------

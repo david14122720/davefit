@@ -4,16 +4,7 @@ import { insforge } from '../../lib/insforge';
 import { useAuth } from '../context/AuthContext';
 import { useCelebration } from '../hooks/useCelebration';
 import { Zap, Flame, TrendingUp } from 'lucide-react';
-
-interface UserStats {
-    id: string;
-    user_id: string;
-    xp_total: number;
-    nivel: number;
-    dias_racha: number;
-    ultimo_entreno: string | null;
-    racha_bonus: number;
-}
+import type { UserStats } from '../../types';
 
 function calcularXpParaSiguienteNivel(nivel: number): number {
     return Math.floor(100 * Math.pow(nivel, 1.5));

@@ -70,13 +70,97 @@ Fortalecer la arquitectura del proyecto antes de importar el dataset masivo de e
 ### 8. Limpieza
 
 - `SCRUM.md` y `progreso.md` eliminados
-- `CLAUDE.md` limpiado de referencias a archivos eliminados
+- `CLAUDE.md` limpiado de referencias a archivos eliminados (HistoryPage, YogaPage → reemplazados por NutritionPage, YogaPracticePage, YogaPosicionesPage)
+- `CLAUDE.md` actualizado: lib ahora incluye `auth.ts`, `db.ts`; types ahora dice "Tipos centralizados"
+- `tipoLugarOptions` en constantes identificado como código muerto (sin referencias en src/)
+
+### 9. Tests Reparados
+
+**RegisterPage.test.tsx** — 2 tests fallando reparados:
+- Error message assertion corregida: cuando el email está vacío, el esquema Zod muestra `'Ingresa tu correo electrónico'` (min 1), no `'Ingresa un correo válido'` (email)
+- Contraseña de test corregida: `'Test1234'` → `'Test1234!'` (el esquema exige caracter especial `.regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/)`)
+- Añadido `confirmPassword` al formulario (campo obligatorio en el esquema)
+
+**Resultado**: 35 tests → 35 ✅ (0 fallos)
+
+### 10. Mock de InsForge Mejorado
+
+`src/test/setup.ts`:
+- Añadidos métodos faltantes a la cadena de mock: `neq`, `lte`, `in`, `or`, `order`, `limit`, `range`, `insert`, `upsert`, `update`, `delete`
+- El mock global ahora tiene cobertura completa de la API de PostgrestFilterBuilder
+- Tests individuales ya no necesitan redefinir la cadena base — solo sobreescriben el método que les interesa
+
+### 11. AuthContext — Fix TDZ en signOut()
+
+`src/app/context/AuthContext.tsx`:
+- `signOut()` movido ANTES del `useEffect` de inactividad que lo usa (línea 157)
+- Antes: `signOut()` declarado en línea 375, usado en línea 157 → Temporal Dead Zone
+- Ahora: declarado en línea 138, antes del primer uso
+- También se eliminó `signInWithGoogle` de la sección "OAuth y cierre de sesión" (separación limpia)
+
+### 12. Tipos Centralizados — Eliminación de Duplicados
+
+**Duplicados encontrados y corregidos**:
+
+| Archivo | Tipo eliminado | Ahora importa desde |
+|---|---|---|
+| `src/lib/gamification.ts` | `XpCalculation` (duplicado) | `types/index.ts` |
+| `src/lib/stats.ts` | `UserStats`, `WorkoutCompletion` (duplicados) | `types/index.ts` |
+| `src/lib/nutrition.ts` | `PerfilData` (duplicado de `Perfil`) | `Pick<Perfil, ...>` |
+| `src/app/components/XPBar.tsx` | `UserStats` (parcial, duplicado) | `types/index.ts` |
+
+### 13. Middleware / CSP Mejorado
+
+`src/middleware.ts`:
+- Añadida directiva `style-src-elem` explícita para Google Fonts (antes caía en `style-src` genérico, ahora explícito)
+- Guard de tipo añadido: `typeof response.headers?.set === 'function'` — previene error si response no tiene headers estándar
+
+### 14. Vitest Config Mejorado
+
+`vitest.config.ts`:
+- Añadido `css: false` — desactiva procesamiento de CSS en tests (más rápido, evita falsos positivos)
+- Añadido `testTimeout: 10_000` — timeout explícito para tests lentos
+
+### 15. CSRF Real — Double-Submit Cookie Pattern
+
+`src/lib/auth.ts`:
+- `getCsrfToken()` ahora también setea cookie `__Host-xsrf-token` (double-submit pattern)
+- Nueva función `getCsrfHeader()` devuelve `{ 'X-XSRF-TOKEN': token }` para headers de mutación
+
+`src/middleware.ts`:
+- Rechaza con 403 cualquier `POST/PUT/PATCH/DELETE` a `/api/*` si el header `X-XSRF-TOKEN` no coincide con la cookie `__Host-xsrf-token`
+
+`src/lib/insforge.ts`:
+- `invokeRpc()` incluye header `X-XSRF-TOKEN` en requests (desde browser)
+
+`LoginPage.tsx` / `RegisterPage.tsx`:
+- Inicializan token CSRF via `useEffect(() => getCsrfToken(), [])`
+- Hidden field `_csrf` eliminado de LoginPage (no servía server-side)
+
+### 16. Constantes Centralizadas
+
+`src/constants/fitness.ts`:
+- Nueva exportación `rutinaDisponibilidadOptions` para rutinas (`['casa', 'gimnasio', 'ambos']`)
+
+`AdminRutinasPage.tsx`:
+- Local `tipoLugarOptions` reemplazado por importación de `rutinaDisponibilidadOptions` desde constants
+
+### 17. Plan de Migración Creado
+
+`migration-plan-astro7-tailwind4.md`:
+- Documento completo con análisis de breaking changes para Astro 5→7 + Tailwind 3→4
+- Sin uso de `Astro.glob()`, content collections, experimental flags, Container API → migración simplificada
+- 3 fases (Tailwind → Astro 6 → Astro 7) recomendadas vs Big Bang
+- Riesgos, mitigaciones, y pasos detallados
 
 ## Build
 
 `npm run build` — exitoso ✅
+`npx vitest run` — 35 tests, todos pasando ✅
 
 ## Pendiente
 
-- Los tests usan un mock parcial de InsForge que no implementa query chaining completo (`.gte()`, `.eq()`, etc.). Los tests pasan porque los componentes toleran errores, pero idealmente el mock debería actualizarse para pruebas más precisas.
-- Importación del dataset de ejercicios (bloqueante post-hardening).
+- Migrar Astro 5→7 + Tailwind 3→4 (plan listo, esperando decisión)
+- `@insforge/sdk` 1.1.2 → 1.5.0 — APIs nuevas que podrían simplificar el código
+- Importación del dataset de ejercicios (bloqueante post-hardening)
+- Tests para middleware CSRF y funciones getCsrfToken/getCsrfHeader

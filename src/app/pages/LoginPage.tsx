@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
@@ -25,6 +25,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
   const [rateLimited, setRateLimited] = useState<string | null>(null);
+
+  // Inicializar token CSRF al montar (double-submit cookie)
+  useEffect(() => { getCsrfToken(); }, []);
 
   const {
     register,
@@ -172,9 +175,6 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* CSRF Token oculto */}
-            <input type="hidden" name="_csrf" value={getCsrfToken()} />
-
             {/* Email */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-on-surface-variant/80">Correo electrónico</label>

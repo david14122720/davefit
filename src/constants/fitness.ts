@@ -17,4 +17,6 @@ export const nivelColors: Record<string, string> = {
 
 export const tipoLugarOptions = ['gimnasio', 'casa', 'exterior', 'oficina'];
 
+export const rutinaDisponibilidadOptions = ['casa', 'gimnasio', 'ambos'];
+
 

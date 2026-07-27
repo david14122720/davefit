@@ -1,20 +1,8 @@
 // Utilidades para cálculos nutricionales
 
-interface PerfilData {
-    id: string;
-    email?: string | null;
-    nombre_completo?: string | null;
-    avatar_url?: string | null;
-    fecha_nacimiento?: string | null;
-    genero?: string | null;
-    peso_actual?: number | null;
-    altura?: number | null;
-    objetivo?: string | null;
-    nivel?: string | null;
-    preferencia_lugar?: string | null;
-    rol?: string | null;
-    dias_entrenamiento_semana?: number | null;
-}
+import type { Perfil } from '../types';
+
+type PerfilData = Pick<Perfil, 'peso_actual' | 'altura' | 'fecha_nacimiento' | 'genero' | 'nivel' | 'objetivo' | 'dias_entrenamiento_semana'>;
 
 // Factores de actividad según nivel
 const factoresActividad: Record<string, number> = {

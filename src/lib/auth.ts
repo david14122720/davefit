@@ -281,15 +281,19 @@ export function sanitizeAuthError(error: any): string {
 }
 
 // ------------------------------------------------------------------
-// CSRF Token
+// CSRF Token — Double-Submit Cookie Pattern
 // ------------------------------------------------------------------
 
 const CSRF_KEY = 'auth_csrf_token';
 const CSRF_LENGTH = 32;
 
 /**
- * Genera un token CSRF para el formulario de login.
- * Lo guarda en sessionStorage y lo devuelve.
+ * Genera o recupera un token CSRF.
+ *
+ * Double-submit cookie pattern:
+ * - El token se guarda en sessionStorage (para uso en headers JS)
+ * - También se setea como cookie (no httpOnly, path=/api)
+ * - El server valida que el header X-XSRF-TOKEN coincida con la cookie
  */
 export function getCsrfToken(): string {
   try {
@@ -299,6 +303,8 @@ export function getCsrfToken(): string {
       crypto.getRandomValues(array);
       token = Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('');
       sessionStorage.setItem(CSRF_KEY, token);
+      // Sincronizar con cookie para que el server la lea
+      document.cookie = `__Host-xsrf-token=${token}; path=/; SameSite=Strict; Secure${location.protocol === 'https:' ? '' : ''}`;
     }
     return token;
   } catch {
@@ -307,16 +313,14 @@ export function getCsrfToken(): string {
 }
 
 /**
- * Verifica que el token CSRF coincida y lo invalida (one-time use).
+ * Obtiene el header CSRF para incluir en mutaciones vía API.
  */
-export function verifyCsrfToken(token: string): boolean {
+export function getCsrfHeader(): Record<string, string> {
   try {
-    const stored = sessionStorage.getItem(CSRF_KEY);
-    if (!stored || stored.length < CSRF_LENGTH) return false;
-    const valid = stored === token;
-    sessionStorage.removeItem(CSRF_KEY); // one-time
-    return valid;
+    const token = sessionStorage.getItem(CSRF_KEY);
+    if (!token || token.length < CSRF_LENGTH) return {};
+    return { 'X-XSRF-TOKEN': token };
   } catch {
-    return false;
+    return {};
   }
 }

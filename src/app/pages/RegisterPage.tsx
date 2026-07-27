@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Mail, Lock, User, Eye, EyeOff, Loader2, ArrowRight, CheckCircle, Dumbbell, Users, ShieldCheck } from 'lucide-react';
-import { normalizeEmail, sanitizeName, evaluatePassword, PASSWORD_REQUIREMENTS } from '../../lib/auth';
+import { normalizeEmail, sanitizeName, evaluatePassword, PASSWORD_REQUIREMENTS, getCsrfToken } from '../../lib/auth';
 
 const registerSchema = z
   .object({
@@ -113,6 +113,9 @@ export default function RegisterPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [success, setSuccess] = useState(false);
   const [passwordValue, setPasswordValue] = useState('');
+
+  // Inicializar token CSRF al montar (double-submit cookie)
+  useEffect(() => { getCsrfToken(); }, []);
 
   const {
     register,

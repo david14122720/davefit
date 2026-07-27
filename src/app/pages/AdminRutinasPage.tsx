@@ -15,10 +15,10 @@ import {
 import { Reorder, motion } from 'framer-motion';
 import adminApi, { type Rutina, type Ejercicio } from '../lib/adminApi';
 import FileUpload from '../components/FileUpload';
+import { rutinaDisponibilidadOptions } from '../../constants/fitness';
 
 const objetivoOptions = ['mantener_forma', 'tonificar', 'ganar_fuerza'];
 const nivelOptions = ['principiante', 'intermedio', 'avanzado'];
-const tipoLugarOptions = ['casa', 'gimnasio', 'ambos'];
 
 interface EjercicioSeleccionado {
     ejercicio_id: string;
@@ -407,7 +407,7 @@ export default function AdminRutinasPage() {
                                         onChange={(e) => setFormData({ ...formData, tipo_lugar: e.target.value })}
                                         className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500/50"
                                     >
-                                        {tipoLugarOptions.map(t => (
+                                        {rutinaDisponibilidadOptions.map(t => (
                                             <option key={t} value={t} className="capitalize">{t}</option>
                                         ))}
                                     </select>

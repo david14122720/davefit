@@ -1,26 +1,5 @@
 import { insforge } from './insforge';
-
-export interface WorkoutCompletion {
-  id: string;
-  user_id: string;
-  workout_id: string;
-  completed_at: string;
-  score_earned: number;
-}
-
-export interface UserStats {
-  id: string;
-  user_id: string;
-  dias_racha: number;
-  longest_streak: number;
-  total_workouts: number;
-  xp_total: number;
-  ultimo_entreno: string | null;
-  weekly_score: number;
-  monthly_score: number;
-  created_at: string;
-  updated_at: string;
-}
+import type { UserStats, WorkoutCompletion } from '../types';
 
 export async function recordWorkoutCompletion(
   userId: string,

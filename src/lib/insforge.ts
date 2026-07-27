@@ -3,6 +3,7 @@
 // ============================================================
 
 import { createClient } from '@insforge/sdk';
+import { getCsrfHeader } from './auth';
 
 const insforgeUrl = import.meta.env.PUBLIC_INSFORGE_URL;
 const insforgeAnonKey = import.meta.env.PUBLIC_INSFORGE_ANON_KEY;
@@ -127,12 +128,14 @@ export async function invokeRpc<T = any>(
     const { data: sessionData } = await insforge.auth.getSession();
     const token = sessionData?.session?.accessToken ?? null;
 
+    const csrfHeader = getCsrfHeader(); // browser-only, returns {} on server
     const response = await fetch(`${insforgeUrl}/rest/v1/rpc/${encodeURIComponent(functionName)}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'apikey': insforgeAnonKey,
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...csrfHeader,
       },
       body: JSON.stringify(payload),
     });

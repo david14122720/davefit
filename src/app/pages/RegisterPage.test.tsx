@@ -88,7 +88,8 @@ describe('RegisterPage', () => {
       expect(screen.getByText('Ingresa tu nombre completo')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Ingresa un correo válido')).toBeInTheDocument();
+    // Email fails min(1) check before .email() — shows 'Ingresa tu correo electrónico'
+    expect(screen.getByText('Ingresa tu correo electrónico')).toBeInTheDocument();
   });
 
   it('submits form with valid data', async () => {
@@ -103,14 +104,18 @@ describe('RegisterPage', () => {
       target: { value: 'test@davefit.com' },
     });
     fireEvent.change(screen.getByPlaceholderText('Mínimo 8 caracteres'), {
-      target: { value: 'Test1234' },
+      target: { value: 'Test1234!' }, // must include special char per schema
+    });
+
+    fireEvent.change(screen.getAllByPlaceholderText('Repite la contraseña')[0], {
+      target: { value: 'Test1234!' },
     });
 
     const submitButton = screen.getByRole('button', { name: /Crear Cuenta/i });
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(mockSignUp).toHaveBeenCalledWith('test@davefit.com', 'Test1234', 'Test User');
+      expect(mockSignUp).toHaveBeenCalledWith('test@davefit.com', 'Test1234!', 'Test User');
     });
   });
 
