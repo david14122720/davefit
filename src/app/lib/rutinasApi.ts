@@ -1,4 +1,12 @@
-import { insforge } from '../../lib/insforge';
+// ================================================================
+// Rutinas API — Client-Side
+// ================================================================
+// Llama a los endpoints del servidor (/api/admin/rutinas).
+// El servidor verifica JWT + rol admin antes de cada operación.
+// ================================================================
+
+import { adminFetch } from './adminFetch';
+import { createCrudApi } from './createCrudApi';
 import type { Ejercicio } from './ejerciciosApi';
 
 export interface Rutina {
@@ -32,101 +40,21 @@ export interface RutinaConEjercicios extends Rutina {
     ejercicios?: RutinaEjercicio[];
 }
 
-export async function getRutinas(): Promise<Rutina[]> {
-    const { data, error } = await insforge.database
-        .from('rutinas')
-        .select('*')
-        .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data || [];
-}
+const rutinasCrud = createCrudApi<Rutina>('/api/admin/rutinas');
 
-export async function createRutina(rutina: Partial<Rutina>): Promise<Rutina> {
-    const { data, error } = await insforge.database
-        .from('rutinas')
-        .insert([rutina])
-        .select()
-        .single();
-    if (error) throw error;
-    return data;
-}
-
-export async function updateRutina(id: string, rutina: Partial<Rutina>): Promise<Rutina> {
-    const { data, error } = await insforge.database
-        .from('rutinas')
-        .update(rutina)
-        .eq('id', id)
-        .select()
-        .single();
-    if (error) throw error;
-    return data;
-}
-
-export async function deleteRutina(id: string): Promise<void> {
-    const { error } = await insforge.database
-        .from('rutinas')
-        .delete()
-        .eq('id', id);
-    if (error) throw error;
-}
+export const { list: getRutinas, create: createRutina, update: updateRutina, del: deleteRutina } = rutinasCrud;
 
 export async function saveRutinaConEjercicios(
+    token: string,
     rutinaData: Partial<Rutina>,
     ejercicios: Array<{ ejercicio_id: string; series: number; repeticiones: string; descanso_segundos: number }>
 ): Promise<Rutina> {
-    let rutinaId: string;
-
-    if (rutinaData.id) {
-        const { data, error } = await insforge.database
-            .from('rutinas')
-            .update(rutinaData)
-            .eq('id', rutinaData.id)
-            .select()
-            .single();
-        if (error) throw error;
-        rutinaId = data.id;
-
-        await insforge.database.from('rutinas_ejercicios').delete().eq('rutina_id', rutinaId);
-    } else {
-        const { data, error } = await insforge.database
-            .from('rutinas')
-            .insert([rutinaData])
-            .select()
-            .single();
-        if (error) throw error;
-        rutinaId = data.id;
-    }
-
-    if (ejercicios.length > 0) {
-        const ejerciciosData = ejercicios.map((e, index) => ({
-            rutina_id: rutinaId,
-            ejercicio_id: e.ejercicio_id,
-            orden: index + 1,
-            series: e.series,
-            repeticiones: e.repeticiones,
-            descanso_segundos: e.descanso_segundos,
-        }));
-
-        const { error } = await insforge.database
-            .from('rutinas_ejercicios')
-            .insert(ejerciciosData);
-        if (error) throw error;
-    }
-
-    const { data } = await insforge.database
-        .from('rutinas')
-        .select('*')
-        .eq('id', rutinaId)
-        .single();
-    return data;
+    return adminFetch<Rutina>('/api/admin/rutinas-ejercicios', token, {
+        method: 'POST',
+        body: JSON.stringify({ rutina: rutinaData, ejercicios }),
+    });
 }
 
-export async function getRutinaEjercicios(rutinaId: string): Promise<RutinaEjercicio[]> {
-    const { data, error } = await insforge.database
-        .from('rutinas_ejercicios')
-        .select('*')
-        .eq('rutina_id', rutinaId)
-        .order('orden', { ascending: true });
-    if (error) throw error;
-    return data || [];
+export async function getRutinaEjercicios(token: string, rutinaId: string): Promise<RutinaEjercicio[]> {
+    return adminFetch<RutinaEjercicio[]>(`/api/admin/rutinas-ejercicios/${rutinaId}`, token);
 }

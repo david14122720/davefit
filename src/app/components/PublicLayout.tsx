@@ -35,7 +35,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
               Dave<span className="text-primary">Fit</span>
             </h2>
           </Link>
-          <NavLinks location={location} user={user} />
+          <NavLinks user={user} />
         </div>
 
         {/* Right: Search + Auth */}
@@ -90,7 +90,6 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
       <MobileDrawer
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
-        location={location}
         user={user}
         isAdmin={isAdmin}
         signOut={signOut}

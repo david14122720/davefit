@@ -1,4 +1,12 @@
-import { insforge } from '../../lib/insforge';
+// ================================================================
+// Yoga Admin API — Client-Side
+// ================================================================
+// Llama a los endpoints del servidor (/api/admin/yoga-*).
+// El servidor verifica JWT + rol admin antes de cada operación.
+// ================================================================
+
+import { adminFetch } from './adminFetch';
+import { createCrudApi } from './createCrudApi';
 
 export interface YogaPosicion {
     id: string;
@@ -35,106 +43,25 @@ export interface YogaRutinaPosicion {
     created_at: string;
 }
 
-export async function getYogaPosiciones(): Promise<YogaPosicion[]> {
-    const { data, error } = await insforge.database
-        .from('yoga_posiciones')
-        .select('*')
-        .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data || [];
+const posicionesCrud = createCrudApi<YogaPosicion>('/api/admin/yoga-posiciones');
+const rutinasCrud = createCrudApi<YogaRutina>('/api/admin/yoga-rutinas');
+
+export const { list: getYogaPosiciones, create: createYogaPosicion, update: updateYogaPosicion, del: deleteYogaPosicion } = posicionesCrud;
+export const { list: getYogaRutinas, create: createYogaRutina, update: updateYogaRutina, del: deleteYogaRutina } = rutinasCrud;
+
+export async function getYogaRutinaPosiciones(token: string, rutinaId: string): Promise<YogaRutinaPosicion[]> {
+    return adminFetch<YogaRutinaPosicion[]>(`/api/admin/yoga-rutina-posiciones/${rutinaId}`, token);
 }
 
-export async function createYogaPosicion(posicion: Partial<YogaPosicion>): Promise<YogaPosicion> {
-    const { data, error } = await insforge.database
-        .from('yoga_posiciones')
-        .insert([posicion])
-        .select()
-        .single();
-    if (error) throw error;
-    return data;
+export async function addPosicionToYogaRutina(token: string, item: Partial<YogaRutinaPosicion>): Promise<YogaRutinaPosicion> {
+    return adminFetch<YogaRutinaPosicion>('/api/admin/yoga-rutina-posiciones', token, {
+        method: 'POST',
+        body: JSON.stringify(item),
+    });
 }
 
-export async function updateYogaPosicion(id: string, posicion: Partial<YogaPosicion>): Promise<YogaPosicion> {
-    const { data, error } = await insforge.database
-        .from('yoga_posiciones')
-        .update(posicion)
-        .eq('id', id)
-        .select()
-        .single();
-    if (error) throw error;
-    return data;
-}
-
-export async function deleteYogaPosicion(id: string): Promise<void> {
-    const { error } = await insforge.database
-        .from('yoga_posiciones')
-        .delete()
-        .eq('id', id);
-    if (error) throw error;
-}
-
-export async function getYogaRutinas(): Promise<YogaRutina[]> {
-    const { data, error } = await insforge.database
-        .from('yoga_rutinas')
-        .select('*')
-        .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data || [];
-}
-
-export async function createYogaRutina(rutina: Partial<YogaRutina>): Promise<YogaRutina> {
-    const { data, error } = await insforge.database
-        .from('yoga_rutinas')
-        .insert([rutina])
-        .select()
-        .single();
-    if (error) throw error;
-    return data;
-}
-
-export async function updateYogaRutina(id: string, rutina: Partial<YogaRutina>): Promise<YogaRutina> {
-    const { data, error } = await insforge.database
-        .from('yoga_rutinas')
-        .update(rutina)
-        .eq('id', id)
-        .select()
-        .single();
-    if (error) throw error;
-    return data;
-}
-
-export async function deleteYogaRutina(id: string): Promise<void> {
-    const { error } = await insforge.database
-        .from('yoga_rutinas')
-        .delete()
-        .eq('id', id);
-    if (error) throw error;
-}
-
-export async function getYogaRutinaPosiciones(rutinaId: string): Promise<YogaRutinaPosicion[]> {
-    const { data, error } = await insforge.database
-        .from('yoga_rutina_posiciones')
-        .select('*')
-        .eq('rutina_id', rutinaId)
-        .order('orden', { ascending: true });
-    if (error) throw error;
-    return data || [];
-}
-
-export async function addPosicionToYogaRutina(item: Partial<YogaRutinaPosicion>): Promise<YogaRutinaPosicion> {
-    const { data, error } = await insforge.database
-        .from('yoga_rutina_posiciones')
-        .insert([item])
-        .select()
-        .single();
-    if (error) throw error;
-    return data;
-}
-
-export async function removePosicionFromYogaRutina(id: string): Promise<void> {
-    const { error } = await insforge.database
-        .from('yoga_rutina_posiciones')
-        .delete()
-        .eq('id', id);
-    if (error) throw error;
+export async function removePosicionFromYogaRutina(token: string, id: string): Promise<void> {
+    await adminFetch(`/api/admin/yoga-rutina-posiciones/${id}`, token, {
+        method: 'DELETE',
+    });
 }

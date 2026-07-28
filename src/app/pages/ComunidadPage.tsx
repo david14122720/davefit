@@ -16,7 +16,7 @@ interface LeaderboardUser {
 const PODIUM_COLORS = {
   1: { bg: 'from-amber-400/20 to-amber-600/10', border: 'border-yellow-500', crown: 'text-yellow-400', text: 'text-yellow-400' },
   2: { bg: 'from-gray-400/20 to-gray-500/10', border: 'border-gray-400', crown: 'text-gray-300', text: 'text-gray-300' },
-  3: { bg: 'from-green-600/20 to-green-700/10', border: 'border-green-600', crown: 'text-green-500', text: 'text-green-500' },
+  3: { bg: 'from-amber-600/20 to-amber-700/10', border: 'border-amber-600', crown: 'text-amber-400', text: 'text-amber-400' },
 };
 
 const Avatar = ({ src, name, size = 'md' }: { src?: string; name: string; size?: 'sm' | 'md' | 'lg' | 'xl' }) => {
@@ -27,7 +27,7 @@ const Avatar = ({ src, name, size = 'md' }: { src?: string; name: string; size?:
   }
   
   return (
-    <div className={`${sizeClasses[size]} rounded-full bg-linear-to-br from-primary to-green-600 flex items-center justify-center font-bold text-black ring-2 ring-white/20`}>
+    <div className={`${sizeClasses[size]} rounded-full bg-linear-to-br from-primary to-primary-dark flex items-center justify-center font-bold text-black ring-2 ring-white/20`}>
       {(name || 'U').charAt(0).toUpperCase()}
     </div>
   );
@@ -77,8 +77,8 @@ const PodiumCard = ({ user, position }: { user: LeaderboardUser; position: 1 | 2
         {user.username}
       </h3>
       
-      <div className="mt-3 sm:mt-2 px-4 py-1.5 sm:px-3 sm:py-1 bg-primary/20 border border-primary/30 rounded-full shadow-[0_0_10px_rgba(255,107,0,0.2)]">
-        <span className="text-green-400 font-bold text-base sm:text-sm">{user.total_score.toLocaleString()}</span>
+                    <div className="mt-3 sm:mt-2 px-4 py-1.5 sm:px-3 sm:py-1 bg-primary/20 border border-primary/30 rounded-full shadow-[0_0_10px_rgba(255,107,0,0.2)]">
+                        <span className="text-primary font-bold text-base sm:text-sm">{user.total_score.toLocaleString()}</span>
         <span className="text-gray-400 text-xs sm:text-[10px] ml-1 uppercase">pts</span>
       </div>
     </motion.div>
@@ -88,7 +88,7 @@ const PodiumCard = ({ user, position }: { user: LeaderboardUser; position: 1 | 2
 const LeaderboardRow = ({ user }: { user: LeaderboardUser }) => {
   const getRankColor = (rank: number) => {
     if (rank <= 3) return 'text-yellow-400';
-    if (rank <= 10) return 'text-green-400';
+    if (rank <= 10) return 'text-primary';
     return 'text-gray-400';
   };
   
@@ -114,7 +114,7 @@ const LeaderboardRow = ({ user }: { user: LeaderboardUser }) => {
       </div>
       
       <div className="px-4 py-1.5 sm:px-3 sm:py-1 bg-primary/10 border border-primary/20 rounded-xl group-hover:bg-primary/20 transition-colors">
-        <span className="text-green-400 font-bold text-base sm:text-sm">{user.total_score.toLocaleString()}</span>
+                        <span className="text-primary font-bold text-base sm:text-sm">{user.total_score.toLocaleString()}</span>
       </div>
     </motion.div>
   );
@@ -257,7 +257,7 @@ export default function ComunidadPage() {
                 </div>
                 
                 <div className="max-w-md mx-auto bg-linear-to-r from-primary/0 via-primary/10 to-primary/0 p-4 text-center">
-                <p className="text-green-400 font-bold tracking-wide">
+                <p className="text-primary font-bold tracking-wide">
                     ¡Sigue así! El podio te espera 🔥
                 </p>
                 </div>

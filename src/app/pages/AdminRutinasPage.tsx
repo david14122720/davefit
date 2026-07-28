@@ -13,7 +13,9 @@ import {
     Check
 } from 'lucide-react';
 import { Reorder, motion } from 'framer-motion';
-import adminApi, { type Rutina, type Ejercicio } from '../lib/adminApi';
+import { useAuth } from '../context/AuthContext';
+import { getRutinas, deleteRutina, saveRutinaConEjercicios, getRutinaEjercicios, type Rutina, type RutinaEjercicio } from '../lib/rutinasApi';
+import { getEjercicios, type Ejercicio } from '../lib/ejerciciosApi';
 import FileUpload from '../components/FileUpload';
 import { rutinaDisponibilidadOptions } from '../../constants/fitness';
 
@@ -53,6 +55,7 @@ const initialFormData: FormData = {
 };
 
 export default function AdminRutinasPage() {
+    const { accessToken } = useAuth();
     const [rutinas, setRutinas] = useState<Rutina[]>([]);
     const [ejercicios, setEjercicios] = useState<Ejercicio[]>([]);
     const [loading, setLoading] = useState(true);
@@ -66,10 +69,11 @@ export default function AdminRutinasPage() {
     const [ejerciciosSearch, setEjerciciosSearch] = useState('');
 
     const loadData = async () => {
+        if (!accessToken) return;
         try {
             const [rutinasData, ejerciciosData] = await Promise.all([
-                adminApi.getRutinas(),
-                adminApi.getEjercicios()
+                getRutinas(accessToken),
+                getEjercicios(accessToken)
             ]);
             setRutinas(rutinasData);
             setEjercicios(ejerciciosData);
@@ -80,11 +84,11 @@ export default function AdminRutinasPage() {
         }
     };
 
-    useEffect(() => { loadData(); }, []);
+    useEffect(() => { loadData(); }, [accessToken]);
 
     const loadEjerciciosRutina = async (rutinaId: string) => {
         try {
-            const rutinaEjercicios = await adminApi.getRutinaEjercicios(rutinaId);
+            const rutinaEjercicios = await getRutinaEjercicios(accessToken!, rutinaId);
             const selected = rutinaEjercicios.map(re => {
                 const ejercicio = ejercicios.find(e => e.id === re.ejercicio_id);
                 return {
@@ -196,7 +200,8 @@ export default function AdminRutinasPage() {
                 descanso_segundos: e.descanso_segundos,
             }));
 
-            await adminApi.saveRutinaConEjercicios(
+            await saveRutinaConEjercicios(
+                accessToken!,
                 editingId ? { ...rutinaData, id: editingId } : rutinaData,
                 ejerciciosData
             );
@@ -213,7 +218,7 @@ export default function AdminRutinasPage() {
     const handleDelete = async (id: string) => {
         if (!confirm('¿Estás seguro de eliminar esta rutina?')) return;
         try {
-            await adminApi.deleteRutina(id);
+            await deleteRutina(accessToken!, id);
             setRutinas(prev => prev.filter(r => r.id !== id));
         } catch (err: any) {
             alert('Error al eliminar: ' + err.message);

@@ -1,20 +1,13 @@
-import { Link, type Location } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { navLinks } from '../lib/navLinks';
+import { useActivePath } from '../hooks/useActivePath';
 
 interface NavLinksProps {
-  location: Location;
   user: unknown;
 }
 
-const navLinks = [
-  { path: '/biblioteca', label: 'Biblioteca', public: true },
-  { path: '/nutricion', label: 'Nutrición', public: true },
-  { path: '/acerca-de', label: 'Acerca de', public: true },
-  { path: '/comunidad', label: 'Comunidad', public: true },
-  { path: '/dashboard', label: 'Dashboard', public: false },
-];
-
-export default function NavLinks({ location, user }: NavLinksProps) {
-  const isActive = (path: string) => location.pathname === path;
+export default function NavLinks({ user }: NavLinksProps) {
+  const isActive = useActivePath();
 
   return (
     <nav className="hidden md:flex items-center gap-8 ml-4">

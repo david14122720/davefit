@@ -65,8 +65,7 @@ export default function ProfilePage() {
         reset,
         formState: { errors, isSubmitting }
     } = useForm<ProfileFormValues>({
-        // @ts-ignore
-        resolver: zodResolver(profileSchema),
+        resolver: zodResolver(profileSchema) as any,
         defaultValues: {
             nombre_completo: perfil?.nombre_completo || '',
             genero: (perfil?.genero as any) || '',
@@ -141,8 +140,7 @@ export default function ProfilePage() {
             dias_entrenamiento_semana: data.dias_entrenamiento_semana === '' ? null : data.dias_entrenamiento_semana,
         };
         
-        // @ts-ignore
-        const promise = updatePerfil(cleanedData);
+        const promise = updatePerfil(cleanedData as Partial<import('../../types').Perfil>);
         
         toast.promise(promise, {
             loading: 'Guardando perfil...',
@@ -475,20 +473,20 @@ export default function ProfilePage() {
                     
                     {/* Gamification Stats */}
                     {userStats && (
-                        <motion.div variants={itemVariants} className="bg-linear-to-br from-primary/10 to-transparent p-8 rounded-xl border border-primary/10 shadow-2xl">
-                            <div className="flex justify-between items-center mb-8">
-                                <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <Sparkles className="w-4 h-4 text-primary" /> Camino del Guerrero
+                        <motion.div variants={itemVariants} className="bg-linear-to-br from-primary/10 to-transparent p-4 rounded-xl border border-primary/10 shadow-2xl">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <Sparkles className="w-3.5 h-3.5 text-primary" /> Camino del Guerrero
                                 </h3>
-                                <span className="text-3xl font-black text-primary">LVL {userStats.nivel || 1}</span>
+                                <span className="text-2xl font-black text-primary">LVL {userStats.nivel || 1}</span>
                             </div>
                             
-                            <div className="space-y-4">
+                            <div className="space-y-2">
                                 <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
                                     <span className="text-gray-400">Progreso de XP</span>
-                                    <span className="text-green-400">{userStats.xp_total} / {(userStats.nivel || 1) * 100}</span>
+                                    <span className="text-primary">{userStats.xp_total} / {(userStats.nivel || 1) * 100}</span>
                                 </div>
-                                <div className="h-4 bg-black/60 rounded-full p-1 border border-white/5">
+                                <div className="h-2.5 bg-black/60 rounded-full border border-white/5">
                                     <motion.div 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${Math.min(((userStats.xp_total || 0) % 100) / 100 * 100, 100)}%` }}

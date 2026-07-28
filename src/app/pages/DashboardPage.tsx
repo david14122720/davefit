@@ -4,29 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import { insforge } from '../../lib/insforge';
 import { queryWithRetry, queryWithRetryAndCount } from '../../lib/db';
 import { getUserStats } from '../../lib/stats';
+import { getInicioSemana, getSaludo } from '../lib/dates';
 import type { HistorialEntrenamiento } from '../../types';
 import { motion, type Variants } from 'framer-motion';
-import TimeSelector from '../components/TimeSelector';
 import XPBar from '../components/XPBar';
 import WeeklyGoal from '../components/WeeklyGoal';
+import { DashboardSkeleton } from '../components/Skeleton';
 import { Play, TrendingUp, Activity, Target, Clock, Flame, Dumbbell, CalendarDays, Sparkles, Zap } from 'lucide-react';
-
-function getSaludo(): string {
-  const hora = new Date().getHours();
-  if (hora >= 12 && hora < 20) return 'Buenas tardes';
-  if (hora >= 20) return 'Buenas noches';
-  return 'Buenos días';
-}
-
-function getInicioSemana(): Date {
-  const hoy = new Date();
-  const inicio = new Date(hoy);
-  const dia = hoy.getDay();
-  const diff = dia === 0 ? 6 : dia - 1;
-  inicio.setDate(hoy.getDate() - diff);
-  inicio.setHours(0, 0, 0, 0);
-  return inicio;
-}
 
 export default function DashboardPage() {
     const { user, perfil, accessToken } = useAuth();
@@ -121,23 +105,7 @@ export default function DashboardPage() {
     };
 
     if (!loaded) {
-        return (
-            <div className="max-w-6xl mx-auto animate-pulse">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                    <div className="w-64 h-10 bg-white/10 rounded-lg" />
-                    <div className="w-40 h-12 bg-white/10 rounded-lg" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
-                    <div className="h-40 bg-white/5 rounded-lg" />
-                    <div className="h-40 bg-white/5 rounded-lg" />
-                    <div className="h-40 bg-white/5 rounded-lg" />
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-                    <div className="lg:col-span-2 h-72 bg-white/5 rounded-lg" />
-                    <div className="h-72 bg-white/5 rounded-lg" />
-                </div>
-            </div>
-        );
+        return <DashboardSkeleton />;
     }
 
     return (
@@ -168,7 +136,6 @@ export default function DashboardPage() {
                 </div>
                 
                 <div className="w-full md:w-auto flex flex-col items-start md:items-end gap-3">
-                    <TimeSelector />
                     <Link
                         to="/biblioteca"
                         className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 active:scale-95"
@@ -267,12 +234,12 @@ export default function DashboardPage() {
                     )}
                 </div>
 
-                {/* Next Workout */}
-                <div>
+                {/* Next Workout + Goal */}
+                <div className="flex flex-col gap-4">
                     {ultimoEntrenamiento ? (
                         <motion.div
                             variants={itemVariants}
-                            className="p-5 rounded-lg bg-linear-to-br from-primary/20 to-primary/5 border border-primary/20 group cursor-pointer relative overflow-hidden"
+                            className="flex-1 p-5 rounded-lg bg-linear-to-br from-primary/20 to-primary/5 border border-primary/20 group cursor-pointer relative overflow-hidden"
                             onClick={() => navigate(`/rutinas/practicar/${ultimoEntrenamiento.rutina_id}`)}
                         >
                             <div className="relative z-10">
@@ -296,7 +263,7 @@ export default function DashboardPage() {
                             </div>
                         </motion.div>
                     ) : (
-                        <div className="p-5 rounded-lg bg-surface border border-white/5 flex flex-col justify-center items-center text-center space-y-2">
+                        <div className="flex-1 p-5 rounded-lg bg-surface border border-white/5 flex flex-col justify-center items-center text-center space-y-2">
                             <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
                                 <Sparkles className="w-6 h-6" />
                             </div>
@@ -313,7 +280,7 @@ export default function DashboardPage() {
                     )}
 
                     {/* Goal Card */}
-                    <motion.div variants={itemVariants} className="mt-4 p-5 rounded-lg bg-surface border border-white/5 hover:border-primary/30 transition-all">
+                    <motion.div variants={itemVariants} className="flex-1 p-5 rounded-lg bg-surface border border-white/5 hover:border-primary/30 transition-all">
                         <div className="flex justify-between items-start mb-3">
                             <div>
                                 <p className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Tu Objetivo</p>
@@ -325,17 +292,9 @@ export default function DashboardPage() {
                                 <Target className="w-4 h-4" />
                             </div>
                         </div>
-                        <div className="flex justify-between text-xs font-medium mb-2">
+                        <div className="flex justify-between text-xs font-medium">
                             <span className="text-primary">Nivel {perfil?.nivel || 'No definido'}</span>
                             <span className="text-gray-400 capitalize">{perfil?.preferencia_lugar || 'Casa'}</span>
-                        </div>
-                        <div className="h-2 bg-black/50 rounded-full overflow-hidden">
-                            <motion.div 
-                                initial={{ width: 0 }}
-                                animate={{ width: '75%' }}
-                                transition={{ duration: 1, ease: "easeOut" }}
-                                className="h-full bg-linear-to-r from-primary to-primary-light shadow-[0_0_10px_rgba(255,107,0,0.5)]" 
-                            />
                         </div>
                     </motion.div>
                 </div>

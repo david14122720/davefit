@@ -11,7 +11,9 @@ import {
     Save,
     Calendar
 } from 'lucide-react';
-import adminApi, { type YogaRutina } from '../lib/adminApi';
+import { useAuth } from '../context/AuthContext';
+import { getYogaRutinas, createYogaRutina, updateYogaRutina, deleteYogaRutina, type YogaRutina } from '../lib/yogaAdminApi';
+import { nivelColors } from '../../constants/fitness';
 
 const objetivoOptions = ['flexibilidad', 'fuerza', 'relax'];
 const nivelOptions = ['principiante', 'intermedio', 'avanzado'];
@@ -40,13 +42,8 @@ const objetivoIcons: Record<string, string> = {
     relax: '😌',
 };
 
-const nivelColors: Record<string, string> = {
-    principiante: 'bg-green-500/10 text-green-400 border-green-500/20',
-    intermedio: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
-    avanzado: 'bg-red-500/10 text-red-400 border-red-500/20',
-};
-
 export default function AdminYogaRutinasPage() {
+    const { accessToken } = useAuth();
     const [rutinas, setRutinas] = useState<YogaRutina[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -56,8 +53,9 @@ export default function AdminYogaRutinasPage() {
     const [saving, setSaving] = useState(false);
 
     const loadData = async () => {
+        if (!accessToken) return;
         try {
-            const data = await adminApi.getYogaRutinas();
+            const data = await getYogaRutinas(accessToken);
             setRutinas(data);
         } catch (err) {
             console.error('[AdminYogaRutinas] Error loading:', err);
@@ -66,7 +64,7 @@ export default function AdminYogaRutinasPage() {
         }
     };
 
-    useEffect(() => { loadData(); }, []);
+    useEffect(() => { loadData(); }, [accessToken]);
 
     const filteredRutinas = useMemo(() => {
         if (!search) return rutinas;
@@ -116,9 +114,9 @@ export default function AdminYogaRutinasPage() {
             };
 
             if (editingId) {
-                await adminApi.updateYogaRutina(editingId, data);
+                await updateYogaRutina(accessToken!, editingId, data);
             } else {
-                await adminApi.createYogaRutina(data);
+                await createYogaRutina(accessToken!, data);
             }
             await loadData();
             handleCloseModal();
@@ -132,7 +130,7 @@ export default function AdminYogaRutinasPage() {
     const handleDelete = async (id: string) => {
         if (!confirm('¿Estás seguro de eliminar esta rutina de yoga?')) return;
         try {
-            await adminApi.deleteYogaRutina(id);
+            await deleteYogaRutina(accessToken!, id);
             setRutinas(prev => prev.filter(r => r.id !== id));
         } catch (err: any) {
             alert('Error al eliminar: ' + err.message);

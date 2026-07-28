@@ -1,14 +1,9 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState, useRef } from 'react';
 import { insforge } from '../../lib/insforge';
 import { useAuth } from '../context/AuthContext';
 import { useCelebration } from '../hooks/useCelebration';
-import { Zap, Flame, TrendingUp } from 'lucide-react';
+import { Zap, Flame } from 'lucide-react';
 import type { UserStats } from '../../types';
-
-function calcularXpParaSiguienteNivel(nivel: number): number {
-    return Math.floor(100 * Math.pow(nivel, 1.5));
-}
 
 export default function XPBar() {
     const { user } = useAuth();
@@ -69,15 +64,6 @@ export default function XPBar() {
     const nivelActual = stats?.nivel ?? 1;
     const diasRacha = stats?.dias_racha ?? 0;
     
-    let xpAcumuladoEnNivelesAnteriores = 0;
-    for (let n = 1; n < nivelActual; n++) {
-        xpAcumuladoEnNivelesAnteriores += calcularXpParaSiguienteNivel(n);
-    }
-
-    const xpEnNivelActual = xpActual - xpAcumuladoEnNivelesAnteriores;
-    const xpParaSiguiente = calcularXpParaSiguienteNivel(nivelActual);
-    const percentage = Math.min((xpEnNivelActual / xpParaSiguiente) * 100, 100);
-
     return (
         <div className="p-3 bg-[#141414] rounded-xl border border-white/5 hover:border-primary/20 transition-all">
             <div className="flex items-center justify-between mb-2">
@@ -103,21 +89,6 @@ export default function XPBar() {
                         <p className="text-xs text-gray-400 font-medium">Total XP</p>
                         <p className="text-sm font-bold text-primary-light">{(xpActual || 0).toLocaleString()}</p>
                     </div>
-                </div>
-            </div>
-            
-            <div className="relative">
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                    <span>XP</span>
-                    <span>{xpEnNivelActual} / {xpParaSiguiente}</span>
-                </div>
-                <div className="h-2 bg-black/50 rounded-full overflow-hidden">
-                    <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${percentage}%` }}
-                        transition={{ duration: 1, ease: 'easeOut' }}
-                        className="h-full bg-linear-to-r from-primary to-yellow-500 rounded-full shadow-[0_0_10px_rgba(255,107,0,0.5)]"
-                    />
                 </div>
             </div>
         </div>

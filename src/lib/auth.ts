@@ -304,7 +304,7 @@ export function getCsrfToken(): string {
       token = Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('');
       sessionStorage.setItem(CSRF_KEY, token);
       // Sincronizar con cookie para que el server la lea
-      document.cookie = `__Host-xsrf-token=${token}; path=/; SameSite=Strict; Secure${location.protocol === 'https:' ? '' : ''}`;
+      document.cookie = `__Host-xsrf-token=${token}; path=/; SameSite=Strict${location.protocol === 'https:' ? '; Secure' : ''}`;
     }
     return token;
   } catch {

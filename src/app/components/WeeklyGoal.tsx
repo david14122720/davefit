@@ -1,19 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { insforge } from '../../lib/insforge';
 import { getWeeklyWorkoutCount } from '../../lib/stats';
 import { useAuth } from '../context/AuthContext';
+import { useCelebration } from '../hooks/useCelebration';
 import { Target, Trophy, CheckCircle2 } from 'lucide-react';
-import confetti from 'canvas-confetti';
-
-interface Perfil {
-    id: string;
-    user_id: string;
-    dias_entrenamiento_semana: number | null;
-}
 
 export default function WeeklyGoal() {
     const { user, perfil } = useAuth();
+    const { celebrateAchievement } = useCelebration();
     const [weeklyCount, setWeeklyCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const hasCelebratedRef = useRef(false);
@@ -37,12 +31,7 @@ export default function WeeklyGoal() {
                     const sessionKey = `meta_semanal_${user.id}_${new Date().toISOString().slice(0, 7)}`;
                     if (!sessionStorage.getItem(sessionKey)) {
                         setTimeout(() => {
-                            confetti({
-                                particleCount: 100,
-                                spread: 70,
-                                origin: { y: 0.6 },
-                                colors: ['#22c55e', '#10b981', '#f97316']
-                            });
+                            celebrateAchievement();
                             sessionStorage.setItem(sessionKey, 'true');
                         }, 1000);
                     }
@@ -104,25 +93,6 @@ export default function WeeklyGoal() {
                         <span>¡Hecho!</span>
                     </div>
                 )}
-            </div>
-
-            <div className="relative">
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                    <span>Progreso</span>
-                    <span>{Math.round(progreso)}%</span>
-                </div>
-                <div className="h-3 bg-black/50 rounded-full overflow-hidden">
-                    <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progreso}%` }}
-                        transition={{ duration: 0.8, ease: 'easeOut' }}
-                        className={`h-full rounded-full ${
-                            metaAlcanzada
-                                ? 'bg-linear-to-r from-primary to-primary-dark shadow-[0_0_15px_rgba(255,107,0,0.5)]'
-                                : 'bg-linear-to-r from-blue-500 to-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]'
-                        }`}
-                    />
-                </div>
             </div>
 
             {metaAlcanzada && (

@@ -2,6 +2,8 @@
 // Tipos compartidos del dominio DaveFit
 // ============================================================
 
+import type React from 'react';
+
 // ---- Perfil de usuario ----
 
 export interface Perfil {
@@ -182,6 +184,58 @@ export interface ApiResponse<T> {
 export interface ApiSuccess {
   success: boolean;
   error?: string;
+}
+
+// ---- Admin / CRUD ----
+
+export type FormFieldType = 'text' | 'number' | 'select' | 'textarea' | 'file' | 'toggle';
+
+export type AdminFormData = Record<string, string | number | boolean>;
+
+export interface FormField {
+    label: string;
+    name: string;
+    type: FormFieldType;
+    options?: { value: string; label: string }[];
+    required?: boolean;
+    placeholder?: string;
+}
+
+export interface AdminCrudTableProps<T> {
+    /** Array of items to display */
+    data: T[];
+    /** Optional table column headings (desktop table mode) */
+    columns?: string[];
+    /** Render prop for each row/card */
+    renderRow: (item: T) => React.ReactNode;
+    /** Extracts unique key from each item */
+    keyExtractor: (item: T) => string;
+    /** Page title (displayed in header) */
+    title: string;
+    /** Total unfiltered item count (shown in subtitle) */
+    itemCount: number;
+    /** Loading state */
+    loading: boolean;
+    /** Current search text */
+    search: string;
+    /** Search input change handler */
+    onSearchChange: (value: string) => void;
+    /** Placeholder text for search input */
+    searchPlaceholder?: string;
+    /** Accent color class (e.g. 'blue', 'purple') */
+    accentColor?: string;
+    /** Emoji shown in empty state */
+    emptyIcon?: string;
+    /** Message shown in empty state */
+    emptyMessage?: string;
+    /** Label for the empty state CTA button */
+    emptyActionLabel?: string;
+    /** Click handler for empty state CTA */
+    onEmptyAction?: () => void;
+    /** Label for the "new item" button */
+    newButtonLabel?: string;
+    /** Click handler for "new item" button */
+    onNewClick?: () => void;
 }
 
 // ---- Filtros y paginación ----

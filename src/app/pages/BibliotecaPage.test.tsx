@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { describe, it, vi, expect, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { insforge } from '../../lib/insforge';
@@ -184,6 +184,8 @@ describe('BibliotecaPage', () => {
       expect(screen.getByText('Momento de Mentalidad')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Comenzar')).toBeInTheDocument();
+    // El widget se muestra sin botón "Comenzar" (solo título + frase aleatoria)
+    const mentalidad = screen.getByText('Momento de Mentalidad').closest('div')!;
+    expect(within(mentalidad).queryByText('Comenzar')).not.toBeInTheDocument();
   });
 });

@@ -1,6 +1,14 @@
 import type { APIRoute } from 'astro';
 import { insforge } from '../../lib/insforge';
-import DOMPurify from 'dompurify';
+
+/** Sanitización simple para servidor — elimina etiquetas HTML/atributos */
+function sanitizeText(input: string): string {
+  return input
+    .replace(/[<>]/g, '')       // elimina < y >
+    .replace(/&/g, '&amp;')      // escapa &
+    .replace(/"/g, '&quot;')     // escapa "
+    .replace(/'/g, '&#x27;');    // escapa '
+}
 
 const RATE_LIMIT_MS = 60000;
 
@@ -110,7 +118,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
             });
         }
 
-        const cleanMessage = DOMPurify.sanitize(message.trim(), { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+        const cleanMessage = sanitizeText(message.trim());
 
         const ratingValue = typeof rating === 'number' ? Math.min(5, Math.max(0, rating)) : 0;
 

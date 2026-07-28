@@ -10,7 +10,8 @@ import {
     Plus,
     ArrowRight
 } from 'lucide-react';
-import adminApi from '../lib/adminApi';
+import { useAuth } from '../context/AuthContext';
+import { getStats } from '../lib/adminStatsApi';
 
 const statCards = [
     { 
@@ -51,6 +52,7 @@ const colorClasses: Record<string, { bg: string; border: string; text: string; i
 };
 
 export default function AdminPage() {
+    const { accessToken } = useAuth();
     const [stats, setStats] = useState({
         ejercicios: 0,
         rutinas: 0,
@@ -60,9 +62,10 @@ export default function AdminPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!accessToken) return;
         const load = async () => {
             try {
-                const data = await adminApi.getStats();
+                const data = await getStats(accessToken);
                 setStats(data);
             } catch (err) {
                 console.error('[Admin] Error loading stats:', err);
@@ -71,7 +74,7 @@ export default function AdminPage() {
             }
         };
         load();
-    }, []);
+    }, [accessToken]);
 
     return (
         <div className="max-w-6xl mx-auto">

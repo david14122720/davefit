@@ -1,6 +1,12 @@
 import { invokeRpc } from './insforge';
 import type { XpCalculation } from '../types';
 
+/** Cálculo vacío por defecto para evitar repetir el mismo objeto inline */
+const EMPTY_CALCULATION: XpCalculation = {
+  xp_ganado: 0, nivel_anterior: 1, nivel_nuevo: 1,
+  subio_nivel: false, xp_para_siguiente_nivel: 100, xp_en_nivel_actual: 0,
+};
+
 /**
  * Calcula calorías estimadas quemadas
  * @param duracionMinutos 
@@ -39,7 +45,7 @@ export async function processWorkoutCompletion(
             console.error('[Gamification] Error en RPC:', error);
             return { 
                 success: false, 
-                calculation: { xp_ganado: 0, nivel_anterior: 1, nivel_nuevo: 1, subio_nivel: false, xp_para_siguiente_nivel: 100, xp_en_nivel_actual: 0 }, 
+                calculation: EMPTY_CALCULATION, 
                 error: error.message 
             };
         }
@@ -62,7 +68,7 @@ export async function processWorkoutCompletion(
         console.error('[Gamification] Exception procesando RPC:', e);
         return { 
             success: false, 
-            calculation: { xp_ganado: 0, nivel_anterior: 1, nivel_nuevo: 1, subio_nivel: false, xp_para_siguiente_nivel: 100, xp_en_nivel_actual: 0 }, 
+            calculation: EMPTY_CALCULATION, 
             error: e.message 
         };
     }

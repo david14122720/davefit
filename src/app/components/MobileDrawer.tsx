@@ -1,28 +1,19 @@
-import { Link, type Location } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, LogOut } from 'lucide-react';
+import { navLinks, extraNavItems } from '../lib/navLinks';
+import { useActivePath } from '../hooks/useActivePath';
 
 interface MobileDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  location: Location;
   user: unknown;
   isAdmin: boolean;
   signOut: () => Promise<void>;
 }
 
-const navLinks = [
-  { path: '/biblioteca', label: 'Biblioteca', public: true },
-  { path: '/nutricion', label: 'Nutrición', public: true },
-  { path: '/acerca-de', label: 'Acerca de', public: true },
-  { path: '/comunidad', label: 'Comunidad', public: true },
-  { path: '/dashboard', label: 'Dashboard', public: false },
-];
-
-const extraItems = [{ path: '/perfil', label: 'Perfil' }];
-
-export default function MobileDrawer({ isOpen, onClose, location, user, isAdmin, signOut }: MobileDrawerProps) {
-  const isActive = (path: string) => location.pathname === path;
+export default function MobileDrawer({ isOpen, onClose, user, isAdmin, signOut }: MobileDrawerProps) {
+  const isActive = useActivePath();
 
   return (
     <AnimatePresence>
@@ -86,7 +77,7 @@ export default function MobileDrawer({ isOpen, onClose, location, user, isAdmin,
               {user && (
                 <>
                   <div className="border-t border-white/5 my-3" />
-                  {extraItems.map((item) => (
+                  {extraNavItems.map((item) => (
                     <Link
                       key={item.path}
                       to={item.path}

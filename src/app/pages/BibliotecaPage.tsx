@@ -320,10 +320,7 @@ export default function BibliotecaPage() {
                         <p className="text-on-surface-variant text-sm mt-1 italic leading-relaxed">
                             {randomQuote()}
                         </p>
-                        <button className="mt-3 inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-black font-bold rounded-lg text-sm hover:bg-primary-hover transition-all active:scale-95 shadow-lg shadow-primary/20">
-                            <Wind className="w-4 h-4" />
-                            Comenzar
-                        </button>
+                        
                     </div>
                 </div>
             </motion.div>

@@ -10,7 +10,8 @@ import {
     ChevronDown,
     Save
 } from 'lucide-react';
-import adminApi, { type Ejercicio } from '../lib/adminApi';
+import { useAuth } from '../context/AuthContext';
+import { getEjercicios, createEjercicio, updateEjercicio, deleteEjercicio, type Ejercicio } from '../lib/ejerciciosApi';
 import FileUpload from '../components/FileUpload';
 
 const grupoMuscularOptions = ['pecho', 'espalda', 'piernas', 'brazo', 'hombros', 'core', 'cardio', 'full_body'];
@@ -40,6 +41,7 @@ const initialFormData: FormData = {
 };
 
 export default function AdminEjerciciosPage() {
+    const { accessToken } = useAuth();
     const [ejercicios, setEjercicios] = useState<Ejercicio[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -49,8 +51,9 @@ export default function AdminEjerciciosPage() {
     const [saving, setSaving] = useState(false);
 
     const loadData = async () => {
+        if (!accessToken) return;
         try {
-            const data = await adminApi.getEjercicios();
+            const data = await getEjercicios(accessToken);
             setEjercicios(data);
         } catch (err) {
             console.error('[AdminEjercicios] Error loading:', err);
@@ -59,7 +62,7 @@ export default function AdminEjerciciosPage() {
         }
     };
 
-    useEffect(() => { loadData(); }, []);
+    useEffect(() => { loadData(); }, [accessToken]);
 
     const filteredEjercicios = useMemo(() => {
         if (!search) return ejercicios;
@@ -113,9 +116,9 @@ export default function AdminEjerciciosPage() {
             };
 
             if (editingId) {
-                await adminApi.updateEjercicio(editingId, data);
+                await updateEjercicio(accessToken!, editingId, data);
             } else {
-                await adminApi.createEjercicio(data);
+                await createEjercicio(accessToken!, data);
             }
             await loadData();
             handleCloseModal();
@@ -129,7 +132,7 @@ export default function AdminEjerciciosPage() {
     const handleDelete = async (id: string) => {
         if (!confirm('¿Estás seguro de eliminar este ejercicio?')) return;
         try {
-            await adminApi.deleteEjercicio(id);
+            await deleteEjercicio(accessToken!, id);
             setEjercicios(prev => prev.filter(e => e.id !== id));
         } catch (err: any) {
             alert('Error al eliminar: ' + err.message);

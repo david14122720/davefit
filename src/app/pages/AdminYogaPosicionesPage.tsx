@@ -11,8 +11,10 @@ import {
     Save,
     Sparkles
 } from 'lucide-react';
-import adminApi, { type YogaPosicion } from '../lib/adminApi';
+import { useAuth } from '../context/AuthContext';
+import { getYogaPosiciones, createYogaPosicion, updateYogaPosicion, deleteYogaPosicion, type YogaPosicion } from '../lib/yogaAdminApi';
 import FileUpload from '../components/FileUpload';
+import { nivelColors } from '../../constants/fitness';
 
 const nivelOptions = ['principiante', 'intermedio', 'avanzado'];
 
@@ -38,13 +40,8 @@ const initialFormData: FormData = {
     nivel: 'principiante',
 };
 
-const nivelColors: Record<string, string> = {
-    principiante: 'bg-green-500/10 text-green-400 border-green-500/20',
-    intermedio: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
-    avanzado: 'bg-red-500/10 text-red-400 border-red-500/20',
-};
-
 export default function AdminYogaPosicionesPage() {
+    const { accessToken } = useAuth();
     const [posiciones, setPosiciones] = useState<YogaPosicion[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -54,8 +51,9 @@ export default function AdminYogaPosicionesPage() {
     const [saving, setSaving] = useState(false);
 
     const loadData = async () => {
+        if (!accessToken) return;
         try {
-            const data = await adminApi.getYogaPosiciones();
+            const data = await getYogaPosiciones(accessToken);
             setPosiciones(data);
         } catch (err) {
             console.error('[AdminYogaPosiciones] Error loading:', err);
@@ -64,7 +62,7 @@ export default function AdminYogaPosicionesPage() {
         }
     };
 
-    useEffect(() => { loadData(); }, []);
+    useEffect(() => { loadData(); }, [accessToken]);
 
     const filteredPosiciones = useMemo(() => {
         if (!search) return posiciones;
@@ -118,9 +116,9 @@ export default function AdminYogaPosicionesPage() {
             };
 
             if (editingId) {
-                await adminApi.updateYogaPosicion(editingId, data);
+                await updateYogaPosicion(accessToken!, editingId, data);
             } else {
-                await adminApi.createYogaPosicion(data);
+                await createYogaPosicion(accessToken!, data);
             }
             await loadData();
             handleCloseModal();
@@ -134,7 +132,7 @@ export default function AdminYogaPosicionesPage() {
     const handleDelete = async (id: string) => {
         if (!confirm('¿Estás seguro de eliminar esta posición?')) return;
         try {
-            await adminApi.deleteYogaPosicion(id);
+            await deleteYogaPosicion(accessToken!, id);
             setPosiciones(prev => prev.filter(p => p.id !== id));
         } catch (err: any) {
             alert('Error al eliminar: ' + err.message);

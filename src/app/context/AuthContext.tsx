@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { insforge } from '../../lib/insforge';
+import type { Perfil } from '../../types';
 import {
   sanitizeAuthError,
   normalizeEmail,
@@ -20,26 +21,6 @@ interface User {
     name?: string;
     avatar_url?: string;
   } | null;
-  [key: string]: any;
-}
-
-export interface Perfil {
-  id: string;
-  email?: string | null;
-  nombre_completo?: string | null;
-  avatar_url?: string | null;
-  fecha_nacimiento?: string | null;
-  genero?: string | null;
-  peso_actual?: number | null;
-  altura?: number | null;
-  objetivo?: string | null;
-  nivel?: string | null;
-  preferencia_lugar?: string | null;
-  rol?: string | null;
-  dias_entrenamiento_semana?: number | null;
-  onboarding_completado?: boolean;
-  created_at?: string;
-  updated_at?: string;
 }
 
 interface AuthContextType {
