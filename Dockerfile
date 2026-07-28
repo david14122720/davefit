@@ -23,9 +23,11 @@ RUN apk add --no-cache nginx tini
 
 WORKDIR /app
 
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
-RUN npm ci --production --ignore-scripts && npm cache clean --force
+# Conservamos solo production deps del node_modules completo del builder
+RUN npm prune --production && npm cache clean --force
 
 COPY nginx.conf /etc/nginx/http.d/default.conf
 
