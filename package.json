@@ -21,6 +21,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.1.4",
     "canvas-confetti": "^1.9.4",
+    "es-module-lexer": "^2.3.1",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.577.0",
     "react": "^19.2.4",
