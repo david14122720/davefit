@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Dumbbell, Search, Menu } from 'lucide-react';
+import { Dumbbell, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import NavLinks from './NavLinks';
 import UserMenu from './UserMenu';
@@ -15,8 +15,6 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
   const { user, perfil, isAdmin, signOut } = useAuth();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const isBiblioteca = location.pathname === '/biblioteca';
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -38,23 +36,8 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
           <NavLinks user={user} />
         </div>
 
-        {/* Right: Search + Auth */}
+        {/* Right: Auth */}
         <div className="flex items-center gap-4 lg:gap-8">
-          {/* Search (only visible on /biblioteca) */}
-          {isBiblioteca && (
-            <div className="hidden sm:flex w-64 h-10">
-              <div className="flex w-full h-full items-center rounded-lg bg-white/5 overflow-hidden ring-1 ring-transparent focus-within:ring-primary transition-all">
-                <div className="flex items-center justify-center pl-3 pr-2 text-slate-400">
-                  <Search className="w-[20px] h-[20px]" />
-                </div>
-                <input
-                  className="w-full bg-transparent border-none text-sm font-normal text-white placeholder:text-slate-400 focus:ring-0 h-full py-0 outline-hidden"
-                  placeholder="Buscar rutinas..."
-                />
-              </div>
-            </div>
-          )}
-
           {/* Auth buttons or Avatar */}
           {user ? (
             <UserMenu user={user} perfil={perfil} isAdmin={isAdmin} signOut={signOut} />
