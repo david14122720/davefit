@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useYoga } from '../context/YogaContext';
 import { useAuth } from '../context/AuthContext';
 import { useCelebration } from '../hooks/useCelebration';
-import { processWorkoutCompletion, calcularCalorias } from '../../lib/gamification';
+import { processWorkoutCompletion } from '../../lib/gamification';
 import YogaTimer from '../components/YogaTimer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -58,7 +58,6 @@ export default function YogaPracticePage() {
 
   const totalPosiciones = session.rutina?.posiciones?.length || 0;
   const posicionActual = session.rutina?.posiciones?.[session.posicionIndex];
-  const siguientePosicion = session.rutina?.posiciones?.[session.posicionIndex + 1];
 
   const handleTimerComplete = useCallback(() => {
     setIsTimerRunning(false);
@@ -87,7 +86,7 @@ export default function YogaPracticePage() {
         });
       }
     }
-  }, [isResting, session.posicionIndex, totalPosiciones, session.rutina, nextPosition]);
+  }, [isResting, session.posicionIndex, totalPosiciones, session.rutina, nextPosition, handleFinalizar]);
 
   const handleSiguiente = useCallback(() => {
     setIsTimerRunning(false);
@@ -102,7 +101,7 @@ export default function YogaPracticePage() {
         setTiempoRestante(next.duracion_segundos ?? 30);
       }
     }
-  }, [session.posicionIndex, totalPosiciones, session.rutina, nextPosition]);
+  }, [session.posicionIndex, totalPosiciones, session.rutina, nextPosition, handleFinalizar]);
 
   const handleAnterior = useCallback(() => {
     setIsTimerRunning(false);

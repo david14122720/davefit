@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Clock, Timer, Flame } from 'lucide-react';
+import { Zap, Timer, Flame } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const timeOptions = [

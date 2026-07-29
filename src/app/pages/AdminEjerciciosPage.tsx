@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { 
     Search, 
@@ -50,7 +50,7 @@ export default function AdminEjerciciosPage() {
     const [formData, setFormData] = useState<FormData>(initialFormData);
     const [saving, setSaving] = useState(false);
 
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         if (!accessToken) return;
         try {
             const data = await getEjercicios(accessToken);
@@ -60,9 +60,9 @@ export default function AdminEjerciciosPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [accessToken]);
 
-    useEffect(() => { loadData(); }, [accessToken]);
+    useEffect(() => { loadData(); }, [loadData]);
 
     const filteredEjercicios = useMemo(() => {
         if (!search) return ejercicios;

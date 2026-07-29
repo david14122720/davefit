@@ -1,12 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-    Dumbbell, 
-    ListTodo, 
-    Sparkles, 
+import {
+    Dumbbell,
+    ListTodo,
+    Sparkles,
     LayoutGrid,
     ArrowLeft,
-    Settings,
     LogOut
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';

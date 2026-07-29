@@ -31,7 +31,7 @@ export function calcularCalorias(duracionMinutos: number, tipo: 'ejercicio' | 'y
 export async function processWorkoutCompletion(
     userId: string,
     duracionMinutos: number,
-    tipoRutina: 'ejercicio' | 'yoga' | 'meditacion'
+    _tipoRutina: 'ejercicio' | 'yoga' | 'meditacion'
 ): Promise<{ success: boolean; calculation: XpCalculation; error?: string }> {
     try {
         // En lugar de calcular el XP en el cliente (lo cual era una vulnerabilidad),
@@ -50,7 +50,7 @@ export async function processWorkoutCompletion(
             };
         }
 
-        console.log(`[Gamification] XP procesado de forma segura en servidor.`);
+        console.info(`[Gamification] XP procesado de forma segura en servidor.`);
         
         return { 
             success: true, 

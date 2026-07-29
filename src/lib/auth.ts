@@ -34,7 +34,7 @@ export function normalizeEmail(email: string): string {
     .trim()
     .toLowerCase()
     .replace(/[\u200B-\u200D\uFEFF]/g, '') // zero-width chars
-    .replace(/[^\w@.+\-]/g, ''); // solo caracteres válidos en email
+    .replace(/[^\w@.+-]/g, ''); // solo caracteres válidos en email
 }
 
 /**
@@ -65,7 +65,7 @@ export interface PasswordStrength {
   };
 }
 
-const SPECIAL_CHARS = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/;
+const SPECIAL_CHARS = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/;
 const UPPER_RE = /[A-Z]/;
 const LOWER_RE = /[a-z]/;
 const NUMBER_RE = /[0-9]/;

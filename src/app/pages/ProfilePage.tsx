@@ -2,16 +2,17 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { insforge } from '../../lib/insforge';
 import { queryWithRetry } from '../../lib/db';
-import { calcularBMR, calcularTDEE, calcularCaloriasObjetivo, calcularIMC, getCategoriaIMC } from '../../lib/nutrition';
+import { calcularBMR, calcularTDEE, calcularIMC, getCategoriaIMC } from '../../lib/nutrition';
 import { toast } from 'sonner';
 import { motion, type Variants, AnimatePresence } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, UploadCloud, Edit3, X, Zap, Flame, Check, Scale, Ruler, User as UserIcon, Calendar, Target, Sparkles } from 'lucide-react';
+import { Loader2, UploadCloud, Edit3, X, Zap, Flame, Scale, Ruler, User as UserIcon, Calendar, Target, Sparkles } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../../lib/cropImage';
 import { validateFile } from '../../lib/fileValidation';
+import type { Perfil } from '../../types';
 
 const profileSchema = z.object({
     nombre_completo: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -96,20 +97,18 @@ export default function ProfilePage() {
     const userName = perfil?.nombre_completo || user?.email?.split('@')[0] || 'Usuario';
     const avatarUrl = perfil?.avatar_url || null;
 
-    const { bmr, tdee, caloriasObjetivo, imc, categoriaIMC, edad } = useMemo(() => {
-        let calculations = { 
-            bmr: null as number | null, 
-            tdee: null as number | null, 
-            caloriasObjetivo: null as any, 
-            imc: null as any, 
-            categoriaIMC: '--', 
-            edad: null as number | null 
+    const { bmr, tdee, imc, categoriaIMC, edad } = useMemo(() => {
+        const calculations = {
+            bmr: null as number | null,
+            tdee: null as number | null,
+            imc: null as any,
+            categoriaIMC: '--',
+            edad: null as number | null
         };
         if (perfil) {
             try {
                 calculations.bmr = calcularBMR(perfil);
                 calculations.tdee = calcularTDEE(perfil);
-                calculations.caloriasObjetivo = calcularCaloriasObjetivo(perfil);
                 calculations.imc = calcularIMC(perfil.peso_actual ?? null, perfil.altura ?? null);
                 calculations.categoriaIMC = getCategoriaIMC(calculations.imc);
                 if (perfil.fecha_nacimiento) {
@@ -129,8 +128,6 @@ export default function ProfilePage() {
         return calculations;
     }, [perfil]);
 
-    const datosCompletos = useMemo(() => !!(perfil?.peso_actual && perfil?.altura && perfil?.fecha_nacimiento && perfil?.genero), [perfil]);
-
     const onSubmit = async (data: ProfileFormValues) => {
         const cleanedData = {
             ...data,
@@ -140,7 +137,7 @@ export default function ProfilePage() {
             dias_entrenamiento_semana: data.dias_entrenamiento_semana === '' ? null : data.dias_entrenamiento_semana,
         };
         
-        const promise = updatePerfil(cleanedData as Partial<import('../../types').Perfil>);
+        const promise = updatePerfil(cleanedData as Partial<Perfil>);
         
         toast.promise(promise, {
             loading: 'Guardando perfil...',

@@ -52,9 +52,8 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 async function handleRequest(method: HttpMethod, slug: string | undefined, request: Request): Promise<Response> {
   // 1. Verificar autenticación y rol admin
-  let admin: { userId: string; email: string };
   try {
-    admin = await verifyAdmin(request);
+    await verifyAdmin(request);
   } catch (err) {
     if (err instanceof AdminAuthError) {
       return jsonError(err.message, err.statusCode);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { insforge } from '../../lib/insforge';
 import { queryWithRetry, getById } from '../../lib/db';
@@ -6,11 +6,10 @@ import { processWorkoutCompletion, calcularCalorias } from '../../lib/gamificati
 import { useAuth } from '../context/AuthContext';
 import { useCelebration } from '../hooks/useCelebration';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
 import { 
-  ArrowLeft, ChevronLeft, ChevronRight, Home,
-  CheckCircle, Dumbbell, Volume2, VolumeX, Play, Pause,
-  Timer, Flame, Trophy, Star, Activity, Maximize2, Info
+  ArrowLeft, ChevronLeft, ChevronRight,
+  Dumbbell, Volume2, VolumeX, Play,
+  Timer, Trophy, Info
 } from 'lucide-react';
 
 interface Ejercicio {
@@ -100,7 +99,7 @@ export default function WorkoutPracticePage() {
           const ejerciciosMap = new Map(ejerciciosInfo?.map(e => [e.id, e]));
           setEjercicios(ejerciciosData.map(re => ({ ...re, ejercicio: ejerciciosMap.get(re.ejercicio_id) })));
         }
-      } catch (err) { setError('Error al cargar datos'); } finally { setLoading(false); }
+      } catch { setError('Error al cargar datos'); } finally { setLoading(false); }
     };
     loadRutina();
   }, [rutinaId]);
@@ -111,7 +110,7 @@ export default function WorkoutPracticePage() {
     if (!user || !rutinaId) return;
     const duracionReal = Math.max(1, Math.round((Date.now() - startTimeRef.current) / 1000 / 60));
     const baseCalorias = rutina?.calorias_estimadas || 0;
-    let caloriasQuemadas = baseCalorias > 0 ? Math.round(baseCalorias * Math.min(duracionReal / (rutina?.duracion_estimada || 30), 2)) : calcularCalorias(duracionReal, 'ejercicio');
+    const caloriasQuemadas = baseCalorias > 0 ? Math.round(baseCalorias * Math.min(duracionReal / (rutina?.duracion_estimada || 30), 2)) : calcularCalorias(duracionReal, 'ejercicio');
     try {
       await insforge.database.from('historial_entrenamientos').insert([{ usuario_id: user.id, rutina_id: rutinaId, duracion_real: duracionReal, calorias_quemadas: caloriasQuemadas, sensacion: 5 }]);
       localStorage.removeItem(`workout_start_${rutinaId}`);
@@ -132,7 +131,17 @@ export default function WorkoutPracticePage() {
 
   const handleAnterior = useCallback(() => { if (currentIndex > 0) { setCurrentIndex(prev => prev - 1); setIsPlaying(true); setShowInstructions(false); } }, [currentIndex]);
   const toggleMute = useCallback(() => { setIsMuted(!isMuted); if (videoRef.current) videoRef.current.muted = !isMuted; }, [isMuted]);
-  const togglePlayPause = useCallback(() => { setIsPlaying(!isPlaying); if (videoRef.current) isPlaying ? videoRef.current.pause() : videoRef.current.play(); }, [isPlaying]);
+  const togglePlayPause = useCallback(() => {
+    const next = !isPlaying;
+    setIsPlaying(next);
+    if (videoRef.current) {
+      if (next) {
+        videoRef.current.play();
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [isPlaying]);
 
   const currentEjercicio = ejercicios[currentIndex];
   const totalEjercicios = ejercicios.length;

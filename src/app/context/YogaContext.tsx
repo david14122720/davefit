@@ -319,6 +319,7 @@ export function YogaProvider({ children }: { children: React.ReactNode }) {
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useYoga() {
     const context = useContext(YogaContext);
     if (!context) {

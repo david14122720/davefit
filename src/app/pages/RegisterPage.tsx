@@ -28,7 +28,7 @@ const registerSchema = z
       .regex(/[A-Z]/, PASSWORD_REQUIREMENTS.message.upper)
       .regex(/[a-z]/, PASSWORD_REQUIREMENTS.message.lower)
       .regex(/[0-9]/, PASSWORD_REQUIREMENTS.message.number)
-      .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/, PASSWORD_REQUIREMENTS.message.special),
+      .regex(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/, PASSWORD_REQUIREMENTS.message.special),
     confirmPassword: z.string().min(1, 'Confirma tu contraseña'),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -112,7 +112,6 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [passwordValue, setPasswordValue] = useState('');
 
   // Inicializar token CSRF al montar (double-submit cookie)
   useEffect(() => { getCsrfToken(); }, []);

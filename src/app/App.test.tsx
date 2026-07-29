@@ -117,7 +117,20 @@ describe('App Routing', () => {
     expect(screen.queryByTestId('page-dashboard')).not.toBeInTheDocument();
   });
 
-  it('la ruta /rutinas/practicar/:id es accesible sin autenticación', async () => {
+  it('la ruta /rutinas/practicar/:id redirige a login sin autenticación', async () => {
+    renderAppAtRoute('/rutinas/practicar/123');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('page-login')).toBeInTheDocument();
+    });
+
+    // WorkoutPracticePage debe estar oculta
+    expect(screen.queryByTestId('page-workout-practice')).not.toBeInTheDocument();
+  });
+
+  it('la ruta /rutinas/practicar/:id renderiza WorkoutPracticePage con autenticación', async () => {
+    mockAuth.user = { id: '1', email: 'test@davefit.com' };
+
     renderAppAtRoute('/rutinas/practicar/123');
 
     await waitFor(() => {
@@ -125,6 +138,28 @@ describe('App Routing', () => {
     });
 
     expect(screen.getByText('Workout Practice Page')).toBeInTheDocument();
+  });
+
+  it('la ruta /yoga/practicar/:id redirige a login sin autenticación', async () => {
+    renderAppAtRoute('/yoga/practicar/123');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('page-login')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId('page-yoga-practice')).not.toBeInTheDocument();
+  });
+
+  it('la ruta /yoga/practicar/:id renderiza YogaPracticePage con autenticación', async () => {
+    mockAuth.user = { id: '1', email: 'test@davefit.com' };
+
+    renderAppAtRoute('/yoga/practicar/123');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('page-yoga-practice')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('Yoga Practice Page')).toBeInTheDocument();
   });
 
   // --- Task 3.4: /perfil renders ProfilePage (not redirect), /nutricion renders NutritionPage ---

@@ -4,10 +4,7 @@ import {
     Dumbbell, 
     ListTodo, 
     Sparkles, 
-    TrendingUp,
-    Users,
     Calendar,
-    Plus,
     ArrowRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';

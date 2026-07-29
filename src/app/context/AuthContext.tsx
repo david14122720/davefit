@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { insforge } from '../../lib/insforge';
+import { insforge, readAccessToken, type InsforgeClient } from '../../lib/insforge';
 import type { Perfil } from '../../types';
 import {
   sanitizeAuthError,
@@ -116,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Cierre de sesión (definido antes de los efectos que lo usan)
   // ------------------------------------------------------------------
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       await insforge.auth.signOut();
     } catch {
@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
     if (inactivityTimerRef.current) clearInterval(inactivityTimerRef.current);
     window.location.href = '/';
-  };
+  }, []);
 
   // ------------------------------------------------------------------
   // Actividad y session timeout
@@ -152,7 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     inactivityTimerRef.current = setInterval(() => {
       const inactive = Date.now() - lastActivityRef.current;
       if (inactive > SESSION_TIMEOUT_MS) {
-        console.log('[Auth] Sesión expirada por inactividad');
+        console.warn('[Auth] Sesión expirada por inactividad');
         signOut();
       }
     }, 60_000); // cada minuto
@@ -160,7 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       if (inactivityTimerRef.current) clearInterval(inactivityTimerRef.current);
     };
-  }, [user]);
+  }, [user, signOut]);
 
   // ------------------------------------------------------------------
   // Refresh token periódico
@@ -179,7 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const session = (data as any)?.session;
         if (session?.access_token) {
           setAccessToken(session.access_token);
-          console.log('[Auth] Token refrescado correctamente');
+          console.info('[Auth] Token refrescado correctamente');
         }
       } catch (e: any) {
         console.warn('[Auth] Excepción refreshing token:', e.message);
@@ -209,14 +209,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         // --- Intentar restaurar sesión existente (vía cookie httpOnly) ---
         if (hasSessionCookie()) {
-          const { data: userData, error } = await (insforge.auth as any).getCurrentUser?.();
+          const client = insforge as InsforgeClient;
+          const getCurrentUser = client.auth.getCurrentUser;
+
+          // getCurrentUser puede no existir en builds antiguos del SDK;
+          // si no existe, lo tratamos como "no hay sesión" silenciosamente.
+          if (typeof getCurrentUser !== 'function') {
+            return;
+          }
+
+          const { data: userData, error } = await getCurrentUser.call(client.auth);
 
           if (userData?.user && !error) {
-            const token =
-              (insforge as any)._tokenManager?.accessToken ||
-              (insforge as any).tokenManager?.accessToken ||
-              (insforge as any).accessToken ||
-              null;
+            const token = readAccessToken(client);
 
             if (token && mounted) {
               setUser(userData.user);
@@ -235,12 +240,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (tokenFromUrl) {
             try {
               const { createClient } = await import('@insforge/sdk');
+              const currentClient = insforge as InsforgeClient;
               const tempClient = createClient({
-                baseUrl: (insforge as any).baseUrl || import.meta.env.PUBLIC_INSFORGE_URL,
-                anonKey: (insforge as any).anonKey || import.meta.env.PUBLIC_INSFORGE_ANON_KEY,
+                baseUrl: currentClient.baseUrl || import.meta.env.PUBLIC_INSFORGE_URL,
+                anonKey: currentClient.anonKey || import.meta.env.PUBLIC_INSFORGE_ANON_KEY,
                 headers: { Authorization: `Bearer ${tokenFromUrl}` },
               });
-              const { data: userRes } = await (tempClient.auth as any).getCurrentUser();
+              const getCurrentUser = (tempClient.auth as InsforgeClient['auth']).getCurrentUser;
+              if (typeof getCurrentUser !== 'function') {
+                return;
+              }
+              const { data: userRes } = await getCurrentUser.call(tempClient.auth);
               if (userRes?.user && mounted) {
                 setUser(userRes.user);
                 setAccessToken(tokenFromUrl);
@@ -272,7 +282,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // signIn con rate-limit y errores sanitizados
   // ------------------------------------------------------------------
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     const normalizedEmail = normalizeEmail(email);
 
     // Rate-limit client-side
@@ -306,13 +316,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (e: any) {
       return { error: sanitizeAuthError(e) };
     }
-  };
+  }, [loadPerfil, updateActivity]);
 
   // ------------------------------------------------------------------
   // signUp con sanitización
   // ------------------------------------------------------------------
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = useCallback(async (email: string, password: string, name: string) => {
     const normalizedEmail = normalizeEmail(email);
     const sanitizedName = sanitizeName(name);
 
@@ -357,35 +367,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (e: any) {
       return { error: sanitizeAuthError(e) };
     }
-  };
+  }, [loadPerfil, updateActivity]);
 
   // ------------------------------------------------------------------
   // OAuth
   // ------------------------------------------------------------------
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
     updateActivity();
     await insforge.auth.signInWithOAuth({
       provider: 'google',
       redirectTo: window.location.origin + '/dashboard',
     });
-  };
+  }, [updateActivity]);
 
   // ------------------------------------------------------------------
   // refreshPerfil
   // ------------------------------------------------------------------
 
-  const refreshPerfil = async () => {
+  const refreshPerfil = useCallback(async () => {
     if (user && accessToken) {
       await loadPerfil(user.id, accessToken);
     }
-  };
+  }, [user, accessToken, loadPerfil]);
 
   // ------------------------------------------------------------------
   // updatePerfil con allowlist (protección mass-assignment)
   // ------------------------------------------------------------------
 
-  const updatePerfil = async (data: Partial<Perfil>) => {
+  const updatePerfil = useCallback(async (data: Partial<Perfil>) => {
     if (!user || !accessToken) return { error: 'No autenticado' };
 
     try {
@@ -407,7 +417,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (e: any) {
       return { error: e.message };
     }
-  };
+  }, [user, accessToken, loadPerfil]);
 
   // ------------------------------------------------------------------
   // Memoized context value
@@ -417,7 +427,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user, perfil, accessToken, loading, isAdmin,
     signIn, signUp, signInWithGoogle, signOut,
     refreshPerfil, updatePerfil,
-  }), [user, perfil, accessToken, loading, isAdmin]);
+  }), [
+    user, perfil, accessToken, loading, isAdmin,
+    signIn, signUp, signInWithGoogle, signOut,
+    refreshPerfil, updatePerfil,
+  ]);
 
   return (
     <AuthContext.Provider value={contextValue}>
@@ -426,6 +440,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {

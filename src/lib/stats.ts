@@ -1,5 +1,5 @@
 import { insforge } from './insforge';
-import type { UserStats, WorkoutCompletion } from '../types';
+import type { UserStats } from '../types';
 
 export async function recordWorkoutCompletion(
   userId: string,

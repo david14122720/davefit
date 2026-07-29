@@ -4,6 +4,7 @@
 
 import { createClient } from '@insforge/sdk';
 import { getCsrfHeader } from './auth';
+import type { InsforgeClient } from './insforge-types';
 
 const insforgeUrl = import.meta.env.PUBLIC_INSFORGE_URL;
 const insforgeAnonKey = import.meta.env.PUBLIC_INSFORGE_ANON_KEY;
@@ -26,11 +27,19 @@ if (!insforgeAnonKey) {
 /**
  * Cliente InsForge singleton para toda la aplicación.
  * El SDK maneja la persistencia de la sesión y los tokens automáticamente.
+ *
+ * El cast a `InsforgeClient` agrega tipos para campos no documentados
+ * (getCurrentUser, _tokenManager, baseUrl, anonKey). Ver
+ * `./insforge-types.ts` para detalles.
  */
 export const insforge = createClient({
   baseUrl: insforgeUrl,
   anonKey: insforgeAnonKey,
-});
+}) as unknown as InsforgeClient;
+
+// Re-export del tipo y helpers para consumidores.
+export type { InsforgeClient } from './insforge-types';
+export { getCurrentUserSafely, readAccessToken } from './insforge-types';
 
 // =================================================================
 // RPC invoker con seguridad

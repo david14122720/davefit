@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { 
     Search, 
@@ -52,7 +52,7 @@ export default function AdminYogaRutinasPage() {
     const [formData, setFormData] = useState<FormData>(initialFormData);
     const [saving, setSaving] = useState(false);
 
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         if (!accessToken) return;
         try {
             const data = await getYogaRutinas(accessToken);
@@ -62,9 +62,9 @@ export default function AdminYogaRutinasPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [accessToken]);
 
-    useEffect(() => { loadData(); }, [accessToken]);
+    useEffect(() => { loadData(); }, [loadData]);
 
     const filteredRutinas = useMemo(() => {
         if (!search) return rutinas;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Dumbbell, Award, Users, Star, ArrowRight, CheckCircle, Clock, UserCheck, Play } from 'lucide-react';
+import { Dumbbell, Users, Star, ArrowRight, CheckCircle, Clock, UserCheck, Play } from 'lucide-react';
 import { BenefitsGrid } from '../components/BenefitsCard';
 import SuggestionsSection from '../components/SuggestionsSection';
 import { Link } from 'react-router-dom';

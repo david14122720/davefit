@@ -90,9 +90,10 @@ const routes: RouteDef[] = [
   { path: '/rutinas', page: RoutinesPage, guard: 'auth', layout: 'public' },
   { path: '/yoga/posiciones', page: YogaPosicionesPage, guard: 'auth', layout: 'public' },
 
-  // Solo con layout (sin guard, las practice pages no necesitan auth por ahora)
-  { path: '/yoga/practicar/:rutinaId', page: YogaPracticePage },
-  { path: '/rutinas/practicar/:rutinaId', page: WorkoutPracticePage },
+  // Práctica (auth requerida: registra progreso en historial_ejercicios
+  // y persiste XP/gamificación con user_id del usuario autenticado)
+  { path: '/yoga/practicar/:rutinaId', page: YogaPracticePage, guard: 'auth', layout: 'public' },
+  { path: '/rutinas/practicar/:rutinaId', page: WorkoutPracticePage, guard: 'auth', layout: 'public' },
 
   // Admin (admin guard + admin layout)
   { path: '/admin', page: AdminPage, guard: 'admin', layout: 'admin' },

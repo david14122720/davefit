@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { 
     Search, 
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Reorder, motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { getRutinas, deleteRutina, saveRutinaConEjercicios, getRutinaEjercicios, type Rutina, type RutinaEjercicio } from '../lib/rutinasApi';
+import { getRutinas, deleteRutina, saveRutinaConEjercicios, getRutinaEjercicios, type Rutina } from '../lib/rutinasApi';
 import { getEjercicios, type Ejercicio } from '../lib/ejerciciosApi';
 import FileUpload from '../components/FileUpload';
 import { rutinaDisponibilidadOptions } from '../../constants/fitness';
@@ -68,7 +68,7 @@ export default function AdminRutinasPage() {
     const [saving, setSaving] = useState(false);
     const [ejerciciosSearch, setEjerciciosSearch] = useState('');
 
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         if (!accessToken) return;
         try {
             const [rutinasData, ejerciciosData] = await Promise.all([
@@ -82,9 +82,9 @@ export default function AdminRutinasPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [accessToken]);
 
-    useEffect(() => { loadData(); }, [accessToken]);
+    useEffect(() => { loadData(); }, [loadData]);
 
     const loadEjerciciosRutina = async (rutinaId: string) => {
         try {

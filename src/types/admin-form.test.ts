@@ -125,7 +125,7 @@ describe('AdminCrudTableProps', () => {
             itemCount: 1,
             loading: false,
             search: '',
-            onSearchChange: (v: string) => {},
+            onSearchChange: (_v: string) => {},
             accentColor: 'blue',
             emptyIcon: '📋',
             emptyMessage: 'No hay ejercicios',

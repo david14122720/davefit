@@ -13,7 +13,6 @@ export default function WeeklyGoal() {
     const hasCelebratedRef = useRef(false);
 
     const metaSemanal = perfil?.dias_entrenamiento_semana || 3;
-    const progreso = Math.min((weeklyCount / metaSemanal) * 100, 100);
     const metaAlcanzada = weeklyCount >= metaSemanal;
 
     useEffect(() => {
@@ -45,7 +44,7 @@ export default function WeeklyGoal() {
         };
 
         loadWeeklyCount();
-    }, [user, metaSemanal]);
+    }, [user, metaSemanal, celebrateAchievement]);
 
     if (loading) {
         return (

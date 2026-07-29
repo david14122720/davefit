@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { insforge } from '../../lib/insforge';
 import { queryWithRetry } from '../../lib/db';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, X, Clock, Target, BarChart3, Sparkles, ChevronRight, MonitorPlay, Search, SlidersHorizontal } from 'lucide-react';
+import { Play, X, Clock, Target, BarChart3, ChevronRight, MonitorPlay, Search, SlidersHorizontal } from 'lucide-react';
 
 interface Rutina {
     id: string;
