@@ -35,3 +35,6 @@ src/app/lib/adminApi.ts
 .agents/
 CLAUDE.md
 skills-lock.json
+
+# import-ejercicios output safeguard (default output is outside git)
+scripts/import-ejercicios/output/
