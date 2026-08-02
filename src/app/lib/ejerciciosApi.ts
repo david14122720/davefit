@@ -12,8 +12,9 @@ export interface Ejercicio {
     nombre: string;
     descripcion?: string;
     grupo_muscular: string;
-    nivel: string;
-    tipo_lugar: string;
+    musculo_objetivo?: string | null;
+    musculos_primarios?: string[] | null;
+    musculos_secundarios?: string[] | null;
     imagen_url: string;
     video_url?: string;
     instrucciones?: string[];

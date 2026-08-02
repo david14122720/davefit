@@ -7,6 +7,7 @@ export const grupoIcons: Record<string, string> = {
     core: '🔥',
     cardio: '🏃',
     full_body: '⚡',
+    cuello: '🦒',
 };
 
 export const nivelColors: Record<string, string> = {
@@ -14,8 +15,6 @@ export const nivelColors: Record<string, string> = {
     intermedio: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
     avanzado: 'bg-red-500/10 text-red-400 border-red-500/20',
 };
-
-export const tipoLugarOptions = ['gimnasio', 'casa', 'exterior', 'oficina'];
 
 export const rutinaDisponibilidadOptions = ['casa', 'gimnasio', 'ambos'];
 

@@ -54,20 +54,7 @@ export interface XpCalculation {
   xp_en_nivel_actual: number;
 }
 
-// ---- Rutinas y ejercicios ----
-
-export interface Ejercicio {
-  id: string;
-  nombre: string;
-  descripcion?: string | null;
-  grupo_muscular?: string | null;
-  nivel?: string | null;
-  tipo?: string | null;
-  imagen_url?: string | null;
-  animacion_url?: string | null;
-  created_at?: string;
-  updated_at?: string;
-}
+// ---- Rutinas ----
 
 export interface Rutina {
   id: string;
@@ -79,20 +66,6 @@ export interface Rutina {
   creado_por?: string | null;
   created_at?: string;
   updated_at?: string;
-}
-
-export interface RutinaEjercicio {
-  id: string;
-  rutina_id: string;
-  ejercicio_id: string;
-  orden: number;
-  repeticiones?: string | null;
-  descanso?: string | null;
-  ejercicio?: Ejercicio;
-}
-
-export interface RutinaConEjercicios extends Rutina {
-  rutina_ejercicios?: RutinaEjercicio[];
 }
 
 // ---- Yoga ----

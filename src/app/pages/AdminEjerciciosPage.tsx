@@ -14,16 +14,13 @@ import { useAuth } from '../context/AuthContext';
 import { getEjercicios, createEjercicio, updateEjercicio, deleteEjercicio, type Ejercicio } from '../lib/ejerciciosApi';
 import FileUpload from '../components/FileUpload';
 
-const grupoMuscularOptions = ['pecho', 'espalda', 'piernas', 'brazo', 'hombros', 'core', 'cardio', 'full_body'];
-const nivelOptions = ['principiante', 'intermedio', 'avanzado'];
-import { grupoIcons, nivelColors, tipoLugarOptions } from '../../constants/fitness';
+const grupoMuscularOptions = ['pecho', 'espalda', 'piernas', 'brazo', 'hombros', 'core', 'cardio', 'full_body', 'cuello'];
+import { grupoIcons } from '../../constants/fitness';
 
 interface FormData {
     nombre: string;
     descripcion: string;
     grupo_muscular: string;
-    nivel: string;
-    tipo_lugar: string;
     imagen_url: string;
     video_url: string;
     instrucciones: string;
@@ -33,8 +30,6 @@ const initialFormData: FormData = {
     nombre: '',
     descripcion: '',
     grupo_muscular: 'pecho',
-    nivel: 'principiante',
-    tipo_lugar: 'gimnasio',
     imagen_url: '',
     video_url: '',
     instrucciones: '',
@@ -69,8 +64,7 @@ export default function AdminEjerciciosPage() {
         const s = search.toLowerCase();
         return ejercicios.filter(e => 
             e.nombre.toLowerCase().includes(s) ||
-            e.grupo_muscular.toLowerCase().includes(s) ||
-            e.nivel.toLowerCase().includes(s)
+            e.grupo_muscular.toLowerCase().includes(s)
         );
     }, [ejercicios, search]);
 
@@ -81,8 +75,6 @@ export default function AdminEjerciciosPage() {
                 nombre: ejercicio.nombre,
                 descripcion: ejercicio.descripcion || '',
                 grupo_muscular: ejercicio.grupo_muscular,
-                nivel: ejercicio.nivel,
-                tipo_lugar: ejercicio.tipo_lugar,
                 imagen_url: ejercicio.imagen_url,
                 video_url: ejercicio.video_url || '',
                 instrucciones: ejercicio.instrucciones?.join('\n') || '',
@@ -108,8 +100,6 @@ export default function AdminEjerciciosPage() {
                 nombre: formData.nombre,
                 descripcion: formData.descripcion || undefined,
                 grupo_muscular: formData.grupo_muscular,
-                nivel: formData.nivel,
-                tipo_lugar: formData.tipo_lugar,
                 imagen_url: formData.imagen_url || 'https://placehold.co/400x300/1a1a1a/666666?text=Ejercicio',
                 video_url: formData.video_url || undefined,
                 instrucciones: formData.instrucciones ? formData.instrucciones.split('\n').filter(i => i.trim()) : undefined,
@@ -190,8 +180,6 @@ export default function AdminEjerciciosPage() {
                         <tr className="bg-[#0d0d0d]">
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ejercicio</th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Grupo</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Lugar</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nivel</th>
                             <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
@@ -216,14 +204,6 @@ export default function AdminEjerciciosPage() {
                                 <td className="px-6 py-4">
                                     <span className="px-3 py-1 bg-white/5 rounded-full text-xs text-gray-300 border border-white/5 capitalize">
                                         {e.grupo_muscular}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className="text-sm text-gray-400 capitalize">{e.tipo_lugar}</span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-medium border capitalize ${nivelColors[e.nivel] || nivelColors.principiante}`}>
-                                        {e.nivel}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-right">
@@ -265,10 +245,6 @@ export default function AdminEjerciciosPage() {
                             <p className="font-bold text-white truncate">{e.nombre}</p>
                             <div className="flex gap-2 mt-1 flex-wrap">
                                 <span className="text-xs text-gray-500 capitalize">{e.grupo_muscular}</span>
-                                <span className="text-xs text-gray-600">•</span>
-                                <span className={`text-xs capitalize ${e.nivel === 'principiante' ? 'text-green-400' : e.nivel === 'intermedio' ? 'text-yellow-400' : 'text-red-400'}`}>
-                                    {e.nivel}
-                                </span>
                             </div>
                         </div>
                         <div className="flex gap-1">
@@ -332,44 +308,16 @@ export default function AdminEjerciciosPage() {
                                     placeholder="Descripción breve"
                                 />
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-2">Grupo Muscular *</label>
-                                    <select
-                                        required
-                                        value={formData.grupo_muscular}
-                                        onChange={(e) => setFormData({ ...formData, grupo_muscular: e.target.value })}
-                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-primary/50"
-                                    >
-                                        {grupoMuscularOptions.map(g => (
-                                            <option key={g} value={g} className="capitalize">{g}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-2">Nivel *</label>
-                                    <select
-                                        required
-                                        value={formData.nivel}
-                                        onChange={(e) => setFormData({ ...formData, nivel: e.target.value })}
-                                        className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-primary/50"
-                                    >
-                                        {nivelOptions.map(n => (
-                                            <option key={n} value={n} className="capitalize">{n}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Tipo de Lugar *</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-2">Grupo Muscular *</label>
                                 <select
                                     required
-                                    value={formData.tipo_lugar}
-                                    onChange={(e) => setFormData({ ...formData, tipo_lugar: e.target.value })}
+                                    value={formData.grupo_muscular}
+                                    onChange={(e) => setFormData({ ...formData, grupo_muscular: e.target.value })}
                                     className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-primary/50"
                                 >
-                                    {tipoLugarOptions.map(t => (
-                                        <option key={t} value={t} className="capitalize">{t}</option>
+                                    {grupoMuscularOptions.map(g => (
+                                        <option key={g} value={g} className="capitalize">{g}</option>
                                     ))}
                                 </select>
                             </div>

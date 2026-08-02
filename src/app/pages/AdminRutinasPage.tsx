@@ -571,7 +571,7 @@ export default function AdminRutinasPage() {
                                         )}
                                         <div className="flex-1 text-left">
                                             <p className="text-white font-medium text-sm">{ejercicio.nombre}</p>
-                                            <p className="text-gray-500 text-xs capitalize">{ejercicio.grupo_muscular} • {ejercicio.nivel}</p>
+                                            <p className="text-gray-500 text-xs capitalize">{ejercicio.grupo_muscular}</p>
                                         </div>
                                         {isSelected ? (
                                             <Check className="w-5 h-5 text-blue-500" />
