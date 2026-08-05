@@ -90,3 +90,78 @@ categorías sin mapear, 0 términos sin traducir, 4 flags cirílicos,
 - Deploy o cambios de esquema
 - Corregir nombres cirílicos
 - Mapeo de `equipment` (la tabla `ejercicios` no tiene columna; se descarta y se anota en el report)
+
+---
+
+## Carga en producción (8 iteraciones)
+
+> Ejecutada en la fase **sdd-apply** (change `ejercicios-import-carga`). No es código del
+> repo: es un procedimiento operativo que consume los artefactos generados por este script.
+
+### Requisitos previos — schema (ALTER aprobado)
+
+La tabla `ejercicios` heredada tenía un CHECK `ejercicios_grupo_muscular_check` con vocabulario
+legacy (`brazos`/`abdomen`, sin `cuello`) que rechazaba 500 de 1.324 registros
+(37.8%: `brazo` 329 + `core` 169 + `cuello` 2). Se corrigió una sola vez (schema change
+aprobado por David):
+
+```sql
+ALTER TABLE ejercicios DROP CONSTRAINT ejercicios_grupo_muscular_check;
+ALTER TABLE ejercicios ADD CONSTRAINT ejercicios_grupo_muscular_check
+  CHECK (grupo_muscular IN ('pecho','espalda','piernas','brazo','hombros',
+         'core','cardio','full_body','cuello'));
+```
+
+Verificado con `SELECT pg_get_constraintdef(...)` → vocab de 9 grupos alineado con el
+spec `ejercicios-schema-dataset` R3 y el vocabulario que ya usa la app.
+
+### Pipeline (arrancado riguroso, idempotente)
+
+1. **Slices** por grupo: `/tmp/opencode/davefit-dataset/output/slices/<grupo>.json`
+   (8 files, conteos exactos del report).
+2. **CSV** (RFC4180 + campos comillas dobles; arrays `text[]` como literales
+   Postgres `{a,b}`; `null` → campo vacío): `/tmp/opencode/davefit-dataset/csv/<grupo>.csv`.
+3. **Carga** con `insforge_bulk-upsert` (tabla `ejercicios`, `upsertKey=nombre` —
+   `ON CONFLICT (nombre) DO UPDATE`); verificado **byte-exacto** por gate md5 del
+   canonical `json_build_array(...)::text` vs checksums locales generados fuera de banda
+   (probado: `astride jumps (male)` 1:1 y muestras por grupo).
+4. **Gates SQL** por grupo: `SELECT count(*)` → conteo acumulado del report;
+   `md5(json_build_array(...)::text)` de muestras (first/mid/last) + registros con
+   apóstrofes = checksum local. 0 mismatches.
+
+### Resultado (aplicado el 2026-08-02)
+
+| Grupo | Slice | DB | Gate md5 |
+|-------|------|-----|----------|
+| cuello | 2 | 2 | ✅ |
+| cardio | 29 | 29 | ✅ 29/29 |
+| hombros | 143 | 143 | ✅ muestras |
+| pecho | 163 | 163 | ✅ muestras |
+| core | 169 | 169 | ✅ muestras |
+| espalda | 203 | 203 | ✅ muestras |
+| piernas | 286 | 286 | ✅ muestras |
+| brazo | 329 | 329 | ✅ muestras |
+| **Total** | **1.324** | **1.324** | ✅ |
+
+Totales: `count(DISTINCT nombre)=1.324`, 0 filas con cirílico en nombre/descripción,
+trigger `update_site_stats` actualizó `site_stats.total_exercises=1.324`. Suite de
+unidad (14 files / 89 tests) en verde tras la carga.
+
+### Nombres cirílicos saneados (desviación aprobada de la capability `ejercicios-import` R6)
+
+En la carga se quitó el glifo cirílico U+0432 (`в`) de los 4 nombres de `report.flags_cirilicos`
+(desviación puntual del "se importan tal cual", aprobada por David; verificada sin
+colisiones contra los otros 1.320 nombres):
+
+| Original (dataset) | Cargado en BD |
+|--------------------|---------------|
+| `sled 45в° calf press` | `sled 45° calf press` |
+| `sled 45в° leg press` | `sled 45° leg press` |
+| `sled 45в° leg press (back pov)` | `sled 45° leg press (back pov)` |
+| `sled 45в° leg wide press` | `sled 45° leg wide press` |
+
+Verificado: `SELECT count(*) FROM ejercicios WHERE nombre LIKE '%в%';` → 0.
+
+> ⚠️ El generador de SQL manual (`fallback-<grupo>.sql`) se descartó por riesgo de
+> derives en transcripción; el CSV genera los mismos literales exactamente. Si se
+> re-corre, hacerlo con el CSV (idempotente por upsert).

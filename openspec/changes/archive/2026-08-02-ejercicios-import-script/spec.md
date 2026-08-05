@@ -11,8 +11,10 @@ Deterministic dataset→`ejercicios` transform contract for a zero-dependency No
 - Executing inserts (run + probe → execution iteration)
 - Media upload or `imagen_url` swap to InsForge storage
 - Deploy; schema changes (13 columns fixed)
-- Correcting the 5 Cyrillic-corrupted names (flagged only)
+- Correcting the 4 Cyrillic-corrupted names (flagged only)
 - `equipment` mapping (no schema column — dropped by design)
+
+> **Verified deviation (2026-08-02, per verify W1 and byte-level scan `[\u0400-\u04FF]`)**: the real dataset contains **4** names with Cyrillic U+0432 `в` (`sled 45в° calf press`, `sled 45в° leg press`, `sled 45в° leg press (back pov)`, `sled 45в° leg wide press`), not 5. The other two degree-marked names (`45° side bend`, `sled 45° leg press (side pov)`) use U+00B0 degree sign — not Cyrillic. The script reports the dataset reality (4 flags) and never corrects names (R6).
 - UI, API, or product code
 
 ## Requirements
@@ -96,7 +98,7 @@ The script MUST validate 1,324 records; NOT NULL coverage (`nombre`, `grupo_musc
 #### Scenario: Report on real dataset
 
 - GIVEN the full dataset with all 50 terms translated and 10 categories mapped
-- THEN the report shows 1,324 records, 0 unmapped, 0 untranslated, 6 renames, 5 Cyrillic flags, per-category counts
+- THEN the report shows 1,324 records, 0 unmapped, 0 untranslated, 6 renames, 4 Cyrillic flags (verified dataset count — see deviation note above), per-category counts
 
 #### Scenario: Untranslated term WARN
 

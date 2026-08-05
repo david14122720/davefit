@@ -102,7 +102,7 @@ node scripts/import-ejercicios/import-ejercicios.mjs [--dataset <path>] [--outpu
   "unmapped_categories": 0,
   "untranslated_terms": 0,
   "renames_count": 6,
-  "cyrillic_flags": 5,
+  "cyrillic_flags": 4,
   "nota_equipment": "campo equipment descartado: la tabla ejercicios no tiene columna",
   "attribution": "© Gym visual — https://gymvisual.com/",
   "exit_code": 0
@@ -193,13 +193,13 @@ Synonym clusters normalized to one canonical ES term: abs/abdominals/lower abs�
 
 ## Cyrillic Handling
 
-Names containing `в` (5 × `sled 45в° …`) are imported as-is, listed in `report.json.flags_cirilicos`, never modified (D9, R6 scenario). `45° side bend` is valid UTF-8 (degree sign) — not a Cyrillic flag.
+Names containing `в` (U+0432) are imported as-is, listed in `report.json.flags_cirilicos`, never modified (D9, R6 scenario). **Verified deviation (2026-08-02, byte-level scan `[\u0400-\u04FF]`)**: the real dataset has exactly **4** such names (`sled 45в° calf press`, `sled 45в° leg press`, `sled 45в° leg press (back pov)`, `sled 45в° leg wide press`) — the report emits `cyrillic_flags: 4`. `45° side bend` and `sled 45° leg press (side pov)` use U+00B0 degree sign — valid UTF-8, NOT Cyrillic, never flagged. The script reports the dataset reality and never corrects names.
 
 ## Testing Strategy
 
 | Layer | What to Test | Approach |
 |-------|-------------|----------|
-| Golden run | Full pipeline on real dataset | `node scripts/import-ejercicios/import-ejercicios.mjs` → assert report: `total:1324`, `renombres:6`, `flags_cirilicos:5`, `terminos_sin_traducir:[]`, `categorias_desconocidas:[]`, `checks_not_null` all 1324; payload has 1324 objects each with exactly 10 keys; manifest has 1,324 entries |
+| Golden run | Full pipeline on real dataset | `node scripts/import-ejercicios/import-ejercicios.mjs` → assert report: `total:1324`, `renombres:6`, `flags_cirilicos:4`, `terminos_sin_traducir:[]`, `categorias_desconocidas:[]`, `checks_not_null` all 1324; payload has 1324 objects each with exactly 10 keys; manifest has 1,324 entries |
 | Determinism | R7 byte-identity | Run twice; `diff -r` both output dirs → no differences; also `sha256sum` per file |
 | Exit codes | R1 structural failures | Missing dataset path → exit 1 + error names path; truncated/invalid JSON file → exit 1; WARN-only run → exit 0 |
 | Translation coverage | Dictionary vs dataset | Report's `terminos_sin_traducir` empty proves 50/50 coverage (script self-reports) |

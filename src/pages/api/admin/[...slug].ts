@@ -65,11 +65,14 @@ async function handleRequest(method: HttpMethod, slug: string | undefined, reque
   const body = method !== 'GET' ? await request.json().catch(() => ({})) : undefined;
 
   // Crear cliente autenticado para operaciones DB
+  // edgeFunctionToken propaga el JWT del usuario a http.userToken Y tokenManager,
+  // de modo que las queries viajan como el usuario autenticado (RLS) y no como anonKey.
   const token = request.headers.get('Authorization')?.replace('Bearer ', '') || '';
   const db = createClient({
     baseUrl: INSFORGE_URL,
     anonKey: INSFORGE_ANON_KEY,
-    headers: { Authorization: `Bearer ${token}` },
+    edgeFunctionToken: token,
+    isServerMode: true,
   }).database;
 
   try {
@@ -117,7 +120,8 @@ async function handleRequest(method: HttpMethod, slug: string | undefined, reque
             const storage = createClient({
               baseUrl: INSFORGE_URL,
               anonKey: INSFORGE_ANON_KEY,
-              headers: { Authorization: `Bearer ${token}` },
+              edgeFunctionToken: token,
+              isServerMode: true,
             }).storage;
 
             const deleteFile = async (url: string | undefined) => {

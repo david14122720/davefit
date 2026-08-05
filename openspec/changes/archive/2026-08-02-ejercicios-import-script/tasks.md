@@ -41,7 +41,7 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Verification (Golden-Run, no vitest — D8)
 
-- [x] T8 Golden run — `node scripts/import-ejercicios/import-ejercicios.mjs` on real dataset; assert report `total:1324`, `renombres:6`, `flags_cirilicos:5`, `terminos_sin_traducir:[]`, `categorias_desconocidas:[]`, `checks_not_null` all 1324, `exit_code:0` (R6 scenario).
+- [x] T8 Golden run — `node scripts/import-ejercicios/import-ejercicios.mjs` on real dataset; assert report `total:1324`, `renombres:6`, `flags_cirilicos:4` (verified dataset count — byte-level scan `[\u0400-\u04FF]` found 4 names with Cyrillic U+0432 `в`, not 5; `45° side bend` / `sled 45° leg press (side pov)` use U+00B0 degree sign, not Cyrillic), `terminos_sin_traducir:[]`, `categorias_desconocidas:[]`, `checks_not_null` all 1324, `exit_code:0` (R6 scenario).
 - [x] T9 Shape + determinism — payload: 1324 objects, each exactly the 10 keys (R5); manifest: 1324 entries × 5 keys; run twice into separate dirs → `diff -r` empty + identical `sha256sum` per file (R7 byte-identity).
 - [x] T10 Exit-code matrix (R1) — missing dataset path → exit 1 naming path; truncated/invalid JSON → exit 1; WARN-only run → exit 0.
 

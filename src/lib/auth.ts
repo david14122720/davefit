@@ -303,8 +303,15 @@ export function getCsrfToken(): string {
       crypto.getRandomValues(array);
       token = Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('');
       sessionStorage.setItem(CSRF_KEY, token);
-      // Sincronizar con cookie para que el server la lea
-      document.cookie = `__Host-xsrf-token=${token}; path=/; SameSite=Strict${location.protocol === 'https:' ? '; Secure' : ''}`;
+    }
+    // Sincronizar con cookie para que el server la lea (siempre, no solo al
+    // crear el token: cubre pestañas con token viejo y cookie rechazada).
+    // __Host- requiere Secure: en http (dev localhost) el navegador rechaza
+    // la cookie, así que ahí se usa el nombre simple xsrf-token.
+    if (location.protocol === 'https:') {
+      document.cookie = `__Host-xsrf-token=${token}; path=/; Secure; SameSite=Strict`;
+    } else {
+      document.cookie = `xsrf-token=${token}; path=/; SameSite=Strict`;
     }
     return token;
   } catch {

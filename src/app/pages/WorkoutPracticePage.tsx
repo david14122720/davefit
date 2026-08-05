@@ -199,7 +199,7 @@ export default function WorkoutPracticePage() {
             {currentEjercicio.ejercicio?.video_url ? (
                <video ref={videoRef} src={currentEjercicio.ejercicio.video_url} className="w-full h-full object-cover brightness-[0.8] group-hover:brightness-100 transition-all duration-700" autoPlay loop muted={isMuted} playsInline />
             ) : currentEjercicio.ejercicio?.imagen_url ? (
-               <img src={currentEjercicio.ejercicio.imagen_url} alt="" className="w-full h-full object-cover" />
+               <img src={currentEjercicio.ejercicio.imagen_url} alt="" className="w-full h-full object-contain bg-black" />
             ) : (
                <div className="w-full h-full flex flex-col items-center justify-center opacity-10 gap-4"><Dumbbell className="w-24 h-24"/><span className="font-black uppercase tracking-widest text-xs">Sin Visual</span></div>
             )}
@@ -219,9 +219,14 @@ export default function WorkoutPracticePage() {
                 <div className="flex items-center gap-3 mt-2">
                    <div className="px-3 py-1 bg-primary/20 border border-primary/30 rounded-lg text-[10px] font-black text-primary uppercase tracking-widest">{currentEjercicio.ejercicio?.grupo_muscular}</div>
                    <button onClick={() => setShowInstructions(true)} className="pointer-events-auto p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                      <Info className="w-4 h-4" />
-                   </button>
+                       <Info className="w-4 h-4" />
+                    </button>
                 </div>
+                {currentEjercicio.ejercicio?.descripcion ? (
+                    <p className="mt-3 text-xs sm:text-sm text-white/80 font-medium line-clamp-2 drop-shadow-lg">
+                        {currentEjercicio.ejercicio.descripcion}
+                    </p>
+                ) : null}
             </div>
             
             {/* Play Button Center (Always visible on mobile to prevent confusion) */}
@@ -294,6 +299,12 @@ export default function WorkoutPracticePage() {
                 <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-8" />
                 <h3 className="text-xs font-black text-primary uppercase tracking-[0.3em] mb-6">Guía de Operación</h3>
                 <h4 className="text-2xl font-black text-white mb-6 uppercase tracking-tight">{currentEjercicio.ejercicio?.nombre}</h4>
+                {currentEjercicio.ejercicio?.descripcion ? (
+                    <div className="mb-6">
+                        <h5 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-2">Descripción</h5>
+                        <p className="text-gray-400 text-sm leading-relaxed font-medium">{currentEjercicio.ejercicio.descripcion}</p>
+                    </div>
+                ) : null}
                 <div className="space-y-6">
                     {currentEjercicio.ejercicio?.instrucciones?.map((ins, i) => (
                       <div key={i} className="flex gap-4">

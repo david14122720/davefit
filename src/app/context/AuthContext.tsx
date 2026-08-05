@@ -8,6 +8,7 @@ import {
   checkRateLimit,
   recordFailedAttempt,
   clearRateLimit,
+  getCsrfToken,
 } from '../../lib/auth';
 
 // ------------------------------------------------------------------
@@ -133,6 +134,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ------------------------------------------------------------------
   // Actividad y session timeout
   // ------------------------------------------------------------------
+
+  // Asegurar cookie CSRF presente en cualquier página (no solo login/register)
+  useEffect(() => {
+    getCsrfToken();
+  }, []);
 
   const updateActivity = useCallback(() => {
     lastActivityRef.current = Date.now();

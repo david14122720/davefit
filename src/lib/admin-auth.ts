@@ -27,8 +27,8 @@ export interface VerifiedAdmin {
  * Verifica que el token JWT corresponda a un administrador válido.
  *
  * 1. Extrae el token del header Authorization
- * 2. Crea un cliente InsForge server-side con el token
- * 3. Verifica el JWT contra el backend (getCurrentSession)
+ * 2. Crea un cliente InsForge server-side con el token (edgeFunctionToken)
+ * 3. Verifica el JWT contra el backend (getCurrentUser)
  * 4. Consulta la tabla `perfiles` para confirmar rol === 'admin'
  *
  * @throws AdminAuthError si el token es inválido o el usuario no es admin
@@ -46,27 +46,29 @@ export async function verifyAdmin(
     throw new AdminAuthError('Token inválido', 401);
   }
 
-  // Crear cliente server-side — usa el token del usuario para autenticarse
+  // Crear cliente server-side — edgeFunctionToken propaga el JWT del usuario
+  // a http.userToken Y tokenManager (necesario para getCurrentUser y las queries DB)
   const serverClient = createClient({
     baseUrl: import.meta.env.PUBLIC_INSFORGE_URL,
     anonKey: import.meta.env.PUBLIC_INSFORGE_ANON_KEY,
-    headers: { Authorization: `Bearer ${token}` },
+    edgeFunctionToken: token,
+    isServerMode: true,
   });
 
   // Verificar el JWT contra el backend de InsForge
-  let session;
+  let user;
   try {
-    const { data, error } = await serverClient.auth.getCurrentSession();
-    if (error || !data?.session) {
+    const { data, error } = await serverClient.auth.getCurrentUser();
+    if (error || !data?.user) {
       throw new AdminAuthError('Sesión inválida o expirada', 401);
     }
-    session = data.session;
+    user = data.user;
   } catch (err) {
     if (err instanceof AdminAuthError) throw err;
     throw new AdminAuthError('Error verificando autenticación', 500);
   }
 
-  const userId = session.user?.id;
+  const userId = user?.id;
   if (!userId) {
     throw new AdminAuthError('Usuario no identificado', 401);
   }
@@ -93,6 +95,6 @@ export async function verifyAdmin(
 
   return {
     userId,
-    email: session.user?.email || '',
+    email: user?.email || '',
   };
 }

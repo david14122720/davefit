@@ -8,7 +8,7 @@ const CSP = [
   "script-src-elem 'self' 'unsafe-inline' https://accounts.google.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  `img-src 'self' data: blob: https://${INSFORGE_URL}`,
+  `img-src 'self' data: blob: https://${INSFORGE_URL} https://raw.githubusercontent.com`,
   "font-src 'self' https://fonts.gstatic.com",
   `connect-src 'self' https://${INSFORGE_URL}`,
   "frame-src https://accounts.google.com",
@@ -28,7 +28,9 @@ const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
  */
 function validateCsrf(request: Request): boolean {
   const cookie = request.headers.get('cookie') || '';
-  const match = cookie.match(/(?:^|;\s*)__Host-xsrf-token=([^;]+)/);
+  // Dev (http://localhost) no puede setear cookies __Host- (requieren Secure).
+  // Se aceptan ambos nombres: __Host-xsrf-token (prod) y xsrf-token (dev).
+  const match = cookie.match(/(?:^|;\s*)(?:__Host-)?xsrf-token=([^;]+)/);
   const cookieToken = match ? decodeURIComponent(match[1]) : null;
 
   const headerToken = request.headers.get('X-XSRF-TOKEN');
