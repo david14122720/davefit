@@ -73,6 +73,14 @@ class MockAudioContext {
 vi.mock('../lib/insforge', () => ({
   readAccessToken: vi.fn(() => null),
   insforge: {
+    storage: {
+      from: vi.fn(() => ({
+        upload: vi.fn().mockResolvedValue({ data: null, error: null }),
+        remove: vi.fn().mockResolvedValue({ data: null, error: null }),
+        download: vi.fn().mockResolvedValue({ data: null, error: null }),
+        getPublicUrl: vi.fn(() => ''),
+      })),
+    },
     auth: {
       getSession: vi.fn(() => Promise.resolve({ data: { session: null }, error: null })),
       onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),

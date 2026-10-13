@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { insforge } from '../../lib/insforge';
 import { queryWithRetry } from '../../lib/db';
+import { normalizeStorageUrl } from '../../lib/storage-url';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface LeaderboardUser {
@@ -21,9 +22,11 @@ const PODIUM_COLORS = {
 
 const Avatar = ({ src, name, size = 'md' }: { src?: string; name: string; size?: 'sm' | 'md' | 'lg' | 'xl' }) => {
   const sizeClasses = { sm: 'w-10 h-10 text-sm', md: 'w-14 h-14 text-base', lg: 'w-20 h-20 text-xl', xl: 'w-24 h-24 text-2xl' };
+  // Relativa same-origin: sana URLs absolutas viejas y evita el bloqueo CSP.
+  const normalized = normalizeStorageUrl(src);
   
-  if (src) {
-    return <img src={src} alt={name || 'Usuario'} className={`${sizeClasses[size]} rounded-full object-cover ring-2 ring-white/20`} />;
+  if (normalized) {
+    return <img src={normalized} alt={name || 'Usuario'} className={`${sizeClasses[size]} rounded-full object-cover ring-2 ring-white/20`} />;
   }
   
   return (

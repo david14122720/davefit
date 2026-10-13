@@ -3,6 +3,7 @@ import { Upload, X, Loader2, Image, Video } from 'lucide-react';
 import { toast } from 'sonner';
 import { insforge } from '../../lib/insforge';
 import { validateFile } from '../../lib/fileValidation';
+import { buildStorageUrl, normalizeStorageUrl } from '../../lib/storage-url';
 
 interface FileUploadProps {
     value: string;
@@ -46,15 +47,15 @@ export default function FileUpload({
                 ? new File([file], validation.safeName!, { type: validation.safeType })
                 : file;
 
-            const { data, error } = await insforge.storage.from(bucket).upload(path, safeFile);
+            const { error } = await insforge.storage.from(bucket).upload(path, safeFile);
             
             if (error) {
                 throw error;
             }
 
-            if (data?.url) {
-                onChange(data.url);
-            }
+            // URL relativa same-origin (la absoluta del backend la bloquea la
+            // CSP de la app). Ver src/lib/storage-url.ts.
+            onChange(buildStorageUrl(bucket, path));
         } catch (err: any) {
             console.error('[FileUpload] Error:', err);
             toast.error('Error al subir archivo: ' + err.message);
@@ -90,6 +91,7 @@ export default function FileUpload({
 
     const isImage = accept.includes('image') || !accept;
     const isVideo = accept.includes('video');
+    const displayUrl = normalizeStorageUrl(value);
 
     return (
         <div>
@@ -103,13 +105,13 @@ export default function FileUpload({
                 <div className="relative group rounded-xl overflow-hidden border border-white/10">
                     {isVideo || value.includes('.mp4') || value.includes('video') ? (
                         <video 
-                            src={value} 
+                            src={displayUrl ?? value} 
                             className="w-full h-40 object-cover" 
                             controls 
                         />
                     ) : (
                         <img 
-                            src={value} 
+                            src={displayUrl ?? value} 
                             alt="Preview" 
                             className="w-full h-40 object-cover" 
                         />

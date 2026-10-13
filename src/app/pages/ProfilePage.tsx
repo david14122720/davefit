@@ -12,6 +12,7 @@ import { Loader2, UploadCloud, Edit3, X, Zap, Flame, Scale, Ruler, User as UserI
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../../lib/cropImage';
 import { validateFile } from '../../lib/fileValidation';
+import { buildStorageUrl, normalizeStorageUrl, parseStorageObjectUrl } from '../../lib/storage-url';
 import type { Perfil } from '../../types';
 
 const profileSchema = z.object({
@@ -26,6 +27,9 @@ const profileSchema = z.object({
 });
 
 type ProfileFormValues = z.input<typeof profileSchema>;
+
+/** Tope defensivo para el blob ya recortado (500x500 JPEG ≈ 50 KB). */
+const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 
 export default function ProfilePage() {
     const { user, perfil, accessToken, updatePerfil, loading: authLoading } = useAuth();
@@ -96,7 +100,7 @@ export default function ProfilePage() {
     }, [perfil, reset]);
 
     const userName = perfil?.nombre_completo || user?.email?.split('@')[0] || 'Usuario';
-    const avatarUrl = perfil?.avatar_url || null;
+    const avatarUrl = normalizeStorageUrl(perfil?.avatar_url);
 
     const { bmr, tdee, imc, categoriaIMC, edad } = useMemo(() => {
         const calculations = {
@@ -174,17 +178,27 @@ export default function ProfilePage() {
         setImageSrc(null);
         try {
             const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
-            if (!croppedBlob) throw new Error("Error al procesar imagen");
+            if (!croppedBlob || croppedBlob.size === 0) throw new Error("Error al procesar imagen");
+            if (croppedBlob.type !== 'image/jpeg') throw new Error('Formato de imagen inesperado');
+            if (croppedBlob.size > MAX_AVATAR_BYTES) throw new Error('La imagen procesada es demasiado grande');
             const ext = 'jpeg';
             const path = `avatars/${user.id}-${Date.now()}.${ext}`;
             const file = new File([croppedBlob], `avatar.${ext}`, { type: 'image/jpeg' });
-            const { data, error } = await insforge.storage.from('avatares').upload(path, file);
+            const previousAvatar = perfil?.avatar_url || null;
+            const { error } = await insforge.storage.from('avatares').upload(path, file);
             if (error) throw error;
-            if (data?.url) {
-                const res = await updatePerfil({ avatar_url: data.url });
-                if (res.error) throw new Error(res.error);
-                toast.success('Imagen actualizada', { id: toastId });
+            // URL RELATIVA same-origin: la absoluta que devuelve el backend
+            // (insforge.dtesh.dev) la bloquea la CSP (img-src 'self') → la
+            // imagen subida no se veía. Ver src/lib/storage-url.ts.
+            const res = await updatePerfil({ avatar_url: buildStorageUrl('avatares', path) });
+            if (res.error) throw new Error(res.error);
+            // Limpieza best-effort del avatar anterior (si era de este bucket):
+            // antes quedaba accesible públicamente para siempre.
+            const previous = parseStorageObjectUrl(previousAvatar);
+            if (previous && previous.bucket === 'avatares') {
+                insforge.storage.from('avatares').remove(previous.key).catch(() => {});
             }
+            toast.success('Imagen actualizada', { id: toastId });
         } catch (err: any) {
             toast.error(`Error: ${err.message}`, { id: toastId });
         } finally {

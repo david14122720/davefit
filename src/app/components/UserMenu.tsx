@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
+import { normalizeStorageUrl } from '../../lib/storage-url';
 
 interface UserMenuProps {
   user: unknown;
@@ -24,7 +25,11 @@ export default function UserMenu({ user, perfil, isAdmin, signOut }: UserMenuPro
     (user as { email?: string })?.email?.split('@')[0] ||
     'Usuario';
 
-  const avatarUrl = perfil?.avatar_url || (user as { profile?: { avatar_url?: string } })?.profile?.avatar_url || null;
+  // Normalizada a la forma relativa same-origin: las URLs absolutas del
+  // backend quedaron viejas (dominios muertos) o bloqueadas por CSP.
+  const avatarUrl = normalizeStorageUrl(
+    perfil?.avatar_url || (user as { profile?: { avatar_url?: string } })?.profile?.avatar_url || null,
+  );
 
   // Close on outside click
   useEffect(() => {
