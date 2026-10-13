@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { getWeeklyWorkoutCount } from '../../lib/stats';
+import { getInicioSemana } from '../lib/dates';
 import { useAuth } from '../context/AuthContext';
 import { useCelebration } from '../hooks/useCelebration';
 import { Target, Trophy, CheckCircle2 } from 'lucide-react';
@@ -11,23 +12,28 @@ export default function WeeklyGoal() {
     const [weeklyCount, setWeeklyCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const hasCelebratedRef = useRef(false);
+    const userId = user?.id;
 
     const metaSemanal = perfil?.dias_entrenamiento_semana || 3;
     const metaAlcanzada = weeklyCount >= metaSemanal;
 
     useEffect(() => {
-        if (!user) {
+        if (!userId) {
             setLoading(false);
             return;
         }
 
         const loadWeeklyCount = async () => {
             try {
-                const count = await getWeeklyWorkoutCount(user.id);
+                const count = await getWeeklyWorkoutCount(userId);
                 setWeeklyCount(count);
 
                 if (count >= metaSemanal && !hasCelebratedRef.current) {
-                    const sessionKey = `meta_semanal_${user.id}_${new Date().toISOString().slice(0, 7)}`;
+                    // Clave semanal (lunes de la semana actual), no mensual: la
+                    // celebración es por meta semanal.
+                    const inicioSemana = getInicioSemana();
+                    const weekKey = `${inicioSemana.getFullYear()}-${String(inicioSemana.getMonth() + 1).padStart(2, '0')}-${String(inicioSemana.getDate()).padStart(2, '0')}`;
+                    const sessionKey = `meta_semanal_${userId}_${weekKey}`;
                     if (!sessionStorage.getItem(sessionKey)) {
                         setTimeout(() => {
                             celebrateAchievement();
@@ -44,7 +50,7 @@ export default function WeeklyGoal() {
         };
 
         loadWeeklyCount();
-    }, [user, metaSemanal, celebrateAchievement]);
+    }, [userId, metaSemanal, celebrateAchievement]);
 
     if (loading) {
         return (

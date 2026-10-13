@@ -24,6 +24,18 @@ class ResizeObserver {
 }
 window.ResizeObserver = ResizeObserver;
 
+// Mock IntersectionObserver (not available in jsdom; needed by framer-motion whileInView)
+class IntersectionObserver {
+  root = null;
+  rootMargin = '';
+  thresholds = [];
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() { return []; }
+}
+(window as any).IntersectionObserver = IntersectionObserver;
+
 // Mock scrollIntoView (not available in jsdom)
 Element.prototype.scrollIntoView = vi.fn();
 

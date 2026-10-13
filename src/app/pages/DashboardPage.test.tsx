@@ -24,12 +24,16 @@ vi.mock('../context/AuthContext', () => ({
   AuthProvider: ({ children }: any) => children,
 }));
 
-function mockDashboardChain(resolvedValue: any = { data: [], error: null, count: 0 }) {
+function mockDashboardChain(
+  resolvedValue: any = { data: [], error: null, count: 0 },
+  weekValue: any = resolvedValue
+) {
   const base: any = {
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis(),
+    gte: vi.fn().mockResolvedValue(weekValue),
     single: vi.fn().mockResolvedValue({ data: null, error: null }),
     maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
   };
@@ -64,6 +68,7 @@ describe('DashboardPage', () => {
       eq: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnValue(new Promise(() => {})),
+      gte: vi.fn().mockReturnValue(new Promise(() => {})),
       single: vi.fn().mockReturnThis(),
       maybeSingle: vi.fn().mockReturnThis(),
     }));
@@ -241,5 +246,31 @@ describe('DashboardPage', () => {
     expect(
       screen.getByText('Sin entrenamientos registrados')
     ).toBeInTheDocument();
+  });
+
+  // ============== JD-1 S4: sesiones sin minutos registrados ==============
+
+  it('muestra el estado vacío del gráfico cuando hay sesiones pero 0 minutos registrados', async () => {
+    const weekRows = [
+      { fecha: '2026-10-12T10:00:00.000Z', duracion_real: null, calorias_quemadas: 200 },
+      { fecha: '2026-10-13T10:00:00.000Z', duracion_real: 0, calorias_quemadas: 150 },
+    ];
+    vi.mocked(insforge.database.from).mockImplementation(() =>
+      mockDashboardChain(
+        { data: [], error: null, count: 0 },
+        { data: weekRows, error: null, count: weekRows.length }
+      )
+    );
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText(/David/)).toBeInTheDocument();
+    });
+
+    // Hay 2 sesiones esta semana, pero 0 minutos: la gráfica no debe
+    // renderizar barras invisibles (0%), sino el estado vacío existente.
+    expect(screen.getByText('Sin actividad registrada')).toBeInTheDocument();
+    expect(screen.queryByText('Actividad Semanal')).not.toBeInTheDocument();
   });
 });

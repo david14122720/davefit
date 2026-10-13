@@ -1,20 +1,47 @@
-import { useCallback, useEffect, useState } from 'react';
-import confetti from 'canvas-confetti';
+import { useCallback, useEffect, useRef } from 'react';
 
 type Note = { frequency: number; duration: number; type: OscillatorType; gain: number };
 type CelebrationType = 'completion' | 'levelUp' | 'streak' | 'achievement';
 
+/**
+ * Constructor de AudioContext disponible en el navegador (Safari antiguo
+ * expone `webkitAudioContext`). Devuelve null en entornos sin Web Audio.
+ */
+function getAudioContextConstructor(): typeof AudioContext | null {
+    if (typeof window === 'undefined') return null;
+    return (
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext ||
+        null
+    );
+}
+
 export function useCelebration() {
-    const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+    // El AudioContext vive en un ref y se crea de forma perezosa en el primer
+    // sonido. Antes vivía en useState: su creación tras el mount cambiaba la
+    // identidad de `playSound` y con ella la de todos los callbacks exportados,
+    // re-disparando los efectos de XPBar/WeeklyGoal (queries duplicadas).
+    const audioContextRef = useRef<AudioContext | null>(null);
 
     useEffect(() => {
-        const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-        setAudioContext(ctx);
-        return () => { ctx.close(); };
+        return () => {
+            const ctx = audioContextRef.current;
+            audioContextRef.current = null;
+            if (ctx) {
+                // El cierre puede rechazar si el contexto ya estaba cerrado.
+                ctx.close().catch(() => undefined);
+            }
+        };
     }, []);
 
     const playSound = useCallback((type: CelebrationType) => {
-        if (!audioContext) return;
+        const AudioContextCtor = getAudioContextConstructor();
+        if (!AudioContextCtor) return;
+
+        if (!audioContextRef.current) {
+            audioContextRef.current = new AudioContextCtor();
+        }
+        const audioContext = audioContextRef.current;
 
         const sounds: Record<CelebrationType, Note[]> = {
             completion: [
@@ -63,82 +90,93 @@ export function useCelebration() {
 
             startTime += note.duration;
         });
-    }, [audioContext]);
+    }, []);
 
-    const fireConfetti = useCallback((type: CelebrationType) => {
-        const defaults = {
-            spread: 360,
-            ticks: 50,
-            gravity: 0,
-            decay: 0.94,
-            startVelocity: 30,
-            colors: ['#F97316', '#FBBF24', '#EF4444', '#22C55E'],
-            particleCount: 50,
-            scalar: 1.2,
-        };
+    const fireConfetti = useCallback(async (type: CelebrationType) => {
+        try {
+            // Carga diferida: canvas-confetti sólo se descarga al primer
+            // festejo, fuera del grafo inicial del dashboard.
+            const { default: confetti } = await import('canvas-confetti');
 
-        switch (type) {
-            case 'completion':
-                confetti({
-                    ...defaults,
-                    particleCount: 60,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                });
-                break;
+            const defaults = {
+                spread: 360,
+                ticks: 50,
+                gravity: 0,
+                decay: 0.94,
+                startVelocity: 30,
+                colors: ['#F97316', '#FBBF24', '#EF4444', '#22C55E'],
+                particleCount: 50,
+                scalar: 1.2,
+            };
 
-            case 'levelUp':
-                confetti({
-                    ...defaults,
-                    particleCount: 100,
-                    spread: 100,
-                    origin: { y: 0.5 },
-                    colors: ['#F97316', '#FBBF24', '#FFFFFF'],
-                });
-                setTimeout(() => {
+            switch (type) {
+                case 'completion':
                     confetti({
                         ...defaults,
-                        particleCount: 50,
-                        angle: 60,
-                        spread: 55,
-                        origin: { x: 0 },
+                        particleCount: 60,
+                        spread: 70,
+                        origin: { y: 0.6 },
                     });
+                    break;
+
+                case 'levelUp':
                     confetti({
                         ...defaults,
-                        particleCount: 50,
-                        angle: 120,
-                        spread: 55,
-                        origin: { x: 1 },
+                        particleCount: 100,
+                        spread: 100,
+                        origin: { y: 0.5 },
+                        colors: ['#F97316', '#FBBF24', '#FFFFFF'],
                     });
-                }, 150);
-                break;
+                    setTimeout(() => {
+                        confetti({
+                            ...defaults,
+                            particleCount: 50,
+                            angle: 60,
+                            spread: 55,
+                            origin: { x: 0 },
+                        });
+                        confetti({
+                            ...defaults,
+                            particleCount: 50,
+                            angle: 120,
+                            spread: 55,
+                            origin: { x: 1 },
+                        });
+                    }, 150);
+                    break;
 
-            case 'streak':
-                confetti({
-                    ...defaults,
-                    particleCount: 80,
-                    spread: 80,
-                    origin: { y: 0.7 },
-                    colors: ['#EF4444', '#F97316'],
-                    scalar: 1.5,
-                });
-                break;
+                case 'streak':
+                    confetti({
+                        ...defaults,
+                        particleCount: 80,
+                        spread: 80,
+                        origin: { y: 0.7 },
+                        colors: ['#EF4444', '#F97316'],
+                        scalar: 1.5,
+                    });
+                    break;
 
-            case 'achievement':
-                confetti({
-                    ...defaults,
-                    particleCount: 100,
-                    spread: 180,
-                    origin: { y: 0.4 },
-                    colors: ['#22C55E', '#3B82F6', '#A855F7'],
-                });
-                break;
+                case 'achievement':
+                    confetti({
+                        ...defaults,
+                        particleCount: 100,
+                        spread: 180,
+                        origin: { y: 0.4 },
+                        colors: ['#22C55E', '#3B82F6', '#A855F7'],
+                    });
+                    break;
+            }
+        } catch (err) {
+            // Ni la carga del chunk ni la ejecución deben producir una
+            // promesa rechazada sin manejar.
+            console.warn('[Celebration] Error al lanzar confetti:', err);
         }
     }, []);
 
     const celebrate = useCallback((type: CelebrationType) => {
         playSound(type);
-        fireConfetti(type);
+        // Fire-and-forget: fireConfetti ya captura internamente sus errores.
+        void fireConfetti(type);
     }, [playSound, fireConfetti]);
 
     return {

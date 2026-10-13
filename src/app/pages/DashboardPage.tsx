@@ -1,16 +1,23 @@
-import React, { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { insforge } from '../../lib/insforge';
-import { queryWithRetry, queryWithRetryAndCount } from '../../lib/db';
+import { queryWithRetry } from '../../lib/db';
 import { getUserStats } from '../../lib/stats';
-import { getInicioSemana, getSaludo } from '../lib/dates';
+import { buildWeekView, getInicioSemana, getSaludo } from '../lib/dates';
 import type { HistorialEntrenamiento } from '../../types';
 import { motion, type Variants } from 'framer-motion';
 import XPBar from '../components/XPBar';
 import WeeklyGoal from '../components/WeeklyGoal';
-import { DashboardSkeleton } from '../components/Skeleton';
+import { DashboardSkeleton } from '../components/DashboardSkeleton';
 import { Play, TrendingUp, Activity, Target, Clock, Flame, Dumbbell, CalendarDays, Sparkles, Zap } from 'lucide-react';
+
+/** Fila semanal mínima que devuelve la query de la semana. */
+interface SemanaEntry {
+    fecha: string;
+    duracion_real: number | null;
+    calorias_quemadas: number | null;
+}
 
 export default function DashboardPage() {
     const { user, perfil, accessToken } = useAuth();
@@ -18,14 +25,14 @@ export default function DashboardPage() {
     const [historial, setHistorial] = useState<HistorialEntrenamiento[]>([]);
     const [loaded, setLoaded] = useState(false);
     const [datosTotales, setDatosTotales] = useState({ count: 0, minutos: 0, calorias: 0 });
-    const [datosSemanales, setDatosSemanales] = useState<any[]>([]);
+    const [datosSemanales, setDatosSemanales] = useState<SemanaEntry[]>([]);
     const [racha, setRacha] = useState(0);
 
     const userName = useMemo(() => perfil?.nombre_completo?.split(' ')[0] || user?.email?.split('@')[0] || 'Usuario', [perfil, user]);
 
     const nivel = perfil?.nivel || 'Principiante';
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (!accessToken || !user?.id) return;
         const loadData = async () => {
             try {
@@ -33,17 +40,19 @@ export default function DashboardPage() {
                 const iso = inicioSemana.toISOString();
 
                 const [h, stats, weekRes] = await Promise.all([
-                    queryWithRetry<any[]>(() =>
+                    queryWithRetry<HistorialEntrenamiento[]>(() =>
                         insforge.database
                             .from('historial_entrenamientos')
-                            .select('*, rutinas(nombre)')
+                            .select('id, fecha, duracion_real, calorias_quemadas, rutina_id, rutinas(nombre)')
+                            .eq('usuario_id', user.id)
                             .order('fecha', { ascending: false })
                             .limit(10)
                     ),
                     getUserStats(user.id),
-                    queryWithRetryAndCount<any[]>(() =>
+                    queryWithRetry<SemanaEntry[]>(() =>
                         insforge.database.from('historial_entrenamientos')
-                            .select('duracion_real, calorias_quemadas, fecha', { count: 'exact' })
+                            .select('duracion_real, calorias_quemadas, fecha')
+                            .eq('usuario_id', user.id)
                             .gte('fecha', iso)
                     ),
                 ]);
@@ -54,11 +63,13 @@ export default function DashboardPage() {
                     setRacha(stats.dias_racha);
                 }
                 
+                // Las filas de la semana ya vienen completas → `data.length`
+                // reemplaza al `{ count: 'exact' }` redundante.
                 const weekItems = weekRes.data || [];
                 setDatosTotales({
-                    count: weekRes.count || 0,
-                    minutos: weekItems.reduce((acc: number, curr: any) => acc + (curr.duracion_real || 0), 0),
-                    calorias: weekItems.reduce((acc: number, curr: any) => acc + (curr.calorias_quemadas || 0), 0)
+                    count: weekItems.length,
+                    minutos: weekItems.reduce((acc, curr) => acc + (curr.duracion_real || 0), 0),
+                    calorias: weekItems.reduce((acc, curr) => acc + (curr.calorias_quemadas || 0), 0)
                 });
                 setDatosSemanales(weekItems);
             } catch (e) {
@@ -75,24 +86,39 @@ export default function DashboardPage() {
     const totalCalorias = datosTotales.calorias;
     const ultimoEntrenamiento = historial[0];
 
+    // Si la rutina fue eliminada (rutina_id null por FK SET NULL), la tarjeta
+    // no debe navegar a una ruta rota: sin click y CTA hacia la biblioteca.
+    const rutinaIdUltimo = ultimoEntrenamiento?.rutina_id ?? null;
+    const puedeReanudar = Boolean(rutinaIdUltimo);
+    const handleReanudar = () => {
+        if (!rutinaIdUltimo) return;
+        navigate(`/rutinas/practicar/${rutinaIdUltimo}`);
+    };
+
     const chartData = useMemo(() => {
         const days = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
         const dayTotals = new Array(7).fill(0);
-        
-        datosSemanales.forEach((entry: any) => {
+
+        datosSemanales.forEach((entry) => {
             const date = new Date(entry.fecha);
-            let dayIndex = date.getDay();
-            dayIndex = dayIndex === 0 ? 6 : dayIndex - 1;
-            dayTotals[dayIndex] += entry.duracion_real || 0;
+            // Una fecha inválida no debe producir alturas NaN en la gráfica.
+            if (Number.isNaN(date.getTime())) return;
+            const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1;
+            dayTotals[dayIndex] += Number(entry.duracion_real) || 0;
         });
-        
+
         const max = Math.max(...dayTotals, 1);
-        
+
         return days.map((day, i) => ({
             day,
             height: (dayTotals[i] / max) * 100
         }));
     }, [datosSemanales]);
+
+    // Mini-calendario: días reales de la semana actual (Lun–Dom) construidos
+    // desde los datos completos de la semana (antes se derivaba de `historial`,
+    // truncado a 10, con etiquetas fijas mapeadas a "i días atrás").
+    const weekView = useMemo(() => buildWeekView(datosSemanales), [datosSemanales]);
 
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
@@ -195,7 +221,9 @@ export default function DashboardPage() {
             {/* ===== 4. Weekly Activity Chart + Next Workout ===== */}
             <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
                 <div className="lg:col-span-2 p-6 rounded-lg bg-surface border border-white/5">
-                    {totalEntrenamientos > 0 ? (
+                    {/* Con sesiones pero 0 minutos registrados la gráfica quedaría
+                        en barras invisibles (0%); mostrar el estado vacío. */}
+                    {totalEntrenamientos > 0 && totalMinutos > 0 ? (
                         <>
                             <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
                                 <TrendingUp className="w-5 h-5 text-primary" /> Actividad Semanal
@@ -208,13 +236,18 @@ export default function DashboardPage() {
                             </div>
                             <div className="h-48 flex items-end justify-around gap-2">
                                 {chartData.map((data, i) => (
-                                    <div key={data.day} className="flex-1 flex flex-col items-center gap-2">
-                                        <motion.div
-                                            initial={{ height: 0 }}
-                                            animate={{ height: `${data.height}%` }}
-                                            transition={{ duration: 0.8, delay: i * 0.1, ease: "easeOut" }}
-                                            className="w-full rounded-t-lg bg-linear-to-t from-primary/20 to-primary/80 shadow-[0_-5px_15px_rgba(255,107,0,0.1)]"
-                                        />
+                                    <div key={data.day} className="flex-1 h-full flex flex-col items-center gap-2">
+                                        {/* Track con altura definida: un height % necesita
+                                            un padre con altura resuelta (antes el padre era
+                                            auto → la barra quedaba en 0px). */}
+                                        <div className="flex-1 w-full flex items-end min-h-0">
+                                            <motion.div
+                                                initial={{ height: 0 }}
+                                                animate={{ height: `${data.height}%` }}
+                                                transition={{ duration: 0.8, delay: i * 0.1, ease: "easeOut" }}
+                                                className="w-full rounded-t-lg bg-linear-to-t from-primary/20 to-primary/80 shadow-[0_-5px_15px_rgba(255,107,0,0.1)]"
+                                            />
+                                        </div>
                                         <span className="text-xs font-bold text-gray-400">{data.day}</span>
                                     </div>
                                 ))}
@@ -239,8 +272,8 @@ export default function DashboardPage() {
                     {ultimoEntrenamiento ? (
                         <motion.div
                             variants={itemVariants}
-                            className="flex-1 p-5 rounded-lg bg-linear-to-br from-primary/20 to-primary/5 border border-primary/20 group cursor-pointer relative overflow-hidden"
-                            onClick={() => navigate(`/rutinas/practicar/${ultimoEntrenamiento.rutina_id}`)}
+                            className={`flex-1 p-5 rounded-lg bg-linear-to-br from-primary/20 to-primary/5 border border-primary/20 group relative overflow-hidden ${puedeReanudar ? 'cursor-pointer' : ''}`}
+                            onClick={puedeReanudar ? handleReanudar : undefined}
                         >
                             <div className="relative z-10">
                                 <div className="flex items-center gap-2 mb-2">
@@ -257,9 +290,18 @@ export default function DashboardPage() {
                                     <span>•</span>
                                     <span className="flex items-center gap-1"><Flame className="w-3 h-3" />{ultimoEntrenamiento.calorias_quemadas || 0} kcal</span>
                                 </div>
-                                <button className="px-4 py-2 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-lg transition-transform group-hover:scale-105 active:scale-95">
-                                    Reanudar Ahora →
-                                </button>
+                                {puedeReanudar ? (
+                                    <button className="px-4 py-2 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-lg transition-transform group-hover:scale-105 active:scale-95">
+                                        Reanudar Ahora →
+                                    </button>
+                                ) : (
+                                    <Link
+                                        to="/biblioteca"
+                                        className="inline-flex px-4 py-2 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-lg transition-transform group-hover:scale-105 active:scale-95"
+                                    >
+                                        Explorar Rutinas →
+                                    </Link>
+                                )}
                             </div>
                         </motion.div>
                     ) : (
@@ -308,7 +350,7 @@ export default function DashboardPage() {
                         <div>
                             <h2 className="text-lg font-bold text-white mb-4">Últimas Sesiones</h2>
                             <div className="grid grid-cols-1 gap-4">
-                                {historial.slice(0, 3).map((entrada: any) => (
+                                {historial.slice(0, 3).map((entrada) => (
                                     <div key={entrada.id} className="p-4 rounded-lg bg-surface border border-white/5 hover:border-primary/30 transition-all flex items-center gap-4 group cursor-pointer">
                                         <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                                             <Activity className="w-5 h-5" />
@@ -331,29 +373,23 @@ export default function DashboardPage() {
                     <div className="p-5 rounded-lg bg-surface border border-white/5">
                         <h3 className="text-sm font-bold text-white mb-4">Esta Semana</h3>
                         <div className="grid grid-cols-7 gap-2">
-                            {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, i) => {
-                                const hasTraining = historial.some((e: any) => {
-                                    const d = new Date(e.fecha);
-                                    const now = new Date();
-                                    const dayDiff = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
-                                    return dayDiff === i && dayDiff < 7;
-                                });
-                                return (
-                                    <div key={day} className="flex flex-col items-center gap-1">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase">{day}</span>
-                                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${
-                                            hasTraining
-                                                ? 'bg-primary text-white'
+                            {weekView.map((day) => (
+                                <div key={day.label} className="flex flex-col items-center gap-1">
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase">{day.label}</span>
+                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${
+                                        day.hasTraining
+                                            ? 'bg-primary text-white'
+                                            : day.isToday
+                                                ? 'bg-white/5 text-gray-300 ring-1 ring-primary/40'
                                                 : 'bg-white/5 text-gray-400'
-                                        }`}>
-                                            {new Date(Date.now() - i * 86400000).getDate()}
-                                        </div>
-                                        {hasTraining && (
-                                            <div className="w-1 h-1 rounded-full bg-primary" />
-                                        )}
+                                    }`}>
+                                        {day.dayOfMonth}
                                     </div>
-                                );
-                            })}
+                                    {day.hasTraining && (
+                                        <div className="w-1 h-1 rounded-full bg-primary" />
+                                    )}
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -365,7 +401,7 @@ export default function DashboardPage() {
                     <div>
                         <h2 className="text-lg font-bold text-white mb-4">Entrenamientos Recientes</h2>
                         <div className="space-y-3">
-                            {historial.map((entrada: any) => (
+                            {historial.map((entrada) => (
                                 <motion.div
                                     key={entrada.id}
                                     variants={itemVariants}

@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { insforge } from '../../lib/insforge';
+import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useCelebration } from '../hooks/useCelebration';
+import { getUserStats } from '../../lib/stats';
 import { Zap, Flame } from 'lucide-react';
 import type { UserStats } from '../../types';
 
@@ -11,25 +11,22 @@ export default function XPBar() {
     const [stats, setStats] = useState<UserStats | null>(null);
     const [loading, setLoading] = useState(true);
     const hasCelebratedRef = useRef(false);
+    const userId = user?.id;
 
     useEffect(() => {
-        if (!user) {
+        if (!userId) {
             setLoading(false);
             return;
         }
 
         const loadStats = async () => {
             try {
-                const { data } = await insforge.database
-                    .from('user_stats')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .maybeSingle();
+                const data = await getUserStats(userId);
                 setStats(data);
 
                 // Celebrar racha si es mayor a 0 y no hemos celebrado en esta "sesión" de vista
                 if (data && data.dias_racha > 0 && !hasCelebratedRef.current) {
-                    const sessionKey = `racha_celebrated_${user.id}_${new Date().toDateString()}`;
+                    const sessionKey = `racha_celebrated_${userId}_${new Date().toDateString()}`;
                     if (!sessionStorage.getItem(sessionKey)) {
                         setTimeout(() => {
                             celebrateStreak();
@@ -46,7 +43,7 @@ export default function XPBar() {
         };
 
         loadStats();
-    }, [user, celebrateStreak]);
+    }, [userId, celebrateStreak]);
 
     if (loading) {
         return (
