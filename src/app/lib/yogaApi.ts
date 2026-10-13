@@ -149,7 +149,12 @@ export async function saveProgreso(data: {
                 const factor = Math.min(duracionMin / duracionEst, 2);
                 caloriasQuemadas = Math.round(baseCals * factor);
             } else {
-                caloriasQuemadas = calcularCalorias(duracionMin, 'yoga');
+                const { data: perfil } = await insforge.database
+                    .from('perfiles')
+                    .select('peso_actual')
+                    .eq('id', data.user_id)
+                    .single();
+                caloriasQuemadas = calcularCalorias(duracionMin, 'yoga', perfil?.peso_actual ?? undefined);
             }
             
             await recordWorkoutCompletion(data.user_id, `yoga_${data.rutina_id}`, 15);

@@ -9,29 +9,33 @@ const EMPTY_CALCULATION: XpCalculation = {
 
 /**
  * Calcula calorías estimadas quemadas
- * @param duracionMinutos 
+ * @param duracionMinutos
  * @param tipo 'ejercicio' (Gym/Hiit) | 'yoga' | 'meditacion'
+ * @param pesoKg Peso real del usuario en kg. Si no se provee, usa 70kg como fallback.
  * @returns calorias estimadas
  */
-export function calcularCalorias(duracionMinutos: number, tipo: 'ejercicio' | 'yoga' | 'meditacion'): number {
+export function calcularCalorias(
+    duracionMinutos: number,
+    tipo: 'ejercicio' | 'yoga' | 'meditacion',
+    pesoKg?: number
+): number {
     const metByTipo = {
         ejercicio: 7.0, // Mezcla de pesas y cardio
         yoga: 3.0,      // Yoga moderado
         meditacion: 1.2 // Reposo activo
     };
-    
-    // Fórmula simplificada: (MET * 3.5 * peso_kg / 200) * duracion_min
-    // Asumimos un peso promedio de 70kg si no tenemos el dato a mano en la función
-    const pesoPromedio = 70;
-    const calorias = (metByTipo[tipo] * 3.5 * pesoPromedio / 200) * duracionMinutos;
-    
+
+    // Fórmula: (MET * 3.5 * peso_kg / 200) * duracion_min
+    // Se prefiere el peso real del perfil; 70kg es solo un fallback defensivo.
+    const peso = pesoKg && pesoKg > 0 ? pesoKg : 70;
+    const calorias = (metByTipo[tipo] * 3.5 * peso / 200) * duracionMinutos;
+
     return Math.round(calorias);
 }
 
 export async function processWorkoutCompletion(
     userId: string,
-    duracionMinutos: number,
-    _tipoRutina: 'ejercicio' | 'yoga' | 'meditacion'
+    duracionMinutos: number
 ): Promise<{ success: boolean; calculation: XpCalculation; error?: string }> {
     try {
         // En lugar de calcular el XP en el cliente (lo cual era una vulnerabilidad),

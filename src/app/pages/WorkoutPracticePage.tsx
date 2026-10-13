@@ -43,7 +43,7 @@ interface Rutina {
 export default function WorkoutPracticePage() {
   const { rutinaId } = useParams<{ rutinaId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, perfil } = useAuth();
   const startTimeRef = useRef<number>(Date.now());
   const [currentTime, setCurrentTime] = useState(0);
   const [rutina, setRutina] = useState<Rutina | null>(null);
@@ -110,18 +110,18 @@ export default function WorkoutPracticePage() {
     if (!user || !rutinaId) return;
     const duracionReal = Math.max(1, Math.round((Date.now() - startTimeRef.current) / 1000 / 60));
     const baseCalorias = rutina?.calorias_estimadas || 0;
-    const caloriasQuemadas = baseCalorias > 0 ? Math.round(baseCalorias * Math.min(duracionReal / (rutina?.duracion_estimada || 30), 2)) : calcularCalorias(duracionReal, 'ejercicio');
+    const caloriasQuemadas = baseCalorias > 0 ? Math.round(baseCalorias * Math.min(duracionReal / (rutina?.duracion_estimada || 30), 2)) : calcularCalorias(duracionReal, 'ejercicio', perfil?.peso_actual ?? undefined);
     try {
       await insforge.database.from('historial_entrenamientos').insert([{ usuario_id: user.id, rutina_id: rutinaId, duracion_real: duracionReal, calorias_quemadas: caloriasQuemadas, sensacion: 5 }]);
       localStorage.removeItem(`workout_start_${rutinaId}`);
-      const result = await processWorkoutCompletion(user.id, duracionReal, 'ejercicio');
+      const result = await processWorkoutCompletion(user.id, duracionReal);
       if (result.success) {
         setXpResult({ xp_ganado: result.calculation.xp_ganado, nivel_nuevo: result.calculation.nivel_nuevo, subio_nivel: result.calculation.subio_nivel });
         celebrateCompletion();
         if (result.calculation.subio_nivel) setTimeout(celebrateLevelUp, 500);
       }
     } catch (err) { console.error(err); }
-  }, [user, rutinaId, rutina, celebrateCompletion, celebrateLevelUp]);
+  }, [user, perfil, rutinaId, rutina, celebrateCompletion, celebrateLevelUp]);
 
   const handleSiguiente = useCallback(() => {
     setCompletedExercises(prev => new Set(prev).add(currentIndex));
