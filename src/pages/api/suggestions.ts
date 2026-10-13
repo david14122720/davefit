@@ -57,10 +57,10 @@ function isPrivateOrLoopback(ip: string): boolean {
  * validar, así que un cliente podía escribir texto arbitrario en la DB y
  * saltarse el rate-limit.
  *
- * Limitación conocida: el proxy todavía no agrega el header (`proxy_set_header
- * X-Forwarded-For $proxy_add_x_forwarded_for;` en nginx.conf), así que en prod
- * el último hop sigue siendo elegido por el cliente. Ver
- * odd/tasks/cierre-pendientes-main.md.
+ * Despliegue: nginx ya agrega `X-Forwarded-For $proxy_add_x_forwarded_for`
+ * (el último hop es el peer real que vio el proxy), así que detrás de nginx
+ * el valor usado es la IP real del cliente. El dev server de Vite no agrega
+ * el header, pero ahí `clientAddress` ya es la del socket directo.
  */
 export function resolveClientIp(
     forwardedFor: string | null,
