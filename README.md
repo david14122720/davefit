@@ -11,7 +11,7 @@ Plataforma de entrenamiento inteligente para estudiantes. Construida con **Astro
 | Tailwind CSS | ^4.3.3 |
 | InsForge SDK | ^1.1.2 |
 | Vite (bundled) | 8.x |
-| Node.js | 20+ |
+| Node.js | 22+ |
 
 ## Inicio Rápido
 
@@ -33,9 +33,10 @@ PUBLIC_INSFORGE_ANON_KEY=tu-clave
 ## Arquitectura
 
 ```
-/              → Landing page (Astro SSR)
-/app/*         → App React SPA (React Router, lazy loading)
-/about, /faq   → Páginas estáticas Astro
+/                              → Landing page (Astro SSR, src/pages/index.astro)
+/about, /faq                   → Páginas estáticas Astro
+resto de rutas                 → App React SPA (React Router, lazy loading) servida por src/pages/[...slug].astro (catch-all en la raíz)
+/login, /dashboard, /admin, …  → Rutas de React Router en App.tsx, a nivel raíz (sin prefijo /app)
 ```
 
 ### Estructura
@@ -60,7 +61,7 @@ src/
 ├── pages/                        # Astro pages
 │   ├── index.astro               # Landing
 │   ├── faq.astro
-│   └── app/[...slug].astro       # Shell SPA
+│   └── [...slug].astro           # Shell SPA (catch-all en la raíz)
 ├── lib/                          # Lógica de negocio
 │   ├── insforge.ts               # Cliente InsForge singleton
 │   ├── auth.ts                   # Sanitización, CSRF, rate-limit

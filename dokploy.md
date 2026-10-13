@@ -2,10 +2,10 @@
 
 Esta guía describe el proceso general para desplegar cualquier proyecto en el servidor de Dokploy dentro de la red local.
 
-## � Información del Servidor
+## ℹ️ Información del Servidor
 - **IP del Servidor**: `192.168.101.133`
 
-## �🚀 Pasos para el Despliegue
+## 🚀 Pasos para el Despliegue
 
 ### 1. Preparación en GitHub
 - El código debe estar subido a un repositorio de GitHub.
@@ -29,6 +29,8 @@ Esta es la parte más importante para que el proyecto sea accesible desde otros 
 | **Published Port Mode** | **Host** | **Obligatorio** para acceso por IP directa. |
 | **Target Port** | `[INTERNO]` | El puerto que usa la app dentro (ej: 80 para Nginx). |
 | **Protocol** | `TCP` | Estándar para aplicaciones web. |
+
+> **DaveFit en vivo**: `Published Port 8083` (host) → `Target Port 80` (contenedor, nginx), con `autoDeploy` desactivado y sin dominios asociados.
 
 ### 4. Acceso Final
 Una vez realizado el despliegue, la aplicación será accesible en:
@@ -65,31 +67,36 @@ RUN apk add --no-cache git ffmpeg gcc musl-dev linux-headers
 
 ## 📋 Notas para Aplicaciones SPA (React/Vue/Svelte en Astro)
 
-Al desplegar aplicaciones de página única (SPA) dentro de Astro, pueden surgir problemas de routing porque el servidor web no sabe cómo manejar rutas como `/app/dashboard` o `/app/login`.
+Al desplegar aplicaciones de página única (SPA) dentro de Astro, el servidor debe responder a rutas como `/dashboard` o `/login`, que no corresponden a ningún fichero físico del build.
 
 ### El Problema
-- Astro genera archivos estáticos en `/dist`
-- Si usas React Router (o similar) para manejar rutas internas como `/app/*`, el servidor recibe requests directos a `/app/login` y busca un archivo `dist/app/login.html` que no existe
-- El resultado es un **404** al acceder directamente a rutas SPA
+- Si el servidor intenta resolver `/dashboard` como un fichero (`dist/dashboard.html`), ese fichero no existe
+- El resultado es un **404** al acceder directamente a rutas SPA (aunque la app funcione al navegar desde dentro)
 
-### La Solución
+### Cómo lo resuelve DaveFit (arquitectura real)
 
-#### Opción 1: Archivo Catch-All en Astro (RECOMENDADO)
+| Componente | Configuración |
+| :--- | :--- |
+| Render | SSR de Astro (`output: 'server'`) con adapter `@astrojs/node` en modo `standalone` |
+| Shell SPA | Catch-all en la raíz: `src/pages/[...slug].astro` → `<App client:only="react"/>` |
+| Proxy | `nginx.conf` del contenedor: `proxy_pass http://127.0.0.1:1412` |
+| Puerto Node | `PORT=1412` (Dockerfile); nginx escucha en el `80`, que es el que Dokploy publica |
+| Rutas React | Declaradas en `src/app/App.tsx` **sin prefijo** `/app`: `/biblioteca`, `/login`, `/dashboard`, `/rutinas`, `/admin`, … |
 
-Crear un archivo `src/pages/app/[...slug].astro` que capture todas las rutas SPA:
+Flujo de una petición directa a `http://<IP>:8083/dashboard`:
 
-```astro
----
-import App from '../app/App'; // Ajusta la ruta según tu estructura
----
-<App client:only="react" />
-```
+1. Dokploy publica el puerto de host `8083` hacia el puerto `80` del contenedor.
+2. nginx recibe la petición y la deriva a `http://127.0.0.1:1412` (servidor SSR de Astro).
+3. Astro no coincide con ninguna ruta estática y responde con `src/pages/[...slug].astro`.
+4. El shell carga `App.tsx`, que resuelve `/dashboard` con React Router.
 
-Esto genera un archivo `dist/app/index.html` que sirve como shell para el SPA, y Astro+React Router manejan las rutas internas.
+No existe `src/pages/app/`: el catch-all vive en la raíz de `src/pages/`. Astro da prioridad a las rutas estáticas (`index.astro`, `about.astro`, `faq.astro`) y a los endpoints de `src/pages/api/`, así que solo los caminos no estáticos llegan al catch-all.
 
-#### Opción 2: Configurar nginx para reescribir rutas SPA
+### Alternativas genéricas
 
-En tu `nginx.conf` o configuración de Dokploy, añadir:
+#### Opción A: nginx con fallback al fichero del shell (alternativa genérica — no es la de DaveFit)
+
+Si el build genera HTML estático, reescribir en `nginx.conf` las rutas SPA hacia el shell:
 
 ```nginx
 location /app/ {
@@ -97,9 +104,11 @@ location /app/ {
 }
 ```
 
-#### Opción 3: Usar el adapter de Astro para Node.js
+DaveFit **no** usa esta opción: su `nginx.conf` no hace `try_files`, solo `proxy_pass` al servidor SSR.
 
-Si usas un adapter (Node, Express, etc.), configura para que maneje rutas SPA:
+#### Opción B: adapter de Astro para Node.js (base de la arquitectura de DaveFit)
+
+Configurar el adapter para que el servidor maneje las rutas SPA:
 
 ```js
 // astro.config.mjs
@@ -107,6 +116,7 @@ import react from '@astrojs/react';
 import node from '@astrojs/node';
 
 export default defineConfig({
+  output: 'server',
   adapter: node({ mode: 'standalone' }),
   integrations: [react()],
 });
@@ -114,19 +124,19 @@ export default defineConfig({
 
 ### Errores Comunes
 
-1. **404 al acceder directamente a `/app/ruta`**
-   - Causa: No existe `src/pages/app/[...slug].astro` o `src/pages/app/index.astro`
-   - Solución: Crear el archivo catch-all o verificar la estructura de páginas
+1. **404 al acceder directamente a `/dashboard`**
+   - Causa: falta `src/pages/[...slug].astro`, o el servidor SSR de Node no está respondiendo detrás de nginx
+   - Solución: verificar que el catch-all existe, que `nginx.conf` hace `proxy_pass` a `127.0.0.1:1412` y que el proceso `node dist/server/entry.mjs` está activo
 
 2. **Rutas de imports incorrectas**
    - Causa: Al mover archivos entre carpetas, las rutas relativas cambian
-   - Ejemplo: Si mueves `[...slug].astro` de `src/pages/` a `src/pages/app/`, las imports `../components/` deben pasar a `../../components/`
+   - Ejemplo: Si mueves `[...slug].astro` de `src/pages/` a un subdirectorio, las imports `../app/App` deben pasar a `../../app/App`
    - Solución: Ajustar las rutas de importación
 
 3. **React Router no reconoce las rutas**
-   - Causa: Las rutas en React Router deben coincidir con la estructura de Astro
-   - Ejemplo: Si React define `<Route path="/app/login" />`, Astro debe tener `src/pages/app/[...slug].astro`
-   - Solución: Verificar que la estructura de carpetas y las rutas de React coincidan
+   - Causa: Las rutas de React Router deben coincidir con las URLs públicas reales
+   - Ejemplo: Si `App.tsx` declara `<Route path="/login" />`, la URL es `/login`; si se declara `/app/login`, la URL pasa a ser `/app/login` y el catch-all seguiría respondiendo, pero los enlaces internos y la documentación deben cambiar igual
+   - Solución: Mantener una única fuente de verdad (la tabla `routes` de `src/app/App.tsx`) y que la documentación la refleje
 
 4. **Build cache tiene versión antigua**
    - Causa: Dokploy hace cache del build anterior
@@ -134,19 +144,19 @@ export default defineConfig({
 
 ### Checklist para Evitar Problemas
 
-- [ ] La estructura de carpetas en `src/pages/` refleja las rutas de React Router
-- [ ] Existe `src/pages/app/index.astro` o `src/pages/app/[...slug].astro`
-- [ ] Las imports en archivos `.astro` usan rutas correctas (verificar `../` vs `../../`)
-- [ ] El Dockerfile copia todos los archivos estáticos necesarios
-- [ ] nginx/conf del servidor está configurado para SPA si es necesario
-- [ ] Probar `curl http://[IP]:[PUERTO]/app/ruta` antes de declarar éxito
+- [ ] Existe `src/pages/[...slug].astro` en la raíz de `src/pages/` (no en un subdirectorio)
+- [ ] Las rutas de `src/app/App.tsx` coinciden con las URLs públicas deseadas (sin prefijo `/app`)
+- [ ] `nginx.conf` hace `proxy_pass` al puerto del servidor SSR de Astro (1412 en DaveFit)
+- [ ] El puerto publicado en Dokploy apunta al puerto de nginx (80 en DaveFit)
+- [ ] Las imports en ficheros `.astro` usan rutas correctas respecto a su ubicación
+- [ ] Probar `curl http://[IP]:[PUERTO]/dashboard` antes de declarar éxito
 
 ### Ejemplo de Estructura Correcta
 
 ```
 src/
 ├── app/                    # Código React SPA
-│   ├── App.tsx
+│   ├── App.tsx             # Tabla de rutas (sin prefijo /app)
 │   ├── pages/
 │   │   ├── LoginPage.tsx
 │   │   └── DashboardPage.tsx
@@ -155,23 +165,26 @@ src/
 │   └── BaseLayout.astro
 └── pages/
     ├── index.astro          # Landing page
-    └── app/
-        └── [...slug].astro   # ← CLAVE: captura /app/* y sirve el SPA
+    ├── about.astro
+    ├── faq.astro
+    ├── api/                 # Endpoints de Astro (prioridad sobre el catch-all)
+    └── [...slug].astro      # ← CLAVE: catch-all en la raíz, sirve el SPA
 ```
 
 ### Configuración de React Router (App.tsx)
 
 ```tsx
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/app/login" element={<LoginPage />} />
-        <Route path="/app/dashboard" element={<DashboardPage />} />
-        <Route path="/app/profile" element={<ProfilePage />} />
+        <Route path="/" element={<Navigate to="/biblioteca" replace />} />
+        <Route path="/biblioteca" element={<BibliotecaPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="*" element={<Navigate to="/biblioteca" replace />} />
       </Routes>
     </BrowserRouter>
   );
@@ -180,9 +193,9 @@ function App() {
 
 ### Prueba Final
 
-Después del despliegue, verificar:
+Después del despliegue, verificar con una ruta real de `App.tsx`:
 ```bash
-curl -s -o /dev/null -w "%{http_code}" http://192.168.101.133:8083/app/login
+curl -s -o /dev/null -w "%{http_code}" http://192.168.101.133:8083/dashboard
 # Debe devolver 200, no 404
 ```
 

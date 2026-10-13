@@ -1,0 +1,57 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Astro 7.1.4 SSR (Node standalone) + React 19 SPA + Tailwind 4.3.3 + TypeScript 5.9 strict; InsForge/Postgres backend; react-hook-form + zod.
+  Architecture: Single package (violet-velocity), no workspaces; Astro landing/static pages + src/pages/[...slug].astro catch-all shell hosting a lazy-loaded React Router SPA under /app/*.
+  Testing: Vitest 3 (jsdom, unit, src/**) + Playwright 1.58 (e2e, e2e/**, chromium/firefox/webkit) + ESLint 10 flat + tsc --noEmit; no formatter configured.
+  Style: SDD/code artifacts in English; PascalCase components, kebab-case non-component files, console logs prefixed with module context.
+
+strict_tdd: false
+
+projects:
+  - path: "."
+    stack: "Astro 7.1.4 SSR + React 19 SPA + Tailwind 4.3.3 + TS strict (InsForge/Postgres)"
+    test_command: "npx vitest run"
+    test_layers:
+      unit: "npx vitest run"
+      e2e: "npx playwright test"
+    coverage_command: "npm run test:coverage"
+    linter_command: "npm run lint"
+    typecheck_command: "npm run typecheck"
+    formatter: null
+
+testing:
+  strict_tdd: false
+  detected: "2026-10-08"
+  workspace_test_command: null
+  fallback: "No workspace-level command covers every in-scope test layer. Run per-layer commands from the workspace root: npx vitest run (unit) | npx playwright test (e2e) | npm run test:coverage | npm run lint | npm run typecheck. Do not treat any single command as a combined runner."
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Read existing openspec/specs and active changes before proposing deltas
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Document architecture decisions with rationale
+    - Include sequence diagrams for complex flows
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    guidelines:
+      - Follow existing code patterns
+      - Run unit tests before marking a task done
+    tdd: false
+    test_command: "npx vitest run"
+  verify:
+    test_command: "npx vitest run"
+    e2e_command: "npx playwright test"
+    build_command: "npm run build"
+    lint_command: "npm run lint"
+    typecheck_command: "npm run typecheck"
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
+    - Never delete or modify openspec/changes/archive/ (audit trail)

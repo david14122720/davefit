@@ -22,6 +22,8 @@ export default tseslint.config(
       '*.config.ts',
       'e2e/**',
       'scripts/**',
+      // Artefactos ODD (docs de tarea, evidencia, scripts de medición)
+      'odd/**',
     ],
   },
 

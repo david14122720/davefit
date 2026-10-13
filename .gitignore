@@ -41,3 +41,11 @@ scripts/import-ejercicios/output/
 
 # test coverage reports
 coverage/
+# Local Pi runtime state
+.atl/
+
+# ODD evidence artifacts (regenerable; the task docs in odd/tasks are tracked)
+odd/evidence/
+
+# Playwright CLI scratch output (console/page dumps)
+.playwright-cli/
