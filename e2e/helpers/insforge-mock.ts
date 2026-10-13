@@ -2,9 +2,12 @@
 // InsForge backend mock for Playwright e2e tests.
 //
 // Guarantees (see dashboard.spec.ts assertions):
-// - Every request whose origin matches the InsForge backend URL is
-//   fulfilled from local fixtures; nothing is ever forwarded to the
-//   real backend (zero production traffic, zero production writes).
+// - Every backend request is fulfilled from local fixtures; nothing is
+//   ever forwarded to the real backend (zero production traffic, zero
+//   production writes). The client talks to the app origin and the dev
+//   server proxies /api/auth, /api/database and /api/storage to the
+//   backend (src/lib/insforge-url.ts), so the mock intercepts those
+//   same-origin prefixes too.
 // - Requests to origins other than the local dev server are aborted
 //   and recorded, so a test can fail when anything escaped the mock.
 //
@@ -31,6 +34,26 @@ export const INSFORGE_ORIGIN =
 
 /** Local dev-server origins that should hit the real (local) Astro server. */
 const APP_ORIGINS = new Set(['http://localhost:4321', 'http://127.0.0.1:4321']);
+
+/**
+ * API prefixes the browser sends to the app origin and the dev server proxies
+ * to the backend. They must be mocked here; the app's own routes (/api/stats,
+ * /api/suggestions, /api/admin/*) are not in this list and keep reaching the
+ * real Astro server.
+ */
+const SAME_ORIGIN_API_PREFIXES = ['/api/auth', '/api/database', '/api/storage'];
+
+/**
+ * True when a request belongs to the backend: either the absolute backend
+ * origin (direct mode) or one of the proxied same-origin API prefixes.
+ */
+function isBackendRequest(url: URL): boolean {
+    if (url.origin === INSFORGE_ORIGIN) return true;
+    if (!APP_ORIGINS.has(url.origin)) return false;
+    return SAME_ORIGIN_API_PREFIXES.some(
+        (prefix) => url.pathname === prefix || url.pathname.startsWith(`${prefix}/`),
+    );
+}
 
 /**
  * Static third-party asset origins fulfilled with empty responses so the
@@ -202,7 +225,8 @@ interface Fixtures {
 
 /**
  * Installs a catch-all route on the page:
- * - backend origin → fixture fulfillment only;
+ * - backend requests (backend origin or proxied same-origin API prefix) →
+ *   fixture fulfillment only;
  * - local dev server → continue (real app assets);
  * - anything else → abort + record.
  */
@@ -221,7 +245,7 @@ export async function installInsforgeMock(page: Page): Promise<InsforgeMockHarne
         const request = route.request();
         const url = new URL(request.url());
 
-        if (url.origin === INSFORGE_ORIGIN) {
+        if (isBackendRequest(url)) {
             const label = `${request.method()} ${url.pathname}${url.search}`;
             harness.backendRequests.push(label);
             const response = resolveBackendResponse(request, url, fixtures);
