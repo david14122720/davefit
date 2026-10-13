@@ -49,3 +49,7 @@ odd/evidence/
 
 # Playwright CLI scratch output (console/page dumps)
 .playwright-cli/
+
+# Playwright artifacts (reports, traces, failure contexts)
+test-results/
+playwright-report/
