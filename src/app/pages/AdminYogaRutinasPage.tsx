@@ -13,10 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getYogaRutinas, createYogaRutina, updateYogaRutina, deleteYogaRutina, type YogaRutina } from '../lib/yogaAdminApi';
-import { nivelColors } from '../../constants/fitness';
-
-const objetivoOptions = ['flexibilidad', 'fuerza', 'relax'];
-const nivelOptions = ['principiante', 'intermedio', 'avanzado'];
+import { nivelColors, nivelOptions, objetivoYogaOptions } from '../../constants/fitness';
 
 interface FormData {
     nombre: string;
@@ -271,7 +268,7 @@ export default function AdminYogaRutinasPage() {
                                         onChange={(e) => setFormData({ ...formData, objetivo: e.target.value })}
                                         className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-primary/50"
                                     >
-                                        {objetivoOptions.map(o => (
+                                        {objetivoYogaOptions.map(o => (
                                             <option key={o} value={o} className="capitalize">{objetivoIcons[o]} {o}</option>
                                         ))}
                                     </select>

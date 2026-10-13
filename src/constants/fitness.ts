@@ -16,6 +16,14 @@ export const nivelColors: Record<string, string> = {
     avanzado: 'bg-red-500/10 text-red-400 border-red-500/20',
 };
 
+export const nivelOptions = ['principiante', 'intermedio', 'avanzado'];
+
+export const objetivoRutinaOptions = ['mantener_forma', 'tonificar', 'ganar_fuerza'];
+
+export const objetivoYogaOptions = ['flexibilidad', 'fuerza', 'relajacion'];
+
+export const grupoMuscularOptions = Object.keys(grupoIcons);
+
 export const rutinaDisponibilidadOptions = ['casa', 'gimnasio', 'ambos'];
 
 

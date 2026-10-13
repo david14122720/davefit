@@ -17,10 +17,7 @@ import { useAuth } from '../context/AuthContext';
 import { getRutinas, deleteRutina, saveRutinaConEjercicios, getRutinaEjercicios, type Rutina } from '../lib/rutinasApi';
 import { getEjercicios, type Ejercicio } from '../lib/ejerciciosApi';
 import FileUpload from '../components/FileUpload';
-import { rutinaDisponibilidadOptions } from '../../constants/fitness';
-
-const objetivoOptions = ['mantener_forma', 'tonificar', 'ganar_fuerza'];
-const nivelOptions = ['principiante', 'intermedio', 'avanzado'];
+import { rutinaDisponibilidadOptions, objetivoRutinaOptions, nivelOptions } from '../../constants/fitness';
 
 interface EjercicioSeleccionado {
     ejercicio_id: string;
@@ -361,7 +358,7 @@ export default function AdminRutinasPage() {
                                         onChange={(e) => setFormData({ ...formData, objetivo: e.target.value })}
                                         className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-white focus:outline-hidden focus:border-blue-500/50"
                                     >
-                                        {objetivoOptions.map(o => (
+                                        {objetivoRutinaOptions.map(o => (
                                             <option key={o} value={o} className="capitalize">{o}</option>
                                         ))}
                                     </select>

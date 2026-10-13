@@ -14,8 +14,7 @@ import { useAuth } from '../context/AuthContext';
 import { getEjercicios, createEjercicio, updateEjercicio, deleteEjercicio, type Ejercicio } from '../lib/ejerciciosApi';
 import FileUpload from '../components/FileUpload';
 
-const grupoMuscularOptions = ['pecho', 'espalda', 'piernas', 'brazo', 'hombros', 'core', 'cardio', 'full_body', 'cuello'];
-import { grupoIcons } from '../../constants/fitness';
+import { grupoIcons, grupoMuscularOptions } from '../../constants/fitness';
 
 interface FormData {
     nombre: string;

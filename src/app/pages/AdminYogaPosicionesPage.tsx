@@ -14,9 +14,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { getYogaPosiciones, createYogaPosicion, updateYogaPosicion, deleteYogaPosicion, type YogaPosicion } from '../lib/yogaAdminApi';
 import FileUpload from '../components/FileUpload';
-import { nivelColors } from '../../constants/fitness';
-
-const nivelOptions = ['principiante', 'intermedio', 'avanzado'];
+import { nivelColors, nivelOptions } from '../../constants/fitness';
 
 interface FormData {
     nombre: string;
