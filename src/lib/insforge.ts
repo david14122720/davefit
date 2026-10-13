@@ -4,9 +4,19 @@
 
 import { createClient } from '@insforge/sdk';
 import { getCsrfHeader } from './auth';
+import { resolveInsforgeBaseUrl, buildRpcUrl } from './insforge-url';
 import type { InsforgeClient } from './insforge-types';
 
-const insforgeUrl = import.meta.env.PUBLIC_INSFORGE_URL;
+// En el navegador hablamos con el MISMO origen (proxy Vite/nginx hacia el
+// backend): así las cookies de sesión de InsForge son first-party y Chrome
+// las guarda. En SSR se usa la URL absoluta del entorno.
+// Ver src/lib/insforge-url.ts y odd/tasks/insforge-session-proxy.md
+const isBrowser = typeof window !== 'undefined';
+const insforgeUrl = resolveInsforgeBaseUrl(
+  import.meta.env.PUBLIC_INSFORGE_URL,
+  isBrowser,
+  isBrowser ? window.location.origin : undefined,
+);
 const insforgeAnonKey = import.meta.env.PUBLIC_INSFORGE_ANON_KEY;
 
 const MAX_RPC_PAYLOAD_BYTES = 4096;
@@ -138,7 +148,9 @@ export async function invokeRpc<T = any>(
     const token = sessionData?.session?.accessToken ?? null;
 
     const csrfHeader = getCsrfHeader(); // browser-only, returns {} on server
-    const response = await fetch(`${insforgeUrl}/rest/v1/rpc/${encodeURIComponent(functionName)}`, {
+    // Nota: la ruta correcta del backend es /api/database/rpc (buildRpcUrl).
+    // Antes apuntaba a /rest/v1/rpc, que no existe → todo RPC daba 404.
+    const response = await fetch(buildRpcUrl(insforgeUrl, functionName), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

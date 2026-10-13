@@ -331,3 +331,26 @@ export function getCsrfHeader(): Record<string, string> {
     return {};
   }
 }
+
+// ------------------------------------------------------------------
+// Limpieza de sesión InsForge muerta
+// ------------------------------------------------------------------
+
+/** Cookie que el SDK de InsForge usa como pista de sesión activa. */
+const INSFORGE_SESSION_COOKIE = 'insforge_csrf_token';
+
+/**
+ * Borra la cookie de sesión de InsForge (`insforge_csrf_token`).
+ *
+ * Se usa cuando restaurar la sesión falla (ej. refresh 401 porque la
+ * cookie de refresh expiró o fue revocada): sin esta limpieza, cada
+ * recarga reintenta el refresh muerto y ensucia la consola con un 401
+ * que ya sabemos que no va a funcionar.
+ *
+ * Nota: la cookie CSRF de ESTA app es `xsrf-token` / `__Host-xsrf-token`
+ * y NO se toca acá.
+ */
+export function clearStaleInsforgeSessionCookie(): void {
+  if (typeof document === 'undefined') return;
+  document.cookie = `${INSFORGE_SESSION_COOKIE}=; Max-Age=0; path=/`;
+}

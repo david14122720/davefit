@@ -9,6 +9,7 @@ import {
   recordFailedAttempt,
   clearRateLimit,
   getCsrfToken,
+  clearStaleInsforgeSessionCookie,
 } from '../../lib/auth';
 
 // ------------------------------------------------------------------
@@ -234,6 +235,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setAccessToken(token);
               await loadPerfil(userData.user.id, token, userData.user);
             }
+          } else if (error) {
+            // Restaurar sesión falló (ej. refresh 401 sin cookie válida):
+            // limpiar el rastro para no reintentar el refresh muerto en
+            // cada carga de página (ver odd/tasks/insforge-session-proxy.md).
+            clearStaleInsforgeSessionCookie();
           }
         }
 

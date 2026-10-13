@@ -1,9 +1,48 @@
 import { defineConfig } from 'astro/config';
+import { loadEnv } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import node from '@astrojs/node';
 
 import sitemap from '@astrojs/sitemap';
+
+// ============================================================
+// Proxy same-origin hacia el backend InsForge (solo dev)
+// ============================================================
+//
+// El navegador habla con el MISMO origen de la app (ver
+// src/lib/insforge-url.ts): estos prefijos se proxyean al backend.
+// El hook proxyRes reescribe `SameSite=None` → `SameSite=Lax` porque
+// Chrome rechaza SameSite=None sin Secure en respuestas HTTP, y con eso
+// la cookie de refresh nunca se guardaba (sesión perdida en cada
+// recarga, 401 en /api/auth/refresh).
+// En producción nginx.conf hace lo mismo (proxy_cookie_flags).
+// Ver odd/tasks/insforge-session-proxy.md
+
+const INSFORGE_PROXY_PREFIXES = ['/api/auth', '/api/storage', '/api/database'];
+
+function rewriteSetCookieHeaders(cookies) {
+    if (!Array.isArray(cookies)) return cookies;
+    return cookies.map((c) => c.replace(/SameSite=None/i, 'SameSite=Lax'));
+}
+
+function buildInsforgeProxy(envUrl) {
+    const entry = {
+        target: envUrl || 'http://192.168.50.121:7130',
+        changeOrigin: true,
+        configure(proxy) {
+            proxy.on('proxyRes', (proxyRes) => {
+                const setCookie = proxyRes.headers['set-cookie'];
+                if (setCookie) {
+                    proxyRes.headers['set-cookie'] = rewriteSetCookieHeaders(setCookie);
+                }
+            });
+        },
+    };
+    return Object.fromEntries(INSFORGE_PROXY_PREFIXES.map((p) => [p, entry]));
+}
+
+const env = loadEnv('', process.cwd(), '');
 
 // ============================================================
 // Hardening Fase 3 — vendor chunking manual
@@ -73,6 +112,9 @@ export default defineConfig({
         sitemap(),
     ],
     vite: {
+        server: {
+            proxy: buildInsforgeProxy(env.PUBLIC_INSFORGE_URL),
+        },
         plugins: [tailwindcss()],
         optimizeDeps: {
             include: ['react', 'react-dom', 'react-router-dom'],
