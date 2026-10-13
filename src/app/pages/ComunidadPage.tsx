@@ -8,7 +8,7 @@ interface LeaderboardUser {
   user_id: string;
   username: string;
   avatar_url?: string;
-  streak_days: number;
+  dias_racha: number;
   total_score: number;
   total_workouts: number;
 }
@@ -130,7 +130,7 @@ export default function ComunidadPage() {
     setLoading(true);
     try {
       const { data: perfilesData, error: pError } = await queryWithRetry<any[]>(() =>
-        insforge.database.from('perfiles').select('id, nombre_completo, avatar_url')
+        insforge.database.from('perfiles_public').select('id, nombre_completo, avatar_url')
       );
 
       if (pError) {
@@ -140,7 +140,7 @@ export default function ComunidadPage() {
       }
 
       const { data: statsData, error: sError } = await queryWithRetry<any[]>(() =>
-        insforge.database.from('user_stats').select('*')
+        insforge.database.from('user_stats_public').select('user_id, xp_total, total_workouts, dias_racha')
       );
 
       if (sError) {
@@ -164,7 +164,7 @@ export default function ComunidadPage() {
                 user_id: profile.id,
                 username: profile.nombre_completo?.split(' ')[0] || 'Atleta',
                 avatar_url: profile.avatar_url,
-                streak_days: stats?.streak_days || 0,
+                dias_racha: stats?.dias_racha || 0,
                 total_score: stats?.xp_total || 0,
                 total_workouts: stats?.total_workouts || 0,
             };

@@ -6,7 +6,7 @@ export const GET: APIRoute = async () => {
         // Obtener conteos reales
         const [exercisesResult, usersResult, suggestionsResult] = await Promise.all([
             insforge.database.from('ejercicios').select('id', { count: 'exact', head: true }),
-            insforge.database.from('perfiles').select('id', { count: 'exact', head: true }),
+            insforge.database.from('perfiles_public').select('id', { count: 'exact', head: true }),
             insforge.database.from('suggestions').select('rating')
         ]);
 
