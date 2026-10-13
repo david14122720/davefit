@@ -9,5 +9,5 @@ test('debe cargar la página de inicio', async ({ page }) => {
 test('debe mostrar el formulario de login', async ({ page }) => {
     await page.goto('/login');
     await expect(page.locator('form')).toBeVisible();
-    await expect(page.locator('button[type="submit"]')).toContainText(/Entrar/i);
+    await expect(page.locator('button[type="submit"]')).toContainText(/Iniciar Sesión/i);
 });
