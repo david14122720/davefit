@@ -105,9 +105,10 @@ Verificación previa (panel SQL, read-only):
       de eslint), eslint 0 errores, `npm run build` verde.
 - [x] **T8** 16 commits por unidad de trabajo a `main` (Conventional Commits),
       sin `push` (no autorizado).
-- [ ] **T9** Pedir OK explícito para el DDL de T6 (+ backfill opcional de
-      `user_stats`). Ver "Decisiones pendientes".
-- [ ] **T10** Reporte final con `Risk:` y pendientes.
+- [x] **T9** Pedir OK explícito para el DDL de T6 (+ backfill opcional de
+      `user_stats`). Decisión: **no aplicar por ahora**.
+- [x] **T10** Reporte final con `Risk:` y pendientes + `push` a `origin/main`
+      autorizado y ejecutado.
 
 ## Log
 
@@ -144,6 +145,9 @@ Verificación previa (panel SQL, read-only):
 - **L9** (2026-10-13, decisiones del usuario): (1) **NO** aplicar la migración
   en prod por ahora; (2) `.env.production` y `Dockerfile` quedan **sin
   commitear**; (3) **push a `origin/main` autorizado**.
+- **L10** (2026-10-13, cierre): `git push origin main` → `6bbac23..ca25ae2`;
+  `main` y `origin/main` en `ca25ae2` (20 commits). Sesión cerrada con el
+  handoff de arriba.
 
 ## Decisiones del usuario (2026-10-13)
 
@@ -154,3 +158,36 @@ Verificación previa (panel SQL, read-only):
 2. **`.env.production` y `Dockerfile`**: se dejan sin commitear (cambio local);
    el repo mantiene `https://insforge.tesh.online`.
 3. **`push` a `origin/main`**: autorizado y ejecutado.
+
+## Handoff — próxima sesión
+
+Estado al cerrar (2026-10-13):
+
+- `main` = `origin/main` = `ca25ae2`. 20 commits desde `a7f8e86`.
+- `git status`: solo `.env.production` y `Dockerfile` modificados (sin
+  commitear, por decisión del usuario). Nada más suelto.
+- Checks: vitest 115/115 (25 archivos), tsc 5 errores preexistentes, eslint 0
+  errores, build verde, e2e de `/dashboard` 1 passed.
+
+Orden sugerido para retomar:
+
+1. **Aplicar la migración del RPC** (si el usuario lo decide): pegar
+   `db/migrations/hardening_workout_rpc_grants.sql` en el SQL editor del panel
+   de InsForge. Rollback: `..._rollback.sql`. Verificación:
+   `SELECT proacl FROM pg_proc WHERE proname = 'process_workout_completion';`
+   → `anon` sin EXECUTE y `authenticated` con EXECUTE.
+2. **Guarda `auth.uid()`** (vector autenticado): necesita el cuerpo actual
+   (`SELECT prosrc FROM pg_proc WHERE proname = 'process_workout_completion';`)
+   y el tipo de retorno (`pg_get_function_result(oid)`) desde el panel; con eso
+   se aplica el patrón rename + wrapper documentado arriba.
+3. **Backfill opcional**: `INSERT` de una fila de `user_stats` en cero para la
+   cuenta sin fila ("juana de arco"). Decisión del usuario.
+4. **Aceptación del usuario en el navegador** (no hay dev server corriendo):
+   `npx astro dev` → login + F5 (la sesión debe sobrevivir) y `/perfil` con la
+   cuenta sin fila (ceros, no "Identidad Extraviada").
+5. **Deploy** (cuando el usuario quiera): código y `nginx.conf` tienen que
+   viajar juntos, porque el cliente same-origin depende del proxy.
+6. **Follow-ups menores**: `proxy_set_header X-Forwarded-For
+   $proxy_add_x_forwarded_for;` en `nginx.conf`; persistencia de sesión OAuth;
+   unificar las fuentes del rating (`/api/stats` cuenta `rating > 0`,
+   `site_stats.total_reviews` cuenta todas las aprobadas).
