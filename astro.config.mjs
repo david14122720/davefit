@@ -19,7 +19,7 @@ import sitemap from '@astrojs/sitemap';
 // En producción nginx.conf hace lo mismo (proxy_cookie_flags).
 // Ver odd/tasks/insforge-session-proxy.md
 
-const INSFORGE_PROXY_PREFIXES = ['/api/auth', '/api/storage', '/api/database'];
+const INSFORGE_PROXY_PREFIXES = ['/api/auth', '/api/storage', '/api/database', '/api/ai'];
 
 function rewriteSetCookieHeaders(cookies) {
     if (!Array.isArray(cookies)) return cookies;
