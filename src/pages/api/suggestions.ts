@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { isIP } from 'node:net';
 import { insforge } from '../../lib/insforge';
 
 /** Sanitización simple para servidor — elimina etiquetas HTML/atributos */
@@ -12,13 +13,80 @@ function sanitizeText(input: string): string {
 
 const RATE_LIMIT_MS = 60000;
 
-function getClientIP(request: Request, clientAddress: string | undefined): string {
-    const forwarded = request.headers.get('x-forwarded-for');
-    if (forwarded) {
-        const ip = forwarded.split(',')[0].trim();
-        if (ip) return ip;
+/** Largo máximo de una IP (IPv6 con scope). Evita persistir texto arbitrario. */
+const MAX_IP_LENGTH = 45;
+
+/** Rangos IPv4 que no identifican a un usuario final (privados/loopback). */
+function isPrivateIpv4(ip: string): boolean {
+    const [a, b] = ip.split('.').map(Number);
+    if (a === 0 || a === 10 || a === 127) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 169 && b === 254) return true; // link-local
+    return false;
+}
+
+function isPrivateOrLoopback(ip: string): boolean {
+    const version = isIP(ip);
+    if (version === 4) return isPrivateIpv4(ip);
+    if (version === 6) {
+        const lower = ip.toLowerCase();
+        if (lower === '::' || lower === '::1') return true;
+        if (/^fe[89ab]/.test(lower)) return true;            // fe80::/10 link-local
+        if (/^f[cd]/.test(lower)) return true;               // fc00::/7 unique local
+        const mapped = lower.match(/::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/);
+        if (mapped) return isPrivateIpv4(mapped[1]);          // ::ffff:a.b.c.d
+        return false;
     }
-    return clientAddress || 'unknown';
+    return false;
+}
+
+/**
+ * Resuelve la IP del cliente que se guarda en `sender_ip` y define el cupo de
+ * 1/minuto.
+ *
+ * Reglas (de más a menos confiable):
+ * 1. La dirección real del socket cuando es una IP pública: en una conexión
+ *    directa el cliente no puede falsificarla.
+ * 2. El ÚLTIMO hop válido de `X-Forwarded-For`: con un proxy delante, ese es
+ *    el valor que el proxy agrega (el prefijo lo controla el cliente).
+ * 3. La dirección del socket aunque sea privada/loopback.
+ *
+ * Toda entrada se valida como IP real y se descarta la que exceda
+ * `MAX_IP_LENGTH`: antes se persistía el primer valor de la cabecera sin
+ * validar, así que un cliente podía escribir texto arbitrario en la DB y
+ * saltarse el rate-limit.
+ *
+ * Limitación conocida: el proxy todavía no agrega el header (`proxy_set_header
+ * X-Forwarded-For $proxy_add_x_forwarded_for;` en nginx.conf), así que en prod
+ * el último hop sigue siendo elegido por el cliente. Ver
+ * odd/tasks/cierre-pendientes-main.md.
+ */
+export function resolveClientIp(
+    forwardedFor: string | null,
+    clientAddress: string | undefined,
+): string {
+    if (clientAddress && isIP(clientAddress) !== 0 && !isPrivateOrLoopback(clientAddress)) {
+        return clientAddress;
+    }
+
+    if (forwardedFor) {
+        const candidates = forwardedFor.split(',');
+        for (let i = candidates.length - 1; i >= 0; i--) {
+            const candidate = candidates[i].trim();
+            if (!candidate || candidate.length > MAX_IP_LENGTH) continue;
+            if (isIP(candidate) === 0) continue;
+            return candidate;
+        }
+    }
+
+    if (clientAddress && isIP(clientAddress) !== 0) return clientAddress;
+
+    return 'unknown';
+}
+
+function getClientIP(request: Request, clientAddress: string | undefined): string {
+    return resolveClientIp(request.headers.get('x-forwarded-for'), clientAddress);
 }
 
 export const GET: APIRoute = async ({ url }) => {
