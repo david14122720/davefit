@@ -59,6 +59,35 @@ export default function YogaPracticePage() {
   const totalPosiciones = session.rutina?.posiciones?.length || 0;
   const posicionActual = session.rutina?.posiciones?.[session.posicionIndex];
 
+  // OJO con el orden: los useCallback de abajo listan `handleFinalizar` en sus
+  // deps, y ese array se evalúa durante el render. Declararlo primero evita el
+  // ReferenceError (TDZ) que rompía /yoga/practicar/:rutinaId.
+  const handleFinalizar = useCallback(async () => {
+    setIsTimerRunning(false);
+
+    if (user && session.rutina && session.startTime) {
+      const result = await completeSession();
+      if (result.error) {
+        toast.error('Error al guardar el progreso');
+        return;
+      }
+      const duracionMin = Math.floor((Date.now() - session.startTime.getTime()) / 1000 / 60);
+      const xpCalc = await processWorkoutCompletion(user.id, Math.max(duracionMin, 1));
+      if (xpCalc.success) {
+        setXpResult({
+          xp_ganado: xpCalc.calculation.xp_ganado,
+          nivel_nuevo: xpCalc.calculation.nivel_nuevo,
+          subio_nivel: xpCalc.calculation.subio_nivel,
+        });
+        celebrateCompletion();
+        if (xpCalc.calculation.subio_nivel) {
+          setTimeout(celebrateLevelUp, 500);
+        }
+      }
+    }
+    setShowCompletionModal(true);
+  }, [completeSession, user, session.rutina, session.startTime, celebrateCompletion, celebrateLevelUp]);
+
   const handleTimerComplete = useCallback(() => {
     setIsTimerRunning(false);
     
@@ -114,32 +143,6 @@ export default function YogaPracticePage() {
       }
     }
   }, [session.posicionIndex, session.rutina, prevPosition]);
-
-  const handleFinalizar = useCallback(async () => {
-    setIsTimerRunning(false);
-
-    if (user && session.rutina && session.startTime) {
-      const result = await completeSession();
-      if (result.error) {
-        toast.error('Error al guardar el progreso');
-        return;
-      }
-      const duracionMin = Math.floor((Date.now() - session.startTime.getTime()) / 1000 / 60);
-      const xpCalc = await processWorkoutCompletion(user.id, Math.max(duracionMin, 1), 'yoga');
-      if (xpCalc.success) {
-        setXpResult({
-          xp_ganado: xpCalc.calculation.xp_ganado,
-          nivel_nuevo: xpCalc.calculation.nivel_nuevo,
-          subio_nivel: xpCalc.calculation.subio_nivel,
-        });
-        celebrateCompletion();
-        if (xpCalc.calculation.subio_nivel) {
-          setTimeout(celebrateLevelUp, 500);
-        }
-      }
-    }
-    setShowCompletionModal(true);
-  }, [completeSession, user, session.rutina, session.startTime, celebrateCompletion, celebrateLevelUp]);
 
   const handleVolverInicio = useCallback(() => {
     resetSession();
