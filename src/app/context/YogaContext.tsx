@@ -1,24 +1,12 @@
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 import {
-    getRutinas,
     getRutina,
     getPosiciones,
     saveProgreso,
-    getHistorialProgreso,
     type RutinaYoga,
     type PosicionYoga,
-    type ProgresoYoga,
-    type FiltrosRutina,
 } from '../lib/yogaApi';
-
-// Timer state for active session
-export interface TimerState {
-    isRunning: boolean;
-    isPaused: boolean;
-    currentSeconds: number;
-    totalSeconds: number;
-}
 
 // Session state
 export interface SessionState {
@@ -30,14 +18,11 @@ export interface SessionState {
 }
 
 interface YogaContextType {
-    // Rutinas
-    rutinas: RutinaYoga[];
+    // Rutina activa
     rutinaActual: RutinaYoga | null;
     loadingRutinas: boolean;
     errorRutinas: string | null;
-    fetchRutinas: (filters?: FiltrosRutina) => Promise<void>;
     fetchRutina: (id: string) => Promise<void>;
-    clearRutinaActual: () => void;
 
     // Posiciones
     posiciones: PosicionYoga[];
@@ -51,29 +36,9 @@ interface YogaContextType {
     prevPosition: () => void;
     completeSession: () => Promise<{ error?: string }>;
     resetSession: () => void;
-
-    // Timer
-    timer: TimerState;
-    startTimer: (seconds: number) => void;
-    pauseTimer: () => void;
-    resumeTimer: () => void;
-    resetTimer: () => void;
-    tickTimer: () => void;
-
-    // Progreso
-    historial: ProgresoYoga[];
-    loadingHistorial: boolean;
-    fetchHistorial: () => Promise<void>;
 }
 
 const YogaContext = createContext<YogaContextType | null>(null);
-
-const initialTimer: TimerState = {
-    isRunning: false,
-    isPaused: false,
-    currentSeconds: 0,
-    totalSeconds: 0,
-};
 
 const initialSession: SessionState = {
     rutina: null,
@@ -86,8 +51,7 @@ const initialSession: SessionState = {
 export function YogaProvider({ children }: { children: React.ReactNode }) {
     const { user } = useAuth();
 
-    // Rutinas state
-    const [rutinas, setRutinas] = useState<RutinaYoga[]>([]);
+    // Rutina activa state
     const [rutinaActual, setRutinaActual] = useState<RutinaYoga | null>(null);
     const [loadingRutinas, setLoadingRutinas] = useState(false);
     const [errorRutinas, setErrorRutinas] = useState<string | null>(null);
@@ -98,26 +62,6 @@ export function YogaProvider({ children }: { children: React.ReactNode }) {
 
     // Session state
     const [session, setSession] = useState<SessionState>(initialSession);
-
-    // Timer state
-    const [timer, setTimer] = useState<TimerState>(initialTimer);
-
-    // Progreso state
-    const [historial, setHistorial] = useState<ProgresoYoga[]>([]);
-    const [loadingHistorial, setLoadingHistorial] = useState(false);
-
-    // Fetch rutinas
-    const fetchRutinas = useCallback(async (filters?: FiltrosRutina) => {
-        setLoadingRutinas(true);
-        setErrorRutinas(null);
-        const { data, error } = await getRutinas(filters);
-        if (error) {
-            setErrorRutinas(error);
-        } else {
-            setRutinas(data || []);
-        }
-        setLoadingRutinas(false);
-    }, []);
 
     // Fetch single rutina
     const fetchRutina = useCallback(async (id: string) => {
@@ -130,11 +74,6 @@ export function YogaProvider({ children }: { children: React.ReactNode }) {
             setRutinaActual(data);
         }
         setLoadingRutinas(false);
-    }, []);
-
-    // Clear rutina actual
-    const clearRutinaActual = useCallback(() => {
-        setRutinaActual(null);
     }, []);
 
     // Fetch posiciones
@@ -154,17 +93,6 @@ export function YogaProvider({ children }: { children: React.ReactNode }) {
             startTime: new Date(),
             isCompleted: false,
         });
-        // Iniciar timer con la duración de la primera posición
-        const primeraPosicion = rutina.posiciones?.[0];
-        if (primeraPosicion) {
-            const duracion = primeraPosicion.duracion_segundos ?? 30;
-            setTimer({
-                isRunning: true,
-                isPaused: false,
-                currentSeconds: duracion,
-                totalSeconds: duracion,
-            });
-        }
     }, []);
 
     // Next position
@@ -221,95 +149,30 @@ export function YogaProvider({ children }: { children: React.ReactNode }) {
     // Reset session
     const resetSession = useCallback(() => {
         setSession(initialSession);
-        setTimer(initialTimer);
     }, []);
-
-    // Timer functions
-    const startTimer = useCallback((seconds: number) => {
-        setTimer({
-            isRunning: true,
-            isPaused: false,
-            currentSeconds: seconds,
-            totalSeconds: seconds,
-        });
-    }, []);
-
-    const pauseTimer = useCallback(() => {
-        setTimer(prev => ({ ...prev, isPaused: true }));
-    }, []);
-
-    const resumeTimer = useCallback(() => {
-        setTimer(prev => ({ ...prev, isPaused: false }));
-    }, []);
-
-    const resetTimer = useCallback(() => {
-        setTimer(initialTimer);
-    }, []);
-
-    const tickTimer = useCallback(() => {
-        setTimer(prev => {
-            if (!prev.isRunning || prev.isPaused) return prev;
-            const newSeconds = prev.currentSeconds - 1;
-            if (newSeconds <= 0) {
-                return { ...prev, currentSeconds: 0, isRunning: false };
-            }
-            return { ...prev, currentSeconds: newSeconds };
-        });
-    }, []);
-
-    // Fetch historial
-    const fetchHistorial = useCallback(async () => {
-        if (!user) return;
-        setLoadingHistorial(true);
-        const { data } = await getHistorialProgreso(user.id);
-        setHistorial(data || []);
-        setLoadingHistorial(false);
-    }, [user]);
 
     const contextValue = useMemo(() => ({
-        // Rutinas
-        rutinas,
         rutinaActual,
         loadingRutinas,
         errorRutinas,
-        fetchRutinas,
         fetchRutina,
-        clearRutinaActual,
 
-        // Posiciones
         posiciones,
         loadingPosiciones,
         fetchPosiciones,
 
-        // Session
         session,
         startSession,
         nextPosition,
         prevPosition,
         completeSession,
         resetSession,
-
-        // Timer
-        timer,
-        startTimer,
-        pauseTimer,
-        resumeTimer,
-        resetTimer,
-        tickTimer,
-
-        // Progreso
-        historial,
-        loadingHistorial,
-        fetchHistorial,
     }), [
-        rutinas, rutinaActual, loadingRutinas, errorRutinas,
+        rutinaActual, loadingRutinas, errorRutinas,
         posiciones, loadingPosiciones,
-        session, timer,
-        historial, loadingHistorial,
-        fetchRutinas, fetchRutina, clearRutinaActual, fetchPosiciones,
+        session,
+        fetchRutina, fetchPosiciones,
         startSession, nextPosition, prevPosition, completeSession, resetSession,
-        startTimer, pauseTimer, resumeTimer, resetTimer, tickTimer,
-        fetchHistorial,
     ]);
 
     return (

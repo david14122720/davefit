@@ -50,55 +50,7 @@ export interface ProgresoYoga {
     updated_at?: string;
 }
 
-export interface FiltrosRutina {
-    nivel?: 'principiante' | 'intermedio' | 'avanzado';
-    objetivo?: 'flexibilidad' | 'fuerza' | 'relajacion';
-    duracion_max?: number;
-}
-
 // API Functions
-
-/**
- * Obtiene todas las rutinas de yoga disponibles
- */
-export async function getRutinas(filters?: FiltrosRutina): Promise<{ data: RutinaYoga[] | null; error: string | null }> {
-    try {
-        let query = insforge.database
-            .from('yoga_rutinas')
-            .select(`
-                *,
-                posiciones:yoga_rutina_posiciones(
-                    id,
-                    rutina_id,
-                    posicion_id,
-                    orden,
-                    duracion_segundos,
-                    posicion:yoga_posiciones(*)
-                )
-            `)
-            .order('created_at', { ascending: false });
-
-        if (filters?.nivel) {
-            query = query.eq('nivel', filters.nivel);
-        }
-        if (filters?.objetivo) {
-            query = query.eq('objetivo', filters.objetivo);
-        }
-        if (filters?.duracion_max) {
-            query = query.lte('duracion_minutos', filters.duracion_max);
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-            return { data: null, error: error.message };
-        }
-
-        return { data: data as RutinaYoga[], error: null };
-    } catch (e: any) {
-        return { data: null, error: e.message || 'Error al obtener rutinas' };
-    }
-}
 
 /**
  * Obtiene una rutina específica por ID
@@ -219,30 +171,5 @@ export async function saveProgreso(data: {
     } catch (e: unknown) {
         console.error('[YogaApi] Error en saveProgreso:', e);
         return { data: null, error: e instanceof Error ? e.message : 'Error desconocido' };
-    }
-}
-
-/**
- * Obtiene el historial de progreso de yoga del usuario
- */
-export async function getHistorialProgreso(userId: string, limit = 20): Promise<{ data: ProgresoYoga[] | null; error: string | null }> {
-    try {
-        const { data, error } = await insforge.database
-            .from('yoga_progreso')
-            .select(`
-                *,
-                rutina:yoga_rutinas(nombre, nivel, objetivo)
-            `)
-            .eq('user_id', userId)
-            .order('fecha_completado', { ascending: false })
-            .limit(limit);
-
-        if (error) {
-            return { data: null, error: error.message };
-        }
-
-        return { data: data as ProgresoYoga[], error: null };
-    } catch (e: any) {
-        return { data: null, error: e.message || 'Error al obtener historial' };
     }
 }

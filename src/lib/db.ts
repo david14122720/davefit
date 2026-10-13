@@ -227,39 +227,3 @@ export async function getById<T>(
       .maybeSingle()
   );
 }
-
-/**
- * Lista registros con filtro opcional y orden.
- */
-export async function listRows<T>(
-  table: string,
-  options?: {
-    select?: string;
-    filters?: Record<string, any>;
-    orderBy?: string;
-    ascending?: boolean;
-    limit?: number;
-  }
-): Promise<QueryResult<T[]>> {
-  let query = insforge.database.from(table).select(options?.select || '*');
-
-  if (options?.filters) {
-    for (const [col, val] of Object.entries(options.filters)) {
-      if (val !== undefined && val !== null) {
-        query = query.eq(col, val);
-      }
-    }
-  }
-
-  if (options?.orderBy) {
-    query = query.order(options.orderBy, {
-      ascending: options?.ascending ?? true,
-    });
-  }
-
-  if (options?.limit) {
-    query = query.limit(options.limit);
-  }
-
-  return queryWithRetry<T[]>(() => query);
-}

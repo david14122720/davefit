@@ -1,18 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useYoga } from '../context/YogaContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { nivelColors } from '../../constants/fitness';
 import { 
   ChevronDown, ChevronUp, Search, Flower2, 
   Clock, BarChart3, CheckCircle
 } from 'lucide-react';
 
 type Nivel = 'principiante' | 'intermedio' | 'avanzado';
-
-const nivelColors: Record<Nivel, string> = {
-  principiante: 'bg-green-500/20 text-green-400 border-green-500/30',
-  intermedio: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  avanzado: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-};
 
 export default function YogaPosicionesPage() {
   const { posiciones, loadingPosiciones, fetchPosiciones } = useYoga();

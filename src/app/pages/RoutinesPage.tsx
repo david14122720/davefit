@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { insforge } from '../../lib/insforge';
 import { queryWithRetry } from '../../lib/db';
+import { nivelColors } from '../../constants/fitness';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, X, Clock, Target, BarChart3, ChevronRight, MonitorPlay, Search, SlidersHorizontal } from 'lucide-react';
 
@@ -37,12 +38,6 @@ const objetivoLabels: Record<string, string> = {
     mantener_forma: 'Mantener Forma',
     tonificar: 'Tonificar Cuerpo',
     ganar_fuerza: 'Ganar Fuerza',
-};
-
-const nivelColors: Record<string, string> = {
-    principiante: 'bg-green-500/10 text-green-400 border-green-500/20',
-    intermedio: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
-    avanzado: 'bg-red-500/10 text-green-400 border-red-500/20',
 };
 
 export default function RoutinesPage() {

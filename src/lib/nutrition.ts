@@ -79,64 +79,6 @@ export function calcularTDEE(perfil: PerfilData): number | null {
     return Math.round(bmr * factorActividad);
 }
 
-// Calcular calorías objetivo
-export function calcularCaloriasObjetivo(perfil: PerfilData): {
-    calorias: number | null;
-    tipo: string;
-    descripcion: string;
-} {
-    const tdee = calcularTDEE(perfil);
-    
-    if (!tdee) {
-        return {
-            calorias: null,
-            tipo: 'No calculable',
-            descripcion: 'Completa tu perfil para calcular tus calorías'
-        };
-    }
-    
-    const { objetivo } = perfil;
-    
-    switch (objetivo) {
-        case 'mantener_forma':
-        case 'mantener':
-            return {
-                calorias: tdee,
-                tipo: 'Mantenimiento',
-                descripcion: 'Mantén tu peso actual'
-            };
-        
-        case 'tonificar':
-            return {
-                calorias: tdee - 400,
-                tipo: 'Déficit moderado',
-                descripcion: 'Pérdida de grasa moderada para definición'
-            };
-        
-        case 'ganar_fuerza':
-            return {
-                calorias: tdee + 400,
-                tipo: 'Superávit calórico',
-                descripcion: 'Ganancia muscular óptima'
-            };
-        
-        case 'perder_peso':
-            return {
-                calorias: tdee - 500,
-                tipo: 'Déficit calórico',
-                descripcion: 'Pérdida de peso saludable'
-            };
-        
-        default:
-            return {
-                calorias: tdee,
-                tipo: 'Mantenimiento',
-                descripcion: 'Define tu objetivo para un cálculo personalizado'
-            };
-    }
-}
-
-
 // Calcular IMC (Índice de Masa Corporal)
 export function calcularIMC(peso: number | null, altura: number | null): number | null {
     if (!peso || !altura || altura <= 0) return null;

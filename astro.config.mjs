@@ -18,7 +18,6 @@ import sitemap from '@astrojs/sitemap';
 //   - vendor-router     (cambia solo con updates de react-router)
 //   - vendor-insforge   (cambia solo con updates del SDK backend)
 //   - vendor-framer     (cambia solo con updates de framer-motion)
-//   - vendor-chart      (chart.js si se añade en el futuro)
 //   - vendor-icons      (lucide-react — iconos estables, cache largo)
 //   - vendor-forms      (react-hook-form + zod, paquete estable)
 //
@@ -41,10 +40,6 @@ function manualChunks(id) {
     }
     if (id.includes('node_modules/framer-motion')) {
         return 'vendor-framer';
-    }
-    if (id.includes('node_modules/chart.js') ||
-        id.includes('node_modules/react-chartjs-2')) {
-        return 'vendor-chart';
     }
     if (id.includes('node_modules/lucide-react')) {
         return 'vendor-icons';
