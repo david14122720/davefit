@@ -1,22 +1,9 @@
 import { defineMiddleware } from 'astro:middleware';
+import { buildCsp } from './lib/csp';
 
-const INSFORGE_URL = import.meta.env.PUBLIC_INSFORGE_URL?.replace(/^https?:\/\//, '') || 'insforge.tesh.online';
-
-const CSP = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://accounts.google.com",
-  "script-src-elem 'self' 'unsafe-inline' https://accounts.google.com",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  `img-src 'self' data: blob: https://${INSFORGE_URL} https://raw.githubusercontent.com`,
-  "font-src 'self' https://fonts.gstatic.com",
-  `connect-src 'self' https://${INSFORGE_URL}`,
-  "frame-src https://accounts.google.com",
-  "frame-ancestors 'none'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-].join('; ');
+// PROD: política endurecida (script hash, sin unsafe-inline ni accounts.google.com).
+// DEV: permisiva para Vite HMR / OAuth local (CSP-1/CSP-2/CSP-3).
+const CSP = buildCsp({ isProd: import.meta.env.PROD });
 
 /** Métodos HTTP mutantes que requieren validación CSRF */
 const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
