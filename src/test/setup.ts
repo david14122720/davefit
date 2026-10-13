@@ -71,6 +71,7 @@ class MockAudioContext {
 
 // Mock InsForge SDK if needed globally
 vi.mock('../lib/insforge', () => ({
+  readAccessToken: vi.fn(() => null),
   insforge: {
     auth: {
       getSession: vi.fn(() => Promise.resolve({ data: { session: null }, error: null })),

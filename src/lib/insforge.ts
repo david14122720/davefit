@@ -5,7 +5,7 @@
 import { createClient } from '@insforge/sdk';
 import { getCsrfHeader } from './auth';
 import { resolveInsforgeBaseUrl, buildRpcUrl } from './insforge-url';
-import type { InsforgeClient } from './insforge-types';
+import { readAccessToken, type InsforgeClient } from './insforge-types';
 
 // En el navegador hablamos con el MISMO origen (proxy Vite/nginx hacia el
 // backend): así las cookies de sesión de InsForge son first-party y Chrome
@@ -144,8 +144,11 @@ export async function invokeRpc<T = any>(
 
   // 4. Ejecución
   try {
-    const { data: sessionData } = await insforge.auth.getSession();
-    const token = sessionData?.session?.accessToken ?? null;
+    // El SDK NO expone `auth.getSession()`: el access token vive en su
+    // tokenManager interno (lo pueblan login email/OAuth y cada refresh).
+    // Antes esto llamaba a un método inexistente → TypeError → el RPC
+    // fallaba siempre con RPC_NETWORK_ERROR y la gamificación quedaba muerta.
+    const token = readAccessToken(insforge as InsforgeClient);
 
     const csrfHeader = getCsrfHeader(); // browser-only, returns {} on server
     // Nota: la ruta correcta del backend es /api/database/rpc (buildRpcUrl).
