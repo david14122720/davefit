@@ -141,10 +141,16 @@ Verificación previa (panel SQL, read-only):
 - **L8** (2026-10-13): `.env.production` y `Dockerfile` quedan **sin commitear**
   (cambian la URL del backend a la IP LAN) → decisión del usuario.
 
-## Decisiones pendientes (turno cerrado con estas preguntas)
+- **L9** (2026-10-13, decisiones del usuario): (1) **NO** aplicar la migración
+  en prod por ahora; (2) `.env.production` y `Dockerfile` quedan **sin
+  commitear**; (3) **push a `origin/main` autorizado**.
 
-1. **DDL en prod**: aplicar `hardening_workout_rpc_grants.sql` (REVOKE anon)
-   ¿sí/no? Opcional: backfill de la fila `user_stats` de "juana de arco".
-2. **`.env.production` y `Dockerfile`**: dejar sin commitear, commitear con la
-   IP LAN, o restaurar `https://insforge.tesh.online`.
-3. **`push` a `origin/main`**: no ejecutado (no autorizado).
+## Decisiones del usuario (2026-10-13)
+
+1. **DDL en prod**: no aplicar por ahora. `hardening_workout_rpc_grants.sql`
+   queda en el repo sin ejecutar (se corre desde el panel de InsForge cuando se
+   decida). El backfill de `user_stats` de "juana de arco" sigue pendiente y la
+   guarda `auth.uid()` sigue necesitando el cuerpo actual de la función.
+2. **`.env.production` y `Dockerfile`**: se dejan sin commitear (cambio local);
+   el repo mantiene `https://insforge.tesh.online`.
+3. **`push` a `origin/main`**: autorizado y ejecutado.
