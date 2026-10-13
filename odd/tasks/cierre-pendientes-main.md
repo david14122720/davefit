@@ -100,10 +100,13 @@ Verificación previa (panel SQL, read-only):
   una línea (deploy, NO aplicado): `proxy_set_header X-Forwarded-For
   $proxy_add_x_forwarded_for;` en el `location /` de `nginx.conf`.
 
-- [ ] **T7** Checks: vitest + tsc + eslint + build.
-- [ ] **T8** Commits por unidad de trabajo a `main` (Conventional Commits).
+- [x] **T7** Checks: vitest 112/112 (24 archivos), tsc 5 (13 → 5: se
+      resolvieron los 4 TS2448/TS2454 de yoga, los 4 TS7006 de stats y el error
+      de eslint), eslint 0 errores, `npm run build` verde.
+- [x] **T8** 16 commits por unidad de trabajo a `main` (Conventional Commits),
+      sin `push` (no autorizado).
 - [ ] **T9** Pedir OK explícito para el DDL de T6 (+ backfill opcional de
-      `user_stats`).
+      `user_stats`). Ver "Decisiones pendientes".
 - [ ] **T10** Reporte final con `Risk:` y pendientes.
 
 ## Log
@@ -123,3 +126,25 @@ Verificación previa (panel SQL, read-only):
 - **L5** (2026-10-13): `odd/evidence/` (3.6 MB, 17 PNG + logs) se ignora en
   git; se commitean los docs de tarea (`odd/tasks/*.md`), que son el
   conocimiento reutilizable. Decisión reversible y reportada.
+- **L6** (2026-10-13, TDD): dos RED observados de verdad —
+  `ReferenceError: Cannot access 'handleFinalizar' before initialization` en el
+  test de render de `YogaPracticePage` (bug productivo: `/yoga/practicar/:id`
+  no renderizaba) y 7/7 fallos en `suggestions.test.ts` antes de exportar
+  `resolveClientIp`.
+- **L7** (2026-10-13, commits): 16 unidades — `refactor(admin)`, dead code,
+  calorías con peso real, `fix(yoga)` TDZ, `fix(profile)`, `feat(dashboard)`,
+  `test(e2e)`, `fix(suggestions)`, `fix(security)` vistas, `feat(security)` CSP,
+  `fix(insforge)`, `chore(assets)`, `fix(suggestions)` IP, `chore(db)` grants,
+  `docs` + higiene, `refactor(ui)` densidad. Tres archivos con dos temas
+  (`astro.config.mjs`, `yogaApi.ts`, `api/stats.ts`) se partieron a nivel de
+  archivo reconstruyendo el estado intermedio, no con `git add -p`.
+- **L8** (2026-10-13): `.env.production` y `Dockerfile` quedan **sin commitear**
+  (cambian la URL del backend a la IP LAN) → decisión del usuario.
+
+## Decisiones pendientes (turno cerrado con estas preguntas)
+
+1. **DDL en prod**: aplicar `hardening_workout_rpc_grants.sql` (REVOKE anon)
+   ¿sí/no? Opcional: backfill de la fila `user_stats` de "juana de arco".
+2. **`.env.production` y `Dockerfile`**: dejar sin commitear, commitear con la
+   IP LAN, o restaurar `https://insforge.tesh.online`.
+3. **`push` a `origin/main`**: no ejecutado (no autorizado).
