@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { insforge } from '../../lib/insforge';
-import { queryWithRetry } from '../../lib/db';
+import { getUserStats } from '../../lib/stats';
 import { calcularBMR, calcularTDEE, calcularIMC, getCategoriaIMC } from '../../lib/nutrition';
 import { toast } from 'sonner';
 import { motion, type Variants, AnimatePresence } from 'framer-motion';
@@ -46,14 +46,15 @@ export default function ProfilePage() {
         const loadStats = async () => {
             setLoadingStats(true);
             setError(null);
-            const { data, error } = await queryWithRetry<any>(() =>
-                insforge.database.from('user_stats').select('*').eq('user_id', user.id).maybeSingle()
-            );
-            if (error) {
-                console.error('Error loading stats:', error);
+            try {
+                const data = await getUserStats(user.id);
+                if (data) {
+                    setUserStats(data);
+                } else {
+                    setError('No pudimos cargar toda tu información clasificada.');
+                }
+            } catch {
                 setError('No pudimos cargar toda tu información clasificada.');
-            } else {
-                setUserStats(data);
             }
             setLoadingStats(false);
         };
