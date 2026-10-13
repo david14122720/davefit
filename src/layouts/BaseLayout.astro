@@ -44,7 +44,11 @@ const defaultJsonLd = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0a0a0a" />
-    <link rel="icon" type="image/x-icon" href="/davefitIMG.ico" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
 
     <!-- SEO -->
     <title>{title} | DaveFit</title>
@@ -83,6 +87,23 @@ const defaultJsonLd = {
 
     <meta name="generator" content={Astro.generator} />
     
+    <!--
+      SW killer: script inline ejecutable en producción. Su hash se fija en el
+      CSP PROD sin 'unsafe-inline' (CSP-2/CSP-7):
+        sha256-iThovp4Zn5AOL4TSEHmvakw9X1ZP0Rc1FW4R2+ted4A=
+      (bytes servidos por el build, incl. salto de línea inicial; constante
+      SW_KILLER_HASH en src/lib/csp.ts + inventario generado).
+
+      CORRECCIÓN 2026-08-09 (remediación): el valor publicado antes
+      (rEmM0...) era un artefacto de extracción — este comentario contiene el
+      literal "script is:inline" entre tags, que rompía el awk/regex antiguo y
+      capturaba comentario+script. NO uses extracción sobre este fuente para
+      hashear; usa el pipeline de build, que hashea el HTML renderizado:
+        npm run build   # regenera src/lib/csp-runtime-hashes.generated.ts
+        node scripts/generate-csp-hashes.mjs --print   # inspección manual
+      SI EDITAS ESTE SCRIPT: recalcula con el pipeline (build) — el hash de
+      este script también se deriva del HTML servido, no del texto del fuente.
+    -->
     <!-- Script to kill any old Service Worker and cache that might cause black screens -->
     <script is:inline>
       if ('serviceWorker' in navigator) {
