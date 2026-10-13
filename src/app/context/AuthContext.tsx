@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { insforge, readAccessToken, type InsforgeClient } from '../../lib/insforge';
+import { decodeAccessTokenClaims } from '../../lib/insforge-types';
 import type { Perfil } from '../../types';
 import {
   sanitizeAuthError,
@@ -215,7 +216,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initSession = async () => {
       try {
         // --- Intentar restaurar sesión existente (vía cookie httpOnly) ---
-        if (hasSessionCookie()) {
+        // La vuelta de OAuth PKCE (?insforge_code=...) también entra acá: el
+        // intercambio del código (que hace getCurrentUser internamente) setea
+        // la cookie csrf, pero en esa primera carga puede no existir todavía.
+        const isOAuthPkceReturn = window.location.search.includes('insforge_code');
+        if (hasSessionCookie() || isOAuthPkceReturn) {
           const client = insforge as InsforgeClient;
           const getCurrentUser = client.auth.getCurrentUser;
 
@@ -244,32 +249,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // --- Procesar OAuth callback (token en fragmento de URL) ---
-        // Se ejecuta incluso sin cookie de sesión (vuelta de OAuth)
+        // Se ejecuta incluso sin cookie de sesión (vuelta de OAuth legacy).
         if (window.location.hash.includes('access_token')) {
           const params = new URLSearchParams(window.location.hash.substring(1));
           const tokenFromUrl = params.get('access_token') || params.get('accessToken');
 
           if (tokenFromUrl) {
-            try {
-              const { createClient } = await import('@insforge/sdk');
-              const currentClient = insforge as InsforgeClient;
-              const tempClient = createClient({
-                baseUrl: currentClient.baseUrl || import.meta.env.PUBLIC_INSFORGE_URL,
-                anonKey: currentClient.anonKey || import.meta.env.PUBLIC_INSFORGE_ANON_KEY,
-                headers: { Authorization: `Bearer ${tokenFromUrl}` },
-              });
-              const getCurrentUser = (tempClient.auth as InsforgeClient['auth']).getCurrentUser;
-              if (typeof getCurrentUser !== 'function') {
-                return;
-              }
-              const { data: userRes } = await getCurrentUser.call(tempClient.auth);
-              if (userRes?.user && mounted) {
-                setUser(userRes.user);
+            // El fragmento trae el token (y a veces user_id/email). Registrar
+            // la sesión en el singleton para que TODAS las llamadas del SDK
+            // (database/storage/invokeRpc) queden autenticadas: antes solo se
+            // seteaba estado de React y el SDK seguía hablando como anon.
+            const claims = decodeAccessTokenClaims(tokenFromUrl);
+            const userId = params.get('user_id') || claims?.sub || null;
+            const email = params.get('email') || claims?.email || null;
+            const name = params.get('name') || claims?.name || '';
+
+            if (userId && email) {
+              const sessionUser: User = {
+                id: userId,
+                email,
+                profile: name ? { name } : null,
+              };
+              const client = insforge as InsforgeClient;
+              client._tokenManager?.saveSession?.({ accessToken: tokenFromUrl, user: sessionUser });
+              client.getHttpClient?.().setAuthToken?.(tokenFromUrl);
+
+              if (mounted) {
+                setUser(sessionUser);
                 setAccessToken(tokenFromUrl);
-                await loadPerfil(userRes.user.id, tokenFromUrl, userRes.user);
+                await loadPerfil(userId, tokenFromUrl, sessionUser);
               }
-            } catch (e) {
-              console.error('[Auth] Error procesando token OAuth:', e);
+            } else {
+              console.error('[Auth] OAuth: token sin user_id/email utilizables');
             }
           }
 

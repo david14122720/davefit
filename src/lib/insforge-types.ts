@@ -18,6 +18,8 @@
 
 export interface InsforgeTokenManager {
   accessToken: string | null;
+  // Guarda la sesión en memoria del SDK (lo usan login/OAuth/refresh).
+  saveSession?(session: { accessToken: string; user: unknown }): void;
   // Otras propiedades existen en runtime pero no se usan.
 }
 
@@ -83,6 +85,9 @@ export interface InsforgeClient {
   _tokenManager?: InsforgeTokenManager;
   tokenManager?: InsforgeTokenManager;
   accessToken?: string | null;
+  // Acceso al HTTP client interno (método público del SDK): permite setear
+  // el Authorization de todas las requests (p. ej. en la vuelta de OAuth).
+  getHttpClient?(): { setAuthToken(token: string | null): void };
 }
 
 // ------------------------------------------------------------
@@ -102,4 +107,42 @@ export function readAccessToken(client: InsforgeClient): string | null {
     client.accessToken ??
     null
   );
+}
+
+// ------------------------------------------------------------
+// Claims del access token (OAuth legacy)
+// ------------------------------------------------------------
+
+/** Claims útiles del payload de un access token. */
+export interface AccessTokenClaims {
+  sub?: string;
+  email?: string;
+  name?: string;
+}
+
+/**
+ * Decodifica el payload de un access token JWT SIN verificar la firma.
+ *
+ * Uso: registrar la sesión en la vuelta de OAuth legacy (token en el
+ * fragmento de la URL) cuando el fragmento no trae `user_id`/`email`.
+ * Es solo para hidratar el cliente: la autorización real la valida el
+ * backend en cada request. Entradas malformadas devuelven `null`.
+ */
+export function decodeAccessTokenClaims(token: string): AccessTokenClaims | null {
+  try {
+    const payloadPart = token.split('.')[1];
+    if (!payloadPart) return null;
+
+    const base64 = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
+    const binary = atob(base64);
+    // Decodificación UTF-8 segura del base64 (maneja acentos/ñ).
+    const json = decodeURIComponent(
+      Array.from(binary, (c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''),
+    );
+
+    const claims = JSON.parse(json);
+    return claims && typeof claims === 'object' ? (claims as AccessTokenClaims) : null;
+  } catch {
+    return null;
+  }
 }
