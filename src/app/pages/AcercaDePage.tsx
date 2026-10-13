@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion, MotionConfig } from 'framer-motion';
 import { Dumbbell, Users, Star, ArrowRight, CheckCircle, Clock, UserCheck, Play } from 'lucide-react';
 import { BenefitsGrid } from '../components/BenefitsCard';
 import SuggestionsSection from '../components/SuggestionsSection';
@@ -12,17 +12,26 @@ interface StatsData {
   reviews: number;
 }
 
-function StatCard({ icon: Icon, value, label, suffix, isRating }: {
+function StatCard({ icon: Icon, value, label, suffix, isRating, delay = 0 }: {
   icon: React.ElementType;
   value: number;
   label: string;
   suffix: string;
   isRating?: boolean;
+  delay?: number;
 }) {
   const display = isRating && value > 0 ? value.toFixed(1) : value > 0 ? value.toLocaleString() : '—';
 
   return (
     <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{
+        opacity: { duration: 0.4, delay },
+        y: { duration: 0.4, delay },
+        scale: { duration: 0.2 },
+      }}
       whileHover={{ scale: 1.03 }}
       className="p-5 rounded-xl bg-white/5 backdrop-blur-xs border border-white/10 hover:border-primary/30 transition-all group text-center"
     >
@@ -69,8 +78,8 @@ const fadeUp = {
 export default function AcercaDePage() {
   const [stats, setStats] = useState<StatsData>({ exercises: 0, users: 0, rating: 0, reviews: 0 });
 
-  useEffect(() => {
-    fetch('/api/stats')
+  const loadStats = useCallback((opts?: RequestInit) => {
+    fetch('/api/stats', opts)
       .then(r => r.json())
       .then(data => {
         if (data.exercises !== undefined) setStats(data);
@@ -78,8 +87,21 @@ export default function AcercaDePage() {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
+
+  // Refrescar la Valoración cuando se publica una sugerencia, sin caché:
+  // el navegador puede tener guardada la respuesta previa (max-age de /api/stats).
+  useEffect(() => {
+    const onSubmitted = () => loadStats({ cache: 'no-store' });
+    window.addEventListener('suggestion:submitted', onSubmitted);
+    return () => window.removeEventListener('suggestion:submitted', onSubmitted);
+  }, [loadStats]);
+
   return (
-    <div className="min-h-full">
+    <MotionConfig reducedMotion="user">
+      <div className="min-h-full">
       {/* ===== Hero Section ===== */}
       <section className="relative py-24 md:py-32 overflow-hidden">
         {/* Background gradient with orange glow */}
@@ -130,14 +152,14 @@ export default function AcercaDePage() {
           >
             <Link
               to="/register"
-              className="px-8 py-4 bg-primary hover:bg-primary-light text-white font-bold rounded-xl transition-all shadow-[0_0_30px_rgba(255,107,0,0.4)] hover:shadow-[0_0_40px_rgba(255,107,0,0.6)] inline-flex items-center gap-2 justify-center"
+              className="px-8 py-4 bg-primary hover:bg-primary-light text-white font-bold rounded-xl transition-all shadow-[0_0_30px_rgba(255,107,0,0.4)] hover:shadow-[0_0_40px_rgba(255,107,0,0.6)] inline-flex items-center gap-2 justify-center motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.98]"
             >
               Comenzar gratis
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
               to="/biblioteca"
-              className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl border border-white/10 transition-all inline-flex items-center gap-2 justify-center"
+              className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl border border-white/10 transition-all inline-flex items-center gap-2 justify-center motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.98]"
             >
               Explorar Biblioteca
             </Link>
@@ -150,14 +172,16 @@ export default function AcercaDePage() {
             className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg mx-auto"
           >
             <StatCard icon={Dumbbell} value={stats.exercises} label="Ejercicios" suffix="+" />
-            <StatCard icon={Users} value={stats.users} label="Usuarios Registrados" suffix="+" />
-            <StatCard icon={Star} value={stats.rating} label="Valoración" suffix="" isRating />
+            <StatCard icon={Users} value={stats.users} label="Usuarios Registrados" suffix="+" delay={0.08} />
+            <StatCard icon={Star} value={stats.rating} label="Valoración" suffix="" isRating delay={0.16} />
           </motion.div>
         </div>
       </section>
 
       {/* ===== Mission Section ===== */}
-      <section className="py-20">
+      {/* overflow-hidden: recorta el glow decorativo (-right-4) y el x:24 inicial
+          que sumaban +24px de scroll horizontal a 390px. */}
+      <section className="py-20 overflow-hidden">
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -255,9 +279,9 @@ export default function AcercaDePage() {
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { number: '01', icon: UserCheck, title: 'Crea tu perfil', desc: 'Regístrate gratis y completa tu perfil con tus objetivos y disponibilidad.' },
-              { number: '02', icon: Clock, title: 'Selecciona tu tiempo', desc: 'Elige cuánto tiempo tienes: 5, 10, 15 o 30 minutos. Nosotros hacemos el resto.' },
-              { number: '03', icon: Play, title: 'Empieza a entrenar', desc: 'Sigue las rutinas guiadas con ejercicios adaptados a tu nivel y espacio.' },
+              { number: '01', icon: UserCheck, title: 'Crea tu perfil', description: 'Regístrate gratis y completa tu perfil con tus objetivos y disponibilidad.' },
+              { number: '02', icon: Clock, title: 'Selecciona tu tiempo', description: 'Elige cuánto tiempo tienes: 5, 10, 15 o 30 minutos. Nosotros hacemos el resto.' },
+              { number: '03', icon: Play, title: 'Empieza a entrenar', description: 'Sigue las rutinas guiadas con ejercicios adaptados a tu nivel y espacio.' },
             ].map((step, i) => (
               <motion.div
                 key={step.number}
@@ -310,7 +334,7 @@ export default function AcercaDePage() {
           >
             <Link
               to="/biblioteca"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-primary hover:bg-primary-light text-white font-bold rounded-xl transition-all shadow-[0_0_30px_rgba(255,107,0,0.4)] hover:shadow-[0_0_40px_rgba(255,107,0,0.6)]"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-primary hover:bg-primary-light text-white font-bold rounded-xl transition-all shadow-[0_0_30px_rgba(255,107,0,0.4)] hover:shadow-[0_0_40px_rgba(255,107,0,0.6)] motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.98]"
             >
               Explorar Biblioteca
               <ArrowRight className="w-5 h-5" />
@@ -323,6 +347,7 @@ export default function AcercaDePage() {
       <div className="border-t border-white/5">
         <SuggestionsSection />
       </div>
-    </div>
+      </div>
+    </MotionConfig>
   );
 }

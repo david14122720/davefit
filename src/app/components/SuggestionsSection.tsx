@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, Star } from 'lucide-react';
+import { getCsrfHeader, getCsrfToken } from '../../lib/auth';
 
 interface Suggestion {
   id?: string;
@@ -49,9 +50,15 @@ export default function SuggestionsSection() {
     }
     setSubmitting(true);
     try {
+      // CSRF double-submit: sincroniza token+cookie y adjunta el header que
+      // exige el middleware para POST /api/* (sin él responde 403).
+      getCsrfToken();
       const res = await fetch('/api/suggestions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getCsrfHeader(),
+        },
         body: JSON.stringify({ message: message.trim(), rating }),
       });
       if (res.ok) {
@@ -62,6 +69,8 @@ export default function SuggestionsSection() {
           { message: message.trim(), rating, created_at: new Date().toISOString() },
           ...prev,
         ]);
+        // Notificar a la página para refrescar stats (Valoración de /acerca-de)
+        window.dispatchEvent(new CustomEvent('suggestion:submitted'));
       } else {
         const data = await res.json();
         setFormMessage({ type: 'error', text: data.error || 'Error al enviar' });

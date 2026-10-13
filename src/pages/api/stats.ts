@@ -14,10 +14,14 @@ export const GET: APIRoute = async () => {
         const totalUsers = usersResult.count || 0;
         
         // Calcular rating promedio de todas las sugerencias
-        const ratings = suggestionsResult.data?.map(s => s.rating || 0).filter(r => r > 0) || [];
+        type RatingRow = { rating: number | null };
+        const ratingRows = (suggestionsResult.data ?? []) as RatingRow[];
+        const ratings = ratingRows
+            .map((row) => row.rating ?? 0)
+            .filter((rating) => rating > 0);
         const totalReviews = ratings.length;
-        const avgRating = totalReviews > 0 
-            ? ratings.reduce((a, b) => a + b, 0) / totalReviews 
+        const avgRating = totalReviews > 0
+            ? ratings.reduce((acc, rating) => acc + rating, 0) / totalReviews
             : 0;
 
         return new Response(JSON.stringify({
@@ -29,7 +33,9 @@ export const GET: APIRoute = async () => {
             status: 200,
             headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 'public, max-age=300, s-maxage=600' // Cache 5 min client, 10 min CDN
+                // Caché corta: tras publicar una sugerencia, la Valoración debe
+                // refrescarse rápido (max-age=300 la dejaba en 0 hasta 5 min).
+                'Cache-Control': 'public, max-age=30, s-maxage=120'
             }
         });
     } catch (e: any) {
