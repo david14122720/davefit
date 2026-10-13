@@ -43,11 +43,11 @@ interface ChipConfig {
 }
 
 const CHIPS: ChipConfig[] = [
-    { value: 'todo', label: 'Todo', icon: <Sparkles className="w-4 h-4" /> },
-    { value: 'fuerza', label: 'Fuerza', icon: <Zap className="w-4 h-4" /> },
-    { value: 'cardio', label: 'Cardio', icon: <Heart className="w-4 h-4" /> },
-    { value: 'yoga', label: 'Yoga', icon: <Flower2 className="w-4 h-4" /> },
-    { value: 'hiit', label: 'HIIT', icon: <Activity className="w-4 h-4" /> },
+    { value: 'todo', label: 'Todo', icon: <Sparkles className="w-3.5 h-3.5" /> },
+    { value: 'fuerza', label: 'Fuerza', icon: <Zap className="w-3.5 h-3.5" /> },
+    { value: 'cardio', label: 'Cardio', icon: <Heart className="w-3.5 h-3.5" /> },
+    { value: 'yoga', label: 'Yoga', icon: <Flower2 className="w-3.5 h-3.5" /> },
+    { value: 'hiit', label: 'HIIT', icon: <Activity className="w-3.5 h-3.5" /> },
 ];
 
 // --- Helpers ---
@@ -196,8 +196,8 @@ export default function BibliotecaPage() {
             <div className="w-full px-4 sm:px-6 pb-24 pt-2 max-w-6xl mx-auto">
                 <div className="animate-pulse">
                     {/* Header skeleton */}
-                    <div className="flex items-center gap-3 mb-8">
-                        <div className="w-12 h-12 rounded-lg bg-white/5" />
+                    <div className="flex items-center gap-2.5 mb-5">
+                        <div className="w-10 h-10 rounded-lg bg-white/5" />
                         <div className="space-y-2">
                             <div className="h-6 w-48 bg-white/5 rounded-lg" />
                             <div className="h-4 w-64 bg-white/5 rounded-lg" />
@@ -205,9 +205,9 @@ export default function BibliotecaPage() {
                     </div>
 
                     {/* Mentalidad widget skeleton */}
-                    <div className="bg-white/5 rounded-lg p-6 mb-8">
-                        <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-full bg-white/5" />
+                    <div className="bg-white/5 rounded-lg p-4 mb-4">
+                        <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-full bg-white/5" />
                             <div className="flex-1 space-y-2">
                                 <div className="h-5 w-48 bg-white/5 rounded-lg" />
                                 <div className="h-4 w-3/4 bg-white/5 rounded-lg" />
@@ -217,12 +217,12 @@ export default function BibliotecaPage() {
                     </div>
 
                     {/* Search skeleton */}
-                    <div className="h-12 bg-white/5 rounded-lg mb-4" />
+                    <div className="h-10 bg-white/5 rounded-lg mb-3" />
 
                     {/* Filter pills skeleton */}
-                    <div className="flex gap-2 overflow-hidden mb-8">
+                    <div className="flex gap-2 overflow-hidden mb-5">
                         {[1, 2, 3, 4, 5].map((i) => (
-                            <div key={i} className="h-10 w-24 bg-white/5 rounded-lg shrink-0" />
+                            <div key={i} className="h-8 w-24 bg-white/5 rounded-lg shrink-0" />
                         ))}
                     </div>
 
@@ -289,16 +289,16 @@ export default function BibliotecaPage() {
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-3 mb-6 sm:mb-8"
+                className="flex items-center gap-2.5 mb-4 sm:mb-5"
             >
-                <div className="w-12 h-12 rounded-lg bg-linear-to-br from-primary/20 to-purple-500/20 flex items-center justify-center border border-primary/20 shrink-0">
-                    <BookOpen className="w-6 h-6 text-primary" />
+                <div className="w-10 h-10 rounded-lg bg-linear-to-br from-primary/20 to-purple-500/20 flex items-center justify-center border border-primary/20 shrink-0">
+                    <BookOpen className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                    <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                         Biblioteca de <span className="text-primary">Rutinas</span>
                     </h1>
-                    <p className="text-on-surface-variant text-sm mt-0.5">
+                    <p className="text-on-surface-variant text-sm mt-0">
                         Explora ejercicios y yoga. Todo en un solo lugar.
                     </p>
                 </div>
@@ -309,15 +309,15 @@ export default function BibliotecaPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-linear-to-r from-primary/10 via-primary/5 to-surface border border-primary/20 rounded-lg p-5 mb-6"
+                className="bg-linear-to-r from-primary/10 via-primary/5 to-surface border border-primary/20 rounded-lg p-4 mb-4"
             >
-                <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                        <Wind className="w-6 h-6 text-primary" />
+                <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                        <Wind className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-white text-base">Momento de Mentalidad</h3>
-                        <p className="text-on-surface-variant text-sm mt-1 italic leading-relaxed">
+                        <h3 className="font-bold text-white text-sm">Momento de Mentalidad</h3>
+                        <p className="text-on-surface-variant text-sm mt-0.5 italic leading-snug">
                             {randomQuote()}
                         </p>
                         
@@ -326,16 +326,16 @@ export default function BibliotecaPage() {
             </motion.div>
 
             {/* Filter Panel */}
-            <div className="bg-surface border border-white/10 rounded-lg p-4 sm:p-5 mb-6 sm:mb-8">
+            <div className="bg-surface border border-white/10 rounded-lg p-3 sm:p-4 mb-4 sm:mb-5">
                 {/* Search */}
-                <div className="relative mb-4">
+                <div className="relative mb-3">
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                     <input
                         type="text"
                         placeholder="Buscar rutinas por nombre o descripción..."
                         value={busqueda}
                         onChange={(e) => setBusqueda(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 bg-background-darker border border-white/10 rounded-lg text-white text-sm placeholder-text-muted focus:outline-hidden focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 bg-background-darker border border-white/10 rounded-lg text-white text-sm placeholder-text-muted focus:outline-hidden focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all"
                     />
                 </div>
 
@@ -347,7 +347,7 @@ export default function BibliotecaPage() {
                             <button
                                 key={chip.value}
                                 onClick={() => setFilterChip(chip.value)}
-                                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border whitespace-nowrap text-sm font-medium transition-all shrink-0 ${
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border whitespace-nowrap text-[13px] font-medium transition-all shrink-0 ${
                                     isActive
                                         ? 'bg-primary text-primary-on border-primary shadow-lg shadow-primary/20'
                                         : 'bg-surface border-white/10 text-on-surface-variant hover:text-white hover:border-white/20'
