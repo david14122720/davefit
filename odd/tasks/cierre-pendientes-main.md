@@ -205,6 +205,16 @@ Verificación previa (panel SQL, read-only):
 - **L16** (infra/docs): XFF agregado a las locations backend de `nginx.conf`;
   comentario stale de `suggestions.ts` corregido. Migraciones espejo en
   `db/migrations/` (+ rollbacks) con el estado aplicado documentado.
+- **L17** (cierre, checks): vitest **123/123** (28 archivos: +8 tests nuevos);
+  tsc **4** errores (bajó de 5; paridad con baseline, ninguno de archivos
+  tocados); eslint **0 errores** (92 warnings = baseline); `npm run build`
+  verde; Playwright **6/6** (chromium + firefox; webkit bloqueado por
+  librerías del sistema, no por código). Se corrigió el spec stale de login
+  (`/Entrar/i` → `/Iniciar Sesión/i`). RDD: assess del slice
+  `142d815..HEAD` → `risk: medium, review_due: false, reason: under_budget`
+  (queda pendiente en el slice; la rama acumulada completa sigue marcada
+  `high_risk` de sesiones previas — decisión del usuario si quiere revisarla).
+  **8 commits** nuevos en `main` (39374ad..HEAD), sin push.
 
 ## Decisiones del usuario (2026-10-13)
 
