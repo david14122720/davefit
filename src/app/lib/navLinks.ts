@@ -14,6 +14,7 @@ export const navLinks: NavLinkItem[] = [
   { path: '/acerca-de', label: 'Acerca de', public: true },
   { path: '/comunidad', label: 'Comunidad', public: true },
   { path: '/dashboard', label: 'Dashboard', public: false },
+  { path: '/coach', label: 'Coach IA', public: false },
 ];
 
 export const extraNavItems = [{ path: '/perfil', label: 'Perfil' }];

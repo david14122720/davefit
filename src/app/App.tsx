@@ -21,6 +21,7 @@ const NutritionPage = lazy(() => import('./pages/NutritionPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const RoutinesPage = lazy(() => import('./pages/RoutinesPage'));
 const ComunidadPage = lazy(() => import('./pages/ComunidadPage'));
+const CoachPage = lazy(() => import('./pages/CoachPage'));
 const AcercaDePage = lazy(() => import('./pages/AcercaDePage'));
 const YogaPracticePage = lazy(() => import('./pages/YogaPracticePage'));
 const WorkoutPracticePage = lazy(() => import('./pages/WorkoutPracticePage'));
@@ -86,6 +87,7 @@ const routes: RouteDef[] = [
 
   // Protegidas (auth + layout público)
   { path: '/dashboard', page: DashboardPage, guard: 'auth', layout: 'public' },
+  { path: '/coach', page: CoachPage, guard: 'auth', layout: 'public' },
   { path: '/perfil', page: ProfilePage, guard: 'auth', layout: 'public' },
   { path: '/rutinas', page: RoutinesPage, guard: 'auth', layout: 'public' },
   { path: '/yoga/posiciones', page: YogaPosicionesPage, guard: 'auth', layout: 'public' },
