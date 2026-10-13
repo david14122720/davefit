@@ -52,10 +52,14 @@ coherentes, commiteadas a `main`. Sin tocar deploy.
 - [x] **T5** Tipar la extracción de ratings en `/api/stats` (TS7006 → 0).
 - [x] **T6** Migración `db/migrations/hardening_workout_rpc_grants.sql`
       (+ rollback) con REVOKE a `anon`/`PUBLIC` y GRANT a `authenticated`.
-      Guarda `auth.uid()` documentada abajo (requiere el cuerpo de la función).
-      **Aplicación en prod pendiente de OK explícito (S2).**
+      **Aplicada en prod el 2026-10-13 vía MCP + verificada (ver L13).**
 
 ## Blindaje del RPC — qué queda y cómo
+
+**ESTADO: APLICADO en prod el 2026-10-13.** La migración de grants cortó el
+vector anónimo y `hardening_workout_rpc_wrapper.sql` implementó la guarda
+`auth.uid()` (rename + wrapper). Lo de abajo queda como registro del
+diagnóstico y el patrón usado.
 
 La migración `hardening_workout_rpc_grants.sql` corta el vector **anónimo**.
 El vector **autenticado** (un usuario logueado inflando a otro pasando su
@@ -109,6 +113,25 @@ Verificación previa (panel SQL, read-only):
       `user_stats`). Decisión: **no aplicar por ahora**.
 - [x] **T10** Reporte final con `Risk:` y pendientes + `push` a `origin/main`
       autorizado y ejecutado.
+- [x] **T11** (2026-10-13 sesión 2) Migración de grants APLICADA en prod vía
+      InsForge MCP; verificada (anon false / authenticated true / 401 HTTP).
+- [x] **T12** Wrapper `auth.uid()` (`hardening_workout_rpc_wrapper.sql`)
+      aplicado en prod; verificado: not_authenticated / forbidden / happy path
+      (70 XP) + fila restaurada + `_unsafe` solo owner.
+- [x] **T13** Backfill de `user_stats` para "juana de arco"
+      (`9700cf6c-4ff2-4e98-a10c-2b677e2fe80b`): fila en ceros creada.
+- [x] **T14** Rating unificado: `recalc_site_rating` cuenta aprobadas con
+      rating (fallback 0, search_path) + `site_stats` recomputado a 3.50/2.
+- [x] **T15** Fix `invokeRpc`: leía el token con `auth.getSession()` (método
+      INEXISTENTE en el SDK → todo RPC fallaba). Ahora usa `readAccessToken`.
+      TDD: test nuevo RED→GREEN.
+- [x] **T16** OAuth: la vuelta por fragmento (`#access_token`) ahora registra
+      la sesión en el singleton (tokenManager + setAuthToken) y la restauración
+      no depende solo de la cookie csrf (gate `insforge_code`). TDD: 3 tests
+      RED→GREEN + `decodeAccessTokenClaims` con tests.
+- [x] **T17** nginx: XFF también en las locations backend (`/api/auth`,
+      `/api/database`, `/api/storage`); comentario stale de `suggestions.ts`
+      corregido (nginx YA mandaba XFF desde marzo).
 
 ## Log
 
@@ -149,6 +172,40 @@ Verificación previa (panel SQL, read-only):
   `main` y `origin/main` en `ca25ae2` (20 commits). Sesión cerrada con el
   handoff de arriba.
 
+## Sesión 2 (2026-10-13, misma fecha)
+
+- **L11** (verbatim): "si arranca con lo que falte usa tu mcp de insforge para
+  que tengas 100% acceso a la base de datos, no pares hasta que termines todos
+  los pendientes"
+- **L12** (recon, MCP): función `RETURNS json`, owner `postgres`, sin
+  `search_path` y `proacl = null` (EXECUTE heredado de PUBLIC → anon podía).
+  `auth.uid()` existe (lee `request.jwt.claim.sub`/`claims`). "juana de arco" =
+  `9700cf6c-4ff2-4e98-a10c-2b677e2fe80b` sin fila en `user_stats`. `recalc_site_rating`
+  contaba todas las aprobadas (3) vs `/api/stats` (2). **Hallazgo: `nginx.conf`
+  YA tenía el XFF en `location /` desde `fea51cd` (marzo)** — la nota previa era
+  incorrecta; el dummy de spoofing de anon tampoco mostró tráfico real (3 filas,
+  todas de tests). Topología real: puerto host 8083 → nginx → Astro (sin Traefik).
+- **L13** (DDL en prod, autorizado por L11): migración de grants aplicada
+  (`REVOKE anon` + `REVOKE PUBLIC` + `GRANT authenticated`) → verificado
+  `has_function_privilege`: anon=false, authenticated=true. Wrapper aplicado
+  (rename `_unsafe` + `SET search_path` + REVOKE ALL + CREATE con guarda
+  `auth.uid()` + GRANT authenticated + `NOTIFY pgrst`). Tests de comportamiento:
+  sin claims → `not_authenticated`; claims de A pidiendo B → `forbidden`;
+  claims de A pidiendo A → JSON `xp_ganado: 70` (10 min + racha) y fila mutada.
+  Fila de juana restaurada a ceros. E2E HTTP con anon key → **401
+  `permission denied for function process_workout_completion` (42501)**.
+- **L14** (backfill + rating): fila `user_stats` de juana creada en ceros.
+  `recalc_site_rating` unificado (reviews solo con rating, fallback 0,
+  search_path) + `site_stats` recomputado → 3.50 / 2 (== `/api/stats`).
+- **L15** (código, TDD): RED real observado (8/8 tests nuevos fallando) →
+  GREEN 8/8. Bug productivo extra: `invokeRpc` llamaba a `auth.getSession()`
+  (no existe en el SDK) → TODO RPC fallaba; el path OAuth legacy nunca
+  registraba la sesión en el singleton. Fixes en `src/lib/insforge.ts`,
+  `src/lib/insforge-types.ts`, `src/app/context/AuthContext.tsx`.
+- **L16** (infra/docs): XFF agregado a las locations backend de `nginx.conf`;
+  comentario stale de `suggestions.ts` corregido. Migraciones espejo en
+  `db/migrations/` (+ rollbacks) con el estado aplicado documentado.
+
 ## Decisiones del usuario (2026-10-13)
 
 1. **DDL en prod**: no aplicar por ahora. `hardening_workout_rpc_grants.sql`
@@ -161,33 +218,23 @@ Verificación previa (panel SQL, read-only):
 
 ## Handoff — próxima sesión
 
-Estado al cerrar (2026-10-13):
+Estado al cerrar la sesión 2 (2026-10-13):
 
-- `main` = `origin/main` = `ca25ae2`. 20 commits desde `a7f8e86`.
-- `git status`: solo `.env.production` y `Dockerfile` modificados (sin
-  commitear, por decisión del usuario). Nada más suelto.
-- Checks: vitest 115/115 (25 archivos), tsc 5 errores preexistentes, eslint 0
-  errores, build verde, e2e de `/dashboard` 1 passed.
+- **DB de prod endurecida y verificada**: RPC con grants cerrados + guarda
+  `auth.uid()` (ver L13); `user_stats` de juana con fila; rating unificado.
+- **Código**: fixes TDD del RPC/OAuth en disco; checks y commits al final de
+  esta sesión (ver L17+).
+- **`.env.production` y `Dockerfile`** siguen modificados sin commitear (S4).
 
-Orden sugerido para retomar:
+Pendientes que quedan (requieren al usuario):
 
-1. **Aplicar la migración del RPC** (si el usuario lo decide): pegar
-   `db/migrations/hardening_workout_rpc_grants.sql` en el SQL editor del panel
-   de InsForge. Rollback: `..._rollback.sql`. Verificación:
-   `SELECT proacl FROM pg_proc WHERE proname = 'process_workout_completion';`
-   → `anon` sin EXECUTE y `authenticated` con EXECUTE.
-2. **Guarda `auth.uid()`** (vector autenticado): necesita el cuerpo actual
-   (`SELECT prosrc FROM pg_proc WHERE proname = 'process_workout_completion';`)
-   y el tipo de retorno (`pg_get_function_result(oid)`) desde el panel; con eso
-   se aplica el patrón rename + wrapper documentado arriba.
-3. **Backfill opcional**: `INSERT` de una fila de `user_stats` en cero para la
-   cuenta sin fila ("juana de arco"). Decisión del usuario.
-4. **Aceptación del usuario en el navegador** (no hay dev server corriendo):
-   `npx astro dev` → login + F5 (la sesión debe sobrevivir) y `/perfil` con la
-   cuenta sin fila (ceros, no "Identidad Extraviada").
-5. **Deploy** (cuando el usuario quiera): código y `nginx.conf` tienen que
-   viajar juntos, porque el cliente same-origin depende del proxy.
-6. **Follow-ups menores**: `proxy_set_header X-Forwarded-For
-   $proxy_add_x_forwarded_for;` en `nginx.conf`; persistencia de sesión OAuth;
-   unificar las fuentes del rating (`/api/stats` cuenta `rating > 0`,
-   `site_stats.total_reviews` cuenta todas las aprobadas).
+1. **Aceptación en navegador** (no hay dev server corriendo): `npx astro dev` →
+   login email + F5 (sesión vive) → completar un entrenamiento (el RPC debe
+   guardar XP — antes fallaba SIEMPRE por el bug de `getSession`) → `/perfil`
+   con la cuenta sin fila de stats (ceros, no "Identidad Extraviada").
+2. **OAuth Google**: probar login con Google; el flujo PKCE (`insforge_code`)
+   lo maneja el SDK y ahora la restauración también entra sin cookie csrf. Si
+   el backend devolviera el formato legacy (`#access_token`), la app ahora
+   registra la sesión en el singleton.
+3. **Deploy** (cuando el usuario quiera): código + `nginx.conf` viajan juntos.
+4. **Push** de los commits de esta sesión (si el usuario lo autoriza).
