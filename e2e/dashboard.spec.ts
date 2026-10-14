@@ -80,16 +80,15 @@ test.describe('/dashboard (mocked InsForge backend)', () => {
 
         // Auth + render gate: the greeting only exists after the mocked refresh
         // call and perfil load resolved and ProtectedRoute let the page through.
+        // (Rediseño Stitch: saludo con signos y emoji de mano.)
         await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-            /^(Buenos días|Buenas tardes|Buenas noches), Test$/,
+            /^¡Buen(os|as) (días|tardes|noches), Test!?/,
             { timeout: 30_000 },
         );
         const timeToGreetingMs = Date.now() - navigationStart;
 
         // Data-loaded gate so the captured screenshot always shows fixtures.
-        await expect(
-            page.getByText('esta semana', { exact: true }).locator('..').locator('h3'),
-        ).toHaveText(String(WEEK_COUNT));
+        await expect(page.getByText(`${WEEK_COUNT} entrenos`, { exact: true })).toBeVisible();
 
         // Let the 1s celebration timers and framer-motion animations settle
         // before capturing evidence.
@@ -139,7 +138,7 @@ test.describe('/dashboard (mocked InsForge backend)', () => {
         const nav = performance.getEntriesByType('navigation')[0] as
             | PerformanceNavigationTiming
             | undefined;
-        const chartBars = Array.from(document.querySelectorAll('.h-48 .rounded-t-lg'));
+            const chartBars = Array.from(document.querySelectorAll('.max-w-\\[42px\\]'));
         return {
             domContentLoadedMs: nav ? Math.round(nav.domContentLoadedEventEnd) : null,
             loadEventMs: nav ? Math.round(nav.loadEventEnd) : null,
@@ -164,32 +163,40 @@ test.describe('/dashboard (mocked InsForge backend)', () => {
             ),
         );
 
-        // --- Hero: greeting + streak badge + level badge ---
-        await expect(page.getByText('12 días racha')).toBeVisible();
-        await expect(page.getByText('Nivel Intermedio').first()).toBeVisible();
+        // --- Banner: racha + nivel (datos del fixture) ---
+        await expect(page.getByText('12 días racha activa')).toBeVisible();
+        await expect(page.getByText('Nivel 5: Intermedio')).toBeVisible();
 
         // --- XPBar (user_stats fixture) ---
-        await expect(page.getByText('Total XP')).toBeVisible();
-        await expect(page.getByText(/^2[.,]450$/)).toBeVisible();
-        await expect(page.getByText('Racha', { exact: true })).toBeVisible();
+        await expect(page.getByText('Progreso de Jugador')).toBeVisible();
+        await expect(page.getByText('Nivel 5', { exact: true })).toBeVisible();
+        await expect(page.getByText('2,450 XP')).toBeVisible();
+        await expect(page.getByText('Racha 12 días 🔥')).toBeVisible();
+        await expect(page.getByText('67% para Nivel 6')).toBeVisible();
+        await expect(page.getByText('369 XP rest.')).toBeVisible();
 
         // --- WeeklyGoal (3 sessions vs meta 3 → completed) ---
-        await expect(page.getByText('Meta Semanal', { exact: true })).toBeVisible();
+        await expect(page.getByText('Meta de Sesiones')).toBeVisible();
+        await expect(page.getByText('3 / 3')).toBeVisible();
+        await expect(page.getByText('días cumplidos')).toBeVisible();
         await expect(page.getByText('¡Completada!')).toBeVisible();
 
-        // --- Stat cards (anchored by their unique captions; count asserted above) ---
-        await expect(page.getByText('kcal quemadas', { exact: true }).locator('..').locator('h3')).toHaveText(
-            String(WEEK_CALORIES),
-        );
-        await expect(page.getByText('min activos', { exact: true }).locator('..').locator('h3')).toHaveText(
-            String(WEEK_MINUTES),
-        );
+        // --- Stat cards: kcal + minutos de la semana ---
+        await expect(page.getByText('kcal quemadas')).toBeVisible();
+        await expect(page.getByText(String(WEEK_CALORIES), { exact: true })).toBeVisible();
+        await expect(page.getByText('minutos totales')).toBeVisible();
+        await expect(page.getByText(String(WEEK_MINUTES), { exact: true })).toBeVisible();
+        // Promedio real: 90 min / 3 sesiones = 30 min por sesión.
+        await expect(page.getByText(`${Math.round(WEEK_MINUTES / WEEK_COUNT)} min/sesión`)).toBeVisible();
+        await expect(page.getByText(`${WEEK_COUNT} sesiones`)).toBeVisible();
 
-        // --- Weekly chart ---
-        await expect(page.getByText('Actividad Semanal')).toBeVisible();
-        await expect(page.getByText(`${WEEK_MINUTES} min`, { exact: true })).toBeVisible();
-        await expect(page.getByText(`${WEEK_CALORIES} kcal`, { exact: true })).toBeVisible();
-        await expect(page.locator('span').filter({ hasText: /^(L|M|X|J|V|S|D)$/ })).toHaveCount(7);
+        // --- Chart: Registro de Esfuerzo Semanal ---
+        await expect(page.getByText('Registro de Esfuerzo Semanal')).toBeVisible();
+        await expect(page.getByText('Completado', { exact: true })).toBeVisible();
+        await expect(page.getByText(/Promedio semanal: \d+ kcal \/ día activo/)).toBeVisible();
+        for (const dia of ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']) {
+            await expect(page.getByText(dia).first()).toBeVisible();
+        }
     // Baseline defect guard: with 3 fixture sessions in the current week, at
     // least one chart bar must have a non-zero height when drawn.
     expect(
@@ -203,10 +210,20 @@ test.describe('/dashboard (mocked InsForge backend)', () => {
         await expect(page.getByText('Entrenamientos Recientes')).toBeVisible();
         await expect(page.getByText('Full Body Express').first()).toBeVisible();
 
+        // --- Sesión recomendada + recarga post-entreno + comunidad en vivo ---
+        await expect(page.getByText('Sesión Recomendada de Hoy')).toBeVisible();
+        await expect(page.getByText('Recarga Post-Entreno Sugerida')).toBeVisible();
+        await expect(page.getByText('Bowl E2E de Pollo y Arroz')).toBeVisible();
+        await expect(page.getByText('Comunidad en Vivo')).toBeVisible();
+        await expect(page.getByText('AtletaUno')).toBeVisible();
+
         // --- The harness actually exercised auth + the dashboard queries ---
         expect(harness.backendRequests.some((r) => r.startsWith('POST /api/auth/refresh'))).toBe(true);
         expect(harness.backendRequests.some((r) => r.includes('/records/perfiles'))).toBe(true);
         expect(harness.backendRequests.some((r) => r.includes('/records/user_stats'))).toBe(true);
+        expect(harness.backendRequests.some((r) => r.includes('/records/recetas'))).toBe(true);
+        expect(harness.backendRequests.some((r) => r.includes('/records/perfiles_public'))).toBe(true);
+        expect(harness.backendRequests.some((r) => r.includes('/records/user_stats_public'))).toBe(true);
         expect(
             harness.backendRequests.filter((r) => r.includes('/records/historial_entrenamientos')).length,
         ).toBeGreaterThanOrEqual(2);

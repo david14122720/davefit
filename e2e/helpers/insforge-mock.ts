@@ -120,6 +120,60 @@ export const TEST_STATS = {
     created_at: '2026-01-01T00:00:00.000Z',
 };
 
+/**
+ * Two recipes for the dashboard "Recarga Post-Entreno" section
+ * (recetas query: select * order created_at desc limit 2).
+ */
+export const TEST_RECIPES = [
+    {
+        id: 'e2e-receta-1',
+        nombre: 'Bowl E2E de Pollo y Arroz',
+        descripcion: 'Receta fixture para el e2e del dashboard.',
+        ingredientes: ['pollo', 'arroz'],
+        instrucciones: ['cocinar'],
+        tiempo_preparacion: 20,
+        dificultad: 'facil',
+        calorias: 520,
+        proteinas: 45,
+        carbos: 52,
+        grasas: 12,
+        imagen_url: null,
+        created_at: '2026-01-02T00:00:00.000Z',
+    },
+    {
+        id: 'e2e-receta-2',
+        nombre: 'Batido E2E de Plátano y Café',
+        descripcion: 'Receta fixture para el e2e del dashboard.',
+        ingredientes: ['plátano', 'café'],
+        instrucciones: ['licuar'],
+        tiempo_preparacion: 3,
+        dificultad: 'facil',
+        calorias: 260,
+        proteinas: 22,
+        carbos: 36,
+        grasas: 4,
+        imagen_url: null,
+        created_at: '2026-01-01T00:00:00.000Z',
+    },
+];
+
+/**
+ * Public community fixtures (perfiles_public + user_stats_public) consumed by
+ * the dashboard "Comunidad en Vivo" widget (top 3 by XP). Names are single
+ * words because the widget shows only the first name.
+ */
+export const TEST_COMMUNITY_PERFILES = [
+    { id: 'e2e-atleta-1', nombre_completo: 'AtletaUno', avatar_url: null },
+    { id: 'e2e-atleta-2', nombre_completo: 'AtletaDos', avatar_url: null },
+    { id: 'e2e-atleta-3', nombre_completo: 'AtletaTres', avatar_url: null },
+];
+
+export const TEST_COMMUNITY_STATS = [
+    { user_id: 'e2e-atleta-1', xp_total: 1800, total_workouts: 42, dias_racha: 9 },
+    { user_id: 'e2e-atleta-2', xp_total: 1200, total_workouts: 30, dias_racha: 5 },
+    { user_id: 'e2e-atleta-3', xp_total: 600, total_workouts: 12, dias_racha: 2 },
+];
+
 const HISTORY_NAMES = [
     'Full Body Express',
     'Fuerza Total',
@@ -335,6 +389,16 @@ function resolveBackendResponse(request: Request, url: URL, fixtures: Fixtures):
         }
         if (table === 'user_stats') {
             return jsonBody(request, [TEST_STATS]);
+        }
+        if (table === 'recetas') {
+            // Dashboard "Recarga Post-Entreno": select * order created_at desc limit 2.
+            return jsonBody(request, TEST_RECIPES);
+        }
+        if (table === 'perfiles_public') {
+            return jsonBody(request, TEST_COMMUNITY_PERFILES);
+        }
+        if (table === 'user_stats_public') {
+            return jsonBody(request, TEST_COMMUNITY_STATS);
         }
         if (table === 'historial_entrenamientos') {
             // DashboardPage: select('*, rutinas(nombre)') — recent history list.
