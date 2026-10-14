@@ -16,11 +16,25 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, vi, expect, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
+import { getUserStats } from '../../lib/stats';
+import { calcularBMR, calcularTDEE } from '../../lib/nutrition';
 import CoachPage from './CoachPage';
+
+// Perfil base del usuario E2E: sin campos biométricos → TDEE/BMR no computables.
+const perfilBase = {
+  nombre_completo: 'Coach E2E',
+  nivel: null as string | null,
+  objetivo: null as string | null,
+  peso_actual: null as number | null,
+  altura: null as number | null,
+  fecha_nacimiento: null as string | null,
+  genero: null as string | null,
+  dias_entrenamiento_semana: null as number | null,
+};
 
 const mockAuth = {
   user: { id: 'user-1', email: 'e2e@davefit.local' },
-  perfil: { nombre_completo: 'Coach E2E' },
+  perfil: { ...perfilBase },
   accessToken: 'tok-test',
   loading: false,
   isAdmin: false,
@@ -29,6 +43,29 @@ const mockAuth = {
 vi.mock('../context/AuthContext', () => ({
   useAuth: () => mockAuth,
 }));
+
+// `user_stats` (racha/nivel) se mockea: el Contexto Activo muestra datos
+// reales y el test no debe pegarle a la DB.
+vi.mock('../../lib/stats', () => ({
+  getUserStats: vi.fn(),
+}));
+
+// Stats reales de `user_stats` para el bloque "Contexto Activo".
+const statsFixture = {
+  id: 'stats-1',
+  user_id: 'user-1',
+  xp_total: 2450,
+  nivel: 6,
+  dias_racha: 12,
+  ultimo_entreno: null,
+  racha_bonus: 0,
+  total_workouts: 24,
+  longest_streak: 12,
+  weekly_score: 100,
+  monthly_score: 400,
+  created_at: '2026-01-01T00:00:00.000Z',
+  updated_at: '2026-01-01T00:00:00.000Z',
+};
 
 interface FakeResponse {
   ok: boolean;
@@ -51,6 +88,9 @@ let fetchMock: ReturnType<typeof vi.fn>;
 beforeEach(() => {
   fetchMock = vi.fn();
   vi.stubGlobal('fetch', fetchMock);
+  // Por defecto no hay stats (banner de racha oculto) y el perfil no tiene métricas.
+  vi.mocked(getUserStats).mockResolvedValue(null);
+  mockAuth.perfil = { ...perfilBase };
 });
 
 afterEach(() => {
@@ -244,5 +284,66 @@ describe('CoachPage', () => {
 
     // Y termina mostrando el texto completo.
     await waitFor(() => expect(bubble.textContent).toBe(reply), { timeout: 6000 });
+  });
+
+  it('los chips de consultas sugeridas rellenan el input sin enviar nada', async () => {
+    fetchMock.mockImplementation(async () => fakeResponse(200, QUOTA_10));
+
+    renderPage();
+    await waitFor(() => expect(screen.getByTestId('coach-quota').textContent).toContain('10/10'));
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Armame una cena hiperproteica rápida/ }),
+    );
+
+    const input = screen.getByTestId('coach-input') as HTMLTextAreaElement;
+    expect(input.value).toBe('Armame una cena hiperproteica rápida');
+    // Rellenar el input NO consume cuota: no debe existir ningún POST.
+    expect(fetchMock.mock.calls.filter(([, init]: any) => init?.method === 'POST')).toHaveLength(0);
+  });
+
+  it('muestra el Contexto Activo con datos reales y "—" en métricas no computables', async () => {
+    mockAuth.perfil = { ...perfilBase, nivel: 'intermedio', objetivo: 'ganar_fuerza' };
+    vi.mocked(getUserStats).mockResolvedValue({ ...statsFixture, dias_racha: 12 } as any);
+    fetchMock.mockImplementation(async () => fakeResponse(200, QUOTA_10));
+
+    renderPage();
+
+    await waitFor(() => expect(screen.getByTestId('coach-quota').textContent).toContain('10/10'));
+
+    // Datos reales del perfil y de user_stats en el contexto.
+    expect(screen.getByText('Ganar músculo')).toBeTruthy();
+    expect(screen.getByText(/Nivel Intermedio/)).toBeTruthy();
+    await waitFor(() => expect(screen.getByText(/12 días racha/)).toBeTruthy());
+
+    // Sin datos base, TDEE/BMR/Peso se muestran honestamente como "—".
+    expect(screen.getByText('TDEE / Gasto')).toBeTruthy();
+    expect(screen.getByText('BMR basal')).toBeTruthy();
+    expect(screen.getAllByText('—')).toHaveLength(3);
+  });
+
+  it('calcula TDEE/BMR solo cuando el perfil tiene los datos base', async () => {
+    mockAuth.perfil = {
+      ...perfilBase,
+      peso_actual: 72,
+      altura: 178,
+      fecha_nacimiento: '1990-01-01',
+      genero: 'masculino',
+      dias_entrenamiento_semana: 4,
+    };
+    fetchMock.mockImplementation(async () => fakeResponse(200, QUOTA_10));
+
+    // La misma función de dominio que usa la página: valor esperado exacto.
+    const bmrEsperado = calcularBMR(mockAuth.perfil as any) as number;
+    const tdeeEsperado = calcularTDEE(mockAuth.perfil as any) as number;
+    expect(bmrEsperado).toBeGreaterThan(0);
+    expect(tdeeEsperado).toBeGreaterThan(bmrEsperado);
+
+    renderPage();
+
+    await waitFor(() =>
+      expect(screen.getByText(`${bmrEsperado} kcal/d`)).toBeTruthy(),
+    );
+    expect(screen.getByText(`${tdeeEsperado.toLocaleString('es-AR')} kcal/d`)).toBeTruthy();
   });
 });
