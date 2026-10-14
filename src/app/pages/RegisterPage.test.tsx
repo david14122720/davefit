@@ -52,16 +52,16 @@ describe('RegisterPage', () => {
     // Left panel branding (hidden on mobile, visible on lg)
     expect(screen.getByText('Plan Estudiante')).toBeInTheDocument();
     expect(
-      screen.getByText(/Entrenamientos en casa hechos para estudiantes/)
+      screen.getByRole('heading', { name: /Entrenamientos en casa hechos para estudiantes/ })
     ).toBeInTheDocument();
-    expect(screen.getByText(/2k/)).toBeInTheDocument();
+    expect(screen.getAllByText(/2k/).length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders right panel with Crea tu Cuenta heading and form fields', () => {
     renderRegisterPage();
 
-    // Right panel heading
-    expect(screen.getByText('Crea tu Cuenta')).toBeInTheDocument();
+    // Right panel heading (desktop header + mobile hero card both render it)
+    expect(screen.getAllByText('Crea tu Cuenta').length).toBeGreaterThanOrEqual(1);
 
     // Form fields
     expect(screen.getByPlaceholderText('Tu nombre completo')).toBeInTheDocument();

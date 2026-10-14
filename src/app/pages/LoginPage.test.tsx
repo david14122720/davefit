@@ -49,8 +49,8 @@ describe('LoginPage', () => {
   it('renders left brand panel with FitDave branding and Plan Estudiante tagline', () => {
     renderLoginPage();
 
-    // Left panel branding
-    expect(screen.getByText('Plan Estudiante')).toBeInTheDocument();
+    // Left panel branding (desktop hero + mobile hero card both render this copy)
+    expect(screen.getAllByText('Plan Estudiante').length).toBeGreaterThanOrEqual(1);
 
     // Description text
     expect(
@@ -58,14 +58,14 @@ describe('LoginPage', () => {
     ).toBeInTheDocument();
 
     // Stats
-    expect(screen.getByText(/2k/)).toBeInTheDocument();
+    expect(screen.getAllByText(/2k/).length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders right form panel with Bienvenido heading and input fields', () => {
     renderLoginPage();
 
-    // Right panel heading
-    expect(screen.getByText('¡Bienvenido de nuevo!')).toBeInTheDocument();
+    // Right panel heading (desktop header + mobile hero card both render it)
+    expect(screen.getAllByText('¡Bienvenido de nuevo!').length).toBeGreaterThanOrEqual(1);
 
     // Input fields
     expect(screen.getByPlaceholderText('tu@email.com')).toBeInTheDocument();
@@ -108,7 +108,7 @@ describe('LoginPage', () => {
   it('renders link to register page', () => {
     renderLoginPage();
 
-    const registerLink = screen.getByText('Regístrate');
+    const registerLink = screen.getByText('Regístrate gratis');
     expect(registerLink).toBeInTheDocument();
     expect(registerLink.closest('a')).toHaveAttribute('href', '/register');
   });
