@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { insforge } from '../../lib/insforge';
 import { getUserStats } from '../../lib/stats';
@@ -8,7 +9,35 @@ import { motion, type Variants, AnimatePresence } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, UploadCloud, Edit3, X, Zap, Flame, Scale, Ruler, User as UserIcon, Calendar, Target, Sparkles } from 'lucide-react';
+import {
+    Loader2,
+    Camera,
+    Save,
+    Flame,
+    Swords,
+    Target,
+    BadgeCheck,
+    Scale,
+    Ruler,
+    Activity,
+    Weight,
+    Cake,
+    Gauge,
+    Gift,
+    Flag,
+    Lightbulb,
+    BarChart3,
+    Calendar,
+    Repeat,
+    TrendingUp,
+    Users,
+    Zap,
+    X,
+    RefreshCw,
+    Mail,
+    Dumbbell,
+    ArrowRight,
+} from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../../lib/cropImage';
 import { validateFile } from '../../lib/fileValidation';
@@ -31,9 +60,126 @@ type ProfileFormValues = z.input<typeof profileSchema>;
 /** Tope defensivo para el blob ya recortado (500x500 JPEG ≈ 50 KB). */
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 
+/** Labels de objetivo del dominio real (mismos textos que la app usa hoy). */
+const OBJETIVO_LABELS: Record<string, string> = {
+    perder_peso: 'Bajar grasa',
+    tonificar: 'Tonificar',
+    ganar_fuerza: 'Ganar músculo',
+    mantener_forma: 'Mantener forma',
+};
+
+/**
+ * Nombres de rango por nivel de `user_stats` — elemento cosmético permitido
+ * por el diseño (mismo espíritu de "LVL 2: Escudero", sin columnas nuevas).
+ */
+const RANGO_LABELS: Record<number, string> = {
+    1: 'Aspirante',
+    2: 'Escudero',
+    3: 'Guerrero',
+    4: 'Veterano',
+    5: 'Campeón',
+};
+
+function rangoLabel(nivel: number): string {
+    return RANGO_LABELS[nivel] || 'Leyenda';
+}
+
+/**
+ * XP que exige el nivel `nivel` para pasar al siguiente.
+ * Misma curva que el RPC (`FLOOR(100 * POWER(nivel, 1.5))`) y que XPBar.
+ */
+function xpParaSubirNivel(nivel: number): number {
+    return Math.floor(100 * Math.pow(nivel, 1.5));
+}
+
+/** Progreso dentro del nivel actual (misma aritmética que el RPC). */
+function calcularProgresoNivel(xpTotal: number, nivel: number) {
+    let xpEnNivel = xpTotal;
+    for (let n = 1; n < nivel; n++) {
+        xpEnNivel -= xpParaSubirNivel(n);
+    }
+
+    const xpParaSiguiente = xpParaSubirNivel(nivel);
+    const enNivel = Math.max(0, Math.min(xpEnNivel, xpParaSiguiente));
+    const pct = xpParaSiguiente > 0 ? Math.min(100, Math.round((enNivel / xpParaSiguiente) * 100)) : 0;
+
+    return {
+        pct,
+        xpEnNivel: Math.max(0, enNivel),
+        xpParaSiguiente,
+        restante: Math.max(0, xpParaSiguiente - enNivel),
+    };
+}
+
+/** Valores del formulario derivados del perfil real (una sola fuente). */
+function perfilToFormValues(perfil: Perfil | null): ProfileFormValues {
+    return {
+        nombre_completo: perfil?.nombre_completo || '',
+        genero: (perfil?.genero as any) || '',
+        fecha_nacimiento: perfil?.fecha_nacimiento || '',
+        peso_actual: (perfil?.peso_actual || '') as any,
+        altura: (perfil?.altura || '') as any,
+        objetivo: (perfil?.objetivo as any) || '',
+        nivel: (perfil?.nivel as any) || '',
+        dias_entrenamiento_semana: (perfil?.dias_entrenamiento_semana || '') as any,
+    };
+}
+
+/** "2025-01-15T..." → "Enero 2025" (para "Miembro desde"). */
+function formatMesAnio(iso?: string | null): string | null {
+    if (!iso) return null;
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return null;
+    const mes = d.toLocaleDateString('es-ES', { month: 'long' });
+    return `${mes.charAt(0).toUpperCase()}${mes.slice(1)} ${d.getFullYear()}`;
+}
+
+/** "2025-01-15T..." → "15 ene 2025" (para "Última actualización"). */
+function formatFecha(iso?: string | null): string | null {
+    if (!iso) return null;
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return null;
+    return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+const inputCls =
+    'w-full bg-transparent text-sm font-medium text-[#e5e2e3] outline-none placeholder:text-[#5f636e] [color-scheme:dark]';
+
+interface CampoPerfilProps {
+    label: string;
+    hint?: string;
+    icon: React.ComponentType<{ className?: string }>;
+    htmlFor?: string;
+    error?: string;
+    children: React.ReactNode;
+}
+
+/** Campo de formulario con el lenguaje del diseño (label + icono + control). */
+function CampoPerfil({ label, hint, icon: Icon, htmlFor, error, children }: CampoPerfilProps) {
+    return (
+        <div className="flex flex-col gap-1.5">
+            <label
+                htmlFor={htmlFor}
+                className="text-[11px] font-semibold uppercase tracking-wider text-[#9ea3ae] flex items-center justify-between gap-2"
+            >
+                <span>{label}</span>
+                {hint && <span className="normal-case tracking-normal text-[#5f636e] font-normal hidden sm:inline">{hint}</span>}
+            </label>
+            <div
+                className={`flex items-center gap-2 bg-[#1c1b1c] focus-within:bg-[#201f20] px-4 py-2.5 rounded-lg transition-colors ${
+                    error ? 'ring-1 ring-red-500/60' : ''
+                }`}
+            >
+                <Icon className="w-5 h-5 shrink-0 text-[#5f636e]" />
+                {children}
+            </div>
+            {error && <p className="text-[11px] text-red-500 font-semibold">{error}</p>}
+        </div>
+    );
+}
+
 export default function ProfilePage() {
     const { user, perfil, accessToken, updatePerfil, loading: authLoading } = useAuth();
-    const [editing, setEditing] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
     const [userStats, setUserStats] = useState<any>(null);
     const [loadingStats, setLoadingStats] = useState(true);
@@ -69,34 +215,16 @@ export default function ProfilePage() {
         register,
         handleSubmit,
         reset,
-        formState: { errors, isSubmitting }
+        watch,
+        setValue,
+        formState: { errors, isSubmitting, isDirty }
     } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema) as any,
-        defaultValues: {
-            nombre_completo: perfil?.nombre_completo || '',
-            genero: (perfil?.genero as any) || '',
-            fecha_nacimiento: perfil?.fecha_nacimiento || '',
-            peso_actual: perfil?.peso_actual || '',
-            altura: perfil?.altura || '',
-            objetivo: (perfil?.objetivo as any) || '',
-            nivel: (perfil?.nivel as any) || '',
-            dias_entrenamiento_semana: perfil?.dias_entrenamiento_semana || '',
-        }
+        defaultValues: perfilToFormValues(perfil),
     });
 
     useEffect(() => {
-        if (perfil) {
-            reset({
-                nombre_completo: perfil.nombre_completo || '',
-                genero: (perfil.genero as any) || '',
-                fecha_nacimiento: perfil.fecha_nacimiento || '',
-                peso_actual: perfil.peso_actual || '',
-                altura: perfil.altura || '',
-                objetivo: (perfil.objetivo as any) || '',
-                nivel: (perfil.nivel as any) || '',
-                dias_entrenamiento_semana: perfil.dias_entrenamiento_semana || '',
-            });
-        }
+        if (perfil) reset(perfilToFormValues(perfil));
     }, [perfil, reset]);
 
     const userName = perfil?.nombre_completo || user?.email?.split('@')[0] || 'Usuario';
@@ -133,6 +261,31 @@ export default function ProfilePage() {
         return calculations;
     }, [perfil]);
 
+    // --- Datos reales para el hero y la gamificación ---
+    const nivelStats = Number(userStats?.nivel) || 1;
+    const xpTotal = Number(userStats?.xp_total) || 0;
+    const diasRacha = Number(userStats?.dias_racha) || 0;
+    const progresoXp = useMemo(() => calcularProgresoNivel(xpTotal, nivelStats), [xpTotal, nivelStats]);
+    const diasEntreno = perfil?.dias_entrenamiento_semana ?? null;
+    const objetivoLabel = perfil?.objetivo ? OBJETIVO_LABELS[perfil.objetivo] || perfil.objetivo : null;
+    const miembroDesde = useMemo(() => formatMesAnio(perfil?.created_at), [perfil?.created_at]);
+    const ultimaActualizacion = useMemo(() => formatFecha(perfil?.updated_at), [perfil?.updated_at]);
+    const diasSeleccionados = Number(watch('dias_entrenamiento_semana') || 0);
+
+    /** Consejo con datos reales cuando existen; copy genérico si no. */
+    const consejo = useMemo(() => {
+        if (diasEntreno && objetivoLabel) {
+            return `${userName}, con ${diasEntreno} ${diasEntreno === 1 ? 'día' : 'días'} de entrenamiento semanal, mantén el foco en tu meta: ${objetivoLabel.toLowerCase()}. La constancia vence al talento.`;
+        }
+        if (diasEntreno) {
+            return `${userName}, con ${diasEntreno} ${diasEntreno === 1 ? 'día' : 'días'} de entrenamiento semanal estás construyendo un gran hábito. La constancia vence al talento.`;
+        }
+        if (objetivoLabel) {
+            return `${userName}, mantén el foco en tu meta: ${objetivoLabel.toLowerCase()}. La constancia vence al talento.`;
+        }
+        return 'La constancia vence al talento. Entrena hoy y mantén tu progreso.';
+    }, [userName, diasEntreno, objetivoLabel]);
+
     const onSubmit = async (data: ProfileFormValues) => {
         const cleanedData = {
             ...data,
@@ -141,18 +294,22 @@ export default function ProfilePage() {
             altura: data.altura === '' ? null : data.altura,
             dias_entrenamiento_semana: data.dias_entrenamiento_semana === '' ? null : data.dias_entrenamiento_semana,
         };
-        
+
         const promise = updatePerfil(cleanedData as Partial<Perfil>);
-        
+
         toast.promise(promise, {
             loading: 'Guardando perfil...',
             success: (res) => {
                 if (res.error) throw new Error(res.error);
-                setEditing(false);
                 return '¡Perfil actualizado con éxito!';
             },
             error: (err) => `Error al actualizar: ${err.message}`
         });
+    };
+
+    const handleDiscard = () => {
+        reset();
+        toast('Cambios descartados');
     };
 
     const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -220,33 +377,14 @@ export default function ProfilePage() {
 
     if (isPageLoading) {
         return (
-            <div className="max-w-4xl mx-auto px-4 pb-32 pt-2">
-                <div className="animate-pulse">
-                    {/* Header Skeleton */}
-                    <div className="bg-[#141414] border border-white/5 p-6 sm:p-10 rounded-xl flex flex-col items-center gap-6 mb-8">
-                        <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-xl bg-primary/10 border-4 border-white/5 rotate-3" />
-                        <div className="flex flex-col items-center gap-2 w-full mt-2">
-                            <div className="h-8 w-48 bg-white/10 rounded-xl mb-1" />
-                            <div className="h-4 w-32 bg-white/5 rounded-lg mb-6" />
-                            <div className="flex gap-2 mb-8">
-                                <div className="w-20 h-6 bg-white/5 rounded-full" />
-                                <div className="w-20 h-6 bg-primary/10 rounded-full" />
-                                <div className="w-16 h-6 bg-blue-500/10 rounded-full" />
-                            </div>
-                            <div className="w-full sm:w-48 h-14 bg-white/5 rounded-2xl" />
-                        </div>
-                    </div>
-
-                    {/* Stats Blocks Skeleton */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                        <div className="h-32 bg-[#141414] border border-white/5 rounded-xl p-8" />
-                        <div className="h-32 bg-[#141414] border border-white/5 rounded-xl p-8" />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {[1, 2, 3, 4].map(i => (
-                            <div key={i} className="h-28 bg-[#141414] border border-white/5 rounded-xl p-6" />
-                        ))}
+            <div className="w-full flex flex-col gap-6 animate-pulse">
+                <div className="h-24 bg-[#1c1b1c] rounded-xl" />
+                <div className="h-40 bg-[#0e0e0f] rounded-xl" />
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div className="lg:col-span-6 h-96 bg-[#0e0e0f] rounded-xl" />
+                    <div className="lg:col-span-6 flex flex-col gap-6">
+                        <div className="h-64 bg-[#0e0e0f] rounded-xl" />
+                        <div className="h-48 bg-[#0e0e0f] rounded-xl" />
                     </div>
                 </div>
             </div>
@@ -255,19 +393,19 @@ export default function ProfilePage() {
 
     if (error || (!authLoading && !perfil)) {
         return (
-            <div className="max-w-4xl mx-auto px-4 pb-32 pt-12 flex justify-center">
-                <motion.div 
+            <div className="w-full flex justify-center pt-6">
+                <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="max-w-md w-full bg-[#141414] border border-red-500/20 rounded-[2.5rem] p-8 sm:p-10 text-center shadow-[0_15px_60px_rgba(239,68,68,0.1)] relative overflow-hidden"
+                    className="max-w-md w-full bg-[#0e0e0f] border border-red-500/20 rounded-2xl p-8 sm:p-10 text-center shadow-[0_15px_60px_rgba(239,68,68,0.1)] relative overflow-hidden"
                 >
                     <div className="absolute top-0 inset-x-0 h-1 bg-linear-to-r from-red-500/0 via-red-500 to-red-500/0" />
                     <div className="w-24 h-24 bg-red-500/10 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
                         <div className="w-12 h-12 flex items-center justify-center rotate-45 border-4 rounded-xl border-current" />
                     </div>
                     <h2 className="text-3xl font-black text-white mb-4 tracking-tight">Identidad Extraviada</h2>
-                    <p className="text-gray-400 mb-8 leading-relaxed text-sm sm:text-base">{error || 'No fue posible acceder a los detalles de tu cuenta de guerrero.'}</p>
-                    <button 
+                    <p className="text-[#9ea3ae] mb-8 leading-relaxed text-sm sm:text-base">{error || 'No fue posible acceder a los detalles de tu cuenta de guerrero.'}</p>
+                    <button
                         onClick={() => window.location.reload()}
                         className="w-full py-4 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 font-black uppercase tracking-widest rounded-2xl transition-all"
                     >
@@ -278,250 +416,520 @@ export default function ProfilePage() {
         );
     }
 
+    const estaturaTexto = perfil?.altura ? `${perfil.altura} cm` : null;
+
     return (
-        <motion.div 
-            className="max-w-4xl mx-auto px-4 pb-32 pt-2"
+        <motion.div
+            className="w-full flex flex-col gap-6"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
         >
-            {/* Header Card - Premium Mobile Design */}
-            <motion.div variants={itemVariants} className="bg-[#141414]/80 backdrop-blur-3xl p-6 sm:p-10 rounded-xl border border-white/5 flex flex-col items-center gap-6 mb-8 shadow-2xl relative overflow-hidden group">
-                {/* Background Decoration */}
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 blur-[80px] rounded-full pointer-events-none group-hover:bg-primary/20 transition-colors duration-700" />
-                
-                {/* Avatar Section */}
-                <div className="relative z-10 shrink-0">
-                    <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-xl bg-primary/10 flex items-center justify-center text-4xl sm:text-5xl border-4 border-white/5 shadow-2xl overflow-hidden relative rotate-3 group-hover:rotate-0 transition-all duration-500">
-                        {avatarUrl ? (
-                            <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                        ) : (
-                            <span className="font-black text-primary">{userName[0]?.toUpperCase() || 'U'}</span>
-                        )}
-                        {uploadingAvatar && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-xs">
-                                <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                            </div>
-                        )}
+            {/* ===== Encabezado: breadcrumb + título + acciones ===== */}
+            <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div className="flex flex-col gap-2">
+                    <div className="flex flex-wrap items-center gap-2 text-xs md:text-sm text-[#9ea3ae]">
+                        <span className="text-primary font-semibold">Perfil de Atleta</span>
+                        <span className="opacity-40">/</span>
+                        <span className="bg-[#2a2a2b] px-2 py-0.5 rounded text-[#e5e2e3]">Nivel {nivelStats}</span>
+                        <span className="opacity-40">/</span>
+                        <span className="text-[#e5e2e3] font-semibold truncate max-w-[12rem]">{userName}</span>
                     </div>
-                    <label className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary rounded-2xl flex items-center justify-center hover:bg-primary-light hover:scale-110 transition-all shadow-xl cursor-pointer z-20 border-4 border-[#141414]">
-                        <UploadCloud className="w-4 h-4 text-black" />
-                        <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" disabled={uploadingAvatar} />
-                    </label>
-                </div>
-
-                {/* Info Section */}
-                <div className="text-center z-10 w-full">
-                    <h2 className="text-xl sm:text-3xl font-black text-white mb-2 tracking-tight line-clamp-2 leading-tight px-2">
-                        {userName}
-                    </h2>
-                    <p className="text-gray-500 text-xs sm:text-sm font-medium mb-6 flex items-center justify-center gap-1.5 opacity-70">
-                        {user?.email}
+                    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#e5e2e3]">
+                        Mi Perfil &amp; Ajustes Personales
+                    </h1>
+                    <p className="text-sm text-[#9ea3ae] max-w-2xl">
+                        Gestiona tus métricas biométricas, objetivos físicos y datos de cuenta en un solo lugar.
                     </p>
-                    
-                    <div className="flex flex-wrap gap-2 justify-center mb-8">
-                        {perfil?.nivel && (
-                            <span className="px-4 py-1.5 bg-white/5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border border-white/10 text-gray-300">
-                                {perfil.nivel}
-                            </span>
-                        )}
-                        {perfil?.objetivo && (
-                            <span className="px-4 py-1.5 bg-primary/10 text-primary-light rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border border-primary/20">
-                                {perfil.objetivo.replace('_', ' ').replace('perder peso', 'Bajar grasa')}
-                            </span>
-                        )}
-                        {edad !== null && (
-                            <span className="px-4 py-1.5 bg-blue-500/10 text-blue-400 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border border-blue-500/20">
-                                {edad} años
-                            </span>
-                        )}
-                    </div>
-
+                </div>
+                <div className="flex items-center gap-2 shrink-0 w-full md:w-auto">
                     <button
-                        onClick={() => setEditing(!editing)}
-                        className={`w-full sm:w-auto px-10 h-14 font-black uppercase tracking-[0.15em] rounded-2xl transition-all flex items-center justify-center gap-3 text-sm ${editing ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-primary hover:bg-primary-light text-black shadow-[0_10px_30px_rgba(255,107,0,0.3)] hover:shadow-[0_15px_40px_rgba(255,107,0,0.4)]'}`}
+                        type="button"
+                        onClick={handleDiscard}
+                        disabled={!isDirty}
+                        className="flex-1 md:flex-none justify-center px-4 py-2 bg-[#1c1b1c] hover:bg-[#201f20] disabled:opacity-40 disabled:cursor-not-allowed text-[#e5e2e3] text-sm font-semibold rounded-lg transition-colors flex items-center gap-2"
                     >
-                        {editing ? <><X className="w-5 h-5" /> Cancelar</> : <><Edit3 className="w-5 h-5" /> Editar Perfil</>}
+                        <X className="w-4 h-4" /> Descartar cambios
+                    </button>
+                    <button
+                        type="submit"
+                        form="perfil-form"
+                        disabled={isSubmitting}
+                        className="flex-1 md:flex-none justify-center px-4 py-2 bg-primary hover:bg-primary-dark disabled:opacity-50 text-[#531900] text-sm font-bold rounded-lg transition-all flex items-center gap-2 shadow-md shadow-primary/20"
+                    >
+                        {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Guardar Cambios
                     </button>
                 </div>
-            </motion.div>
+            </motion.header>
 
-            {/* Editing Form - Integrated & Clean */}
-            <AnimatePresence>
-                {editing && (
-                    <motion.form 
-                        initial={{ opacity: 0, y: -20, height: 0 }}
-                        animate={{ opacity: 1, y: 0, height: 'auto' }}
-                        exit={{ opacity: 0, y: -20, height: 0 }}
-                        onSubmit={handleSubmit(onSubmit)} 
-                        className="bg-[#141414]/90 backdrop-blur-3xl p-6 sm:p-8 rounded-xl border border-white/10 mb-8 shadow-2xl overflow-hidden"
-                    >
-                        <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                            <Sparkles className="w-4 h-4 text-primary" /> Datos Personales
-                        </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            {[
-                                { id: 'nombre_completo', label: 'Nombre Completo', icon: UserIcon },
-                                { id: 'fecha_nacimiento', label: 'Nacimiento', type: 'date', icon: Calendar },
-                                { id: 'peso_actual', label: 'Peso (kg)', type: 'number', step: '0.1', icon: Scale },
-                                { id: 'altura', label: 'Altura (cm)', type: 'number', icon: Ruler },
-                                { id: 'dias_entrenamiento_semana', label: 'Días/Semana', type: 'number', icon: Flame },
-                            ].map(field => (
-                                <div key={field.id} className="space-y-1.5 focus-within:translate-x-1 transition-transform">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{field.label}</label>
-                                    <div className="relative">
-                                        <field.icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 group-focus-within:text-primary transition-colors" />
-                                        <input 
-                                            {...register(field.id as any)} 
-                                            type={field.type || 'text'}
-                                            step={field.step}
-                                            className={`w-full pl-12 pr-4 h-12 rounded-xl bg-black/40 border text-sm font-bold text-white focus:ring-2 outline-hidden transition-all ${errors[field.id as keyof typeof errors] ? 'border-red-500/50 focus:ring-red-500/50' : 'border-white/5 focus:ring-primary/50 focus:border-primary'}`} 
-                                        />
-                                    </div>
-                                    {errors[field.id as keyof typeof errors] && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{errors[field.id as keyof typeof errors]?.message}</p>}
+            {/* ===== Hero de perfil ===== */}
+            <motion.section
+                variants={itemVariants}
+                className="bg-[#0e0e0f] rounded-xl p-5 md:p-8 relative overflow-hidden shadow-lg"
+            >
+                <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-5 md:gap-6">
+                    {/* Avatar con botón de cámara (subida + recorte reales) */}
+                    <div className="relative shrink-0 self-start">
+                        <div className="w-20 h-20 lg:w-24 lg:h-24 rounded-full lg:rounded-xl bg-[#2a2a2b] flex items-center justify-center overflow-hidden shadow-inner relative">
+                            {avatarUrl ? (
+                                <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="text-3xl lg:text-4xl font-black text-primary-light">
+                                    {userName[0]?.toUpperCase() || 'U'}
+                                </span>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent pointer-events-none" />
+                            {uploadingAvatar && (
+                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-xs">
+                                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
                                 </div>
-                            ))}
-                            
-                            {/* Selects */}
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Género</label>
-                                <select {...register('genero')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-primary/50 outline-hidden">
+                            )}
+                        </div>
+                        <label
+                            aria-label="Cambiar foto de perfil"
+                            className="absolute -bottom-1 -right-1 w-8 h-8 lg:w-9 lg:h-9 bg-primary text-[#531900] rounded-full flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-transform shadow-md z-20"
+                        >
+                            <Camera className="w-4 h-4" />
+                            <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" disabled={uploadingAvatar} />
+                        </label>
+                    </div>
+
+                    {/* Identidad y badges reales */}
+                    <div className="flex flex-col gap-1 min-w-0 flex-1">
+                        <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-[#e5e2e3] truncate">{userName}</h2>
+                        <p className="text-sm text-[#9ea3ae] flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+                            {user?.email && (
+                                <span className="inline-flex items-center gap-1.5 min-w-0">
+                                    <Mail className="w-3.5 h-3.5 shrink-0 text-[#5f636e]" />
+                                    <span className="truncate">{user.email}</span>
+                                </span>
+                            )}
+                            {miembroDesde && (
+                                <>
+                                    <span className="opacity-40 hidden sm:inline">•</span>
+                                    <span className="hidden sm:inline">Miembro desde {miembroDesde}</span>
+                                </>
+                            )}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                            <span className="inline-flex items-center gap-1.5 bg-[#201f20] px-2.5 py-1 rounded-full text-xs text-[#e5e2e3]">
+                                <Flame className="w-4 h-4 text-primary" />
+                                Racha: <strong className="text-primary">{diasRacha} {diasRacha === 1 ? 'día' : 'días'}</strong>
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 bg-[#201f20] px-2.5 py-1 rounded-full text-xs text-[#e5e2e3]">
+                                <Swords className="w-4 h-4 text-primary-light" />
+                                Rango: <strong className="text-primary-light">{rangoLabel(nivelStats)} · Nivel {nivelStats}</strong>
+                            </span>
+                            {objetivoLabel && (
+                                <span className="inline-flex items-center gap-1.5 bg-[#201f20] px-2.5 py-1 rounded-full text-xs text-[#e5e2e3]">
+                                    <Target className="w-4 h-4 text-primary" />
+                                    Meta: <strong className="text-[#e5e2e3]">{objetivoLabel}</strong>
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </motion.section>
+
+            {/* ===== Split principal: formulario (izq) + métricas/gamificación (der) ===== */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* --- Datos personales & configuración --- */}
+                <motion.section
+                    variants={itemVariants}
+                    className="lg:col-span-6 order-2 lg:order-1 bg-[#0e0e0f] rounded-xl p-5 md:p-8 shadow-md flex flex-col gap-6"
+                >
+                    <div className="flex items-center gap-3">
+                        <span className="w-1 h-6 bg-primary rounded-full" />
+                        <Dumbbell className="w-5 h-5 text-primary" />
+                        <h3 className="text-sm md:text-base font-bold tracking-tight uppercase text-[#e5e2e3]">
+                            Datos Personales &amp; Configuración
+                        </h3>
+                    </div>
+
+                    <form id="perfil-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div className="sm:col-span-2">
+                                <CampoPerfil
+                                    label="Nombre Completo"
+                                    hint="visible en el ranking"
+                                    icon={BadgeCheck}
+                                    htmlFor="nombre_completo"
+                                    error={errors.nombre_completo?.message}
+                                >
+                                    <input
+                                        id="nombre_completo"
+                                        type="text"
+                                        autoComplete="name"
+                                        placeholder="Tu nombre"
+                                        {...register('nombre_completo')}
+                                        className={inputCls}
+                                    />
+                                </CampoPerfil>
+                            </div>
+
+                            <CampoPerfil
+                                label="Fecha de Nacimiento"
+                                hint={edad !== null ? `${edad} años` : undefined}
+                                icon={Calendar}
+                                htmlFor="fecha_nacimiento"
+                                error={errors.fecha_nacimiento?.message}
+                            >
+                                <input
+                                    id="fecha_nacimiento"
+                                    type="date"
+                                    {...register('fecha_nacimiento')}
+                                    className={inputCls}
+                                />
+                            </CampoPerfil>
+
+                            <CampoPerfil label="Género" icon={Users} htmlFor="genero" error={errors.genero?.message}>
+                                <select id="genero" {...register('genero')} className={`${inputCls} cursor-pointer`}>
                                     <option value="">No especificar</option>
                                     <option value="masculino">Masculino</option>
                                     <option value="femenino">Femenino</option>
                                     <option value="otro">Otro</option>
                                 </select>
+                            </CampoPerfil>
+
+                            <CampoPerfil label="Peso Actual" icon={Scale} htmlFor="peso_actual" error={errors.peso_actual?.message}>
+                                <input
+                                    id="peso_actual"
+                                    type="number"
+                                    step="0.1"
+                                    placeholder="kg"
+                                    {...register('peso_actual')}
+                                    className={inputCls}
+                                />
+                            </CampoPerfil>
+
+                            <CampoPerfil label="Estatura" icon={Ruler} htmlFor="altura" error={errors.altura?.message}>
+                                <input
+                                    id="altura"
+                                    type="number"
+                                    placeholder="cm"
+                                    {...register('altura')}
+                                    className={inputCls}
+                                />
+                            </CampoPerfil>
+
+                            {/* Frecuencia semanal: pills 1d–7d (estilo del diseño) */}
+                            <div className="flex flex-col gap-1.5 sm:col-span-2">
+                                <label className="text-[11px] font-semibold uppercase tracking-wider text-[#9ea3ae] flex items-center justify-between gap-2">
+                                    <span className="flex items-center gap-1.5">
+                                        <Repeat className="w-3.5 h-3.5" /> Frecuencia Semanal de Entrenamiento
+                                    </span>
+                                    <span className="normal-case tracking-normal text-[#5f636e] font-normal">
+                                        {diasSeleccionados > 0
+                                            ? `${diasSeleccionados} ${diasSeleccionados === 1 ? 'día' : 'días'} seleccionado${diasSeleccionados === 1 ? '' : 's'}`
+                                            : 'Sin seleccionar'}
+                                    </span>
+                                </label>
+                                <input type="hidden" {...register('dias_entrenamiento_semana')} />
+                                <div className="grid grid-cols-7 gap-1.5">
+                                    {[1, 2, 3, 4, 5, 6, 7].map((d) => (
+                                        <button
+                                            key={d}
+                                            type="button"
+                                            aria-pressed={diasSeleccionados === d}
+                                            onClick={() =>
+                                                setValue('dias_entrenamiento_semana', d, { shouldDirty: true, shouldValidate: true })
+                                            }
+                                            className={`py-2.5 rounded-lg text-xs font-bold transition-all ${
+                                                diasSeleccionados === d
+                                                    ? 'bg-primary text-[#531900] shadow-sm'
+                                                    : 'bg-[#1c1b1c] text-[#9ea3ae] hover:bg-[#201f20] hover:text-[#e5e2e3]'
+                                            }`}
+                                        >
+                                            {d}d
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Nivel</label>
-                                <select {...register('nivel')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-primary/50 outline-hidden">
-                                    <option value="principiante">Principiante</option>
-                                    <option value="intermedio">Intermedio</option>
-                                    <option value="avanzado">Avanzado</option>
+
+                            <CampoPerfil
+                                label="Nivel de Experiencia"
+                                icon={TrendingUp}
+                                htmlFor="nivel"
+                                error={errors.nivel?.message}
+                            >
+                                <select id="nivel" {...register('nivel')} className={`${inputCls} cursor-pointer`}>
+                                    <option value="principiante">Principiante (&lt; 1 año)</option>
+                                    <option value="intermedio">Intermedio (1–2 años)</option>
+                                    <option value="avanzado">Avanzado (&gt; 3 años)</option>
                                 </select>
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Objetivo</label>
-                                <select {...register('objetivo')} className="w-full px-4 h-12 rounded-xl bg-black/40 border border-white/5 text-sm font-bold text-white focus:ring-2 focus:ring-primary/50 outline-hidden">
+                            </CampoPerfil>
+
+                            <CampoPerfil
+                                label="Objetivo de Entrenamiento"
+                                icon={Target}
+                                htmlFor="objetivo"
+                                error={errors.objetivo?.message}
+                            >
+                                <select id="objetivo" {...register('objetivo')} className={`${inputCls} cursor-pointer`}>
                                     <option value="perder_peso">Bajar grasa</option>
                                     <option value="tonificar">Tonificar</option>
                                     <option value="ganar_fuerza">Ganar músculo</option>
                                     <option value="mantener_forma">Mantener peso</option>
                                 </select>
+                            </CampoPerfil>
+                        </div>
+
+                        <div className="pt-2 flex flex-col gap-2">
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="w-full py-3.5 bg-primary hover:bg-primary-dark text-[#531900] text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/25 disabled:opacity-50"
+                            >
+                                {isSubmitting ? (
+                                    <><Loader2 className="w-5 h-5 animate-spin" /> Guardando...</>
+                                ) : (
+                                    <><Save className="w-5 h-5" /> Guardar Cambios Biométricos</>
+                                )}
+                            </button>
+                            {ultimaActualizacion && (
+                                <p className="flex items-center justify-center gap-1.5 text-xs text-[#5f636e]">
+                                    <RefreshCw className="w-3.5 h-3.5" />
+                                    Última actualización: {ultimaActualizacion}
+                                </p>
+                            )}
+                        </div>
+                    </form>
+                </motion.section>
+
+                {/* --- Métricas + gamificación --- */}
+                <div className="lg:col-span-6 order-1 lg:order-2 flex flex-col gap-6">
+                    <motion.section
+                        variants={itemVariants}
+                        className="bg-[#0e0e0f] rounded-xl p-5 md:p-8 shadow-md flex flex-col gap-6"
+                    >
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                            <div className="flex items-center gap-3">
+                                <span className="w-1 h-6 bg-[#d77917] rounded-full" />
+                                <Activity className="w-5 h-5 text-primary-light" />
+                                <h3 className="text-sm md:text-base font-bold tracking-tight uppercase text-[#e5e2e3]">
+                                    Métricas Metabólicas &amp; Biométricas
+                                </h3>
+                            </div>
+                            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs font-semibold">
+                                Cálculo Preciso
+                            </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="bg-[#1c1b1c] rounded-xl p-4 flex flex-col gap-3">
+                                <div className="flex items-center justify-between gap-2">
+                                    <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9ea3ae]">
+                                        Metabolismo Basal (BMR)
+                                    </span>
+                                    <span className="w-8 h-8 rounded-full bg-primary/15 text-primary flex items-center justify-center shrink-0">
+                                        <Flame className="w-4 h-4" />
+                                    </span>
+                                </div>
+                                <div>
+                                    <div className="text-2xl md:text-3xl font-black tracking-tight text-[#e5e2e3]">
+                                        {bmr ?? '--'}
+                                    </div>
+                                    <span className="text-xs font-semibold text-primary">KCAL / DÍA</span>
+                                </div>
+                                <p className="text-xs text-[#9ea3ae] leading-relaxed">
+                                    Calorías mínimas que tu cuerpo quema en reposo absoluto para mantener sus funciones vitales.
+                                </p>
+                            </div>
+
+                            <div className="bg-[#1c1b1c] rounded-xl p-4 flex flex-col gap-3">
+                                <div className="flex items-center justify-between gap-2">
+                                    <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9ea3ae]">
+                                        Gasto Total Diario (TDEE)
+                                    </span>
+                                    <span className="w-8 h-8 rounded-full bg-primary-light/15 text-primary-light flex items-center justify-center shrink-0">
+                                        <Zap className="w-4 h-4" />
+                                    </span>
+                                </div>
+                                <div>
+                                    <div className="text-2xl md:text-3xl font-black tracking-tight text-primary-light">
+                                        {tdee ?? '--'}
+                                    </div>
+                                    <span className="text-xs font-semibold text-primary-light">KCAL / DÍA</span>
+                                </div>
+                                <p className="text-xs text-[#9ea3ae] leading-relaxed">
+                                    {diasEntreno
+                                        ? `Gasto total estimado combinando tu metabolismo y ${diasEntreno} ${diasEntreno === 1 ? 'sesión' : 'sesiones'} semanales de entrenamiento.`
+                                        : 'Gasto total estimado combinando tu metabolismo y tu actividad semanal.'}
+                                </p>
                             </div>
                         </div>
-                        <button type="submit" disabled={isSubmitting} className="w-full mt-10 h-14 bg-primary text-black font-black uppercase tracking-widest rounded-2xl hover:bg-primary-light transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl">
-                            {isSubmitting ? <><Loader2 className="w-5 h-5 animate-spin" /> Guardando...</> : '💾 Guardar Cambios'}
-                        </button>
-                    </motion.form>
-                )}
-            </AnimatePresence>
 
-            {/* Nutrition & Metrics - High Polish Cards */}
-            {perfil && (
-                <div className="space-y-6">
-                    <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                         {/* Metabolism Card */}
-                         <div className="bg-[#141414]/90 backdrop-blur-3xl p-8 rounded-xl border border-white/5 relative overflow-hidden group">
-                             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                                 <Flame className="w-12 h-12 text-primary" />
-                             </div>
-                             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1">Metabolismo Basal (BMR)</p>
-                             <div className="flex items-baseline gap-2 mb-4">
-                                 <span className="text-5xl font-black text-white tracking-tighter">{bmr || '--'}</span>
-                                 <span className="text-gray-600 text-xs font-bold uppercase tracking-widest">kcal/día</span>
-                             </div>
-                             <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/5 border border-primary/10 rounded-full w-fit">
-                                 <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                                 <span className="text-[9px] text-primary font-black uppercase tracking-tighter">Calorías en reposo</span>
-                             </div>
-                             {bmr !== null && (
-                                 <p className="text-[10px] text-gray-400 font-black mt-2 max-w-xs">
-                                     Calorías que tu cuerpo quema en reposo
-                                 </p>
-                             )}
-                         </div>
+                        {bmr === null && (
+                            <p className="flex items-center gap-1.5 text-xs text-[#5f636e]">
+                                <Lightbulb className="w-3.5 h-3.5 text-primary shrink-0" />
+                                Completa peso, estatura, nacimiento y género para calcular tus métricas.
+                            </p>
+                        )}
 
-                         {/* TDEE Card */}
-                         <div className="bg-[#141414]/90 backdrop-blur-3xl p-8 rounded-xl border border-white/5 relative overflow-hidden group">
-                             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                                 <Zap className="w-12 h-12 text-yellow-500" />
-                             </div>
-                             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1">Gasto Calórico Diario</p>
-                             <div className="flex items-baseline gap-2 mb-4">
-                                 <span className="text-5xl font-black text-white tracking-tighter">{tdee || '--'}</span>
-                                 <span className="text-gray-600 text-xs font-bold uppercase tracking-widest">kcal/día</span>
-                             </div>
-                             <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/5 border border-yellow-500/10 rounded-full w-fit">
-                                 <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
-                                 <span className="text-[9px] text-yellow-500 font-black uppercase tracking-tighter">Gasto total real</span>
-                             </div>
-                             {tdee !== null && (
-                                 <p className="text-[10px] text-gray-400 font-black mt-2 max-w-xs">
-                                     Estimación de calorías diarias según tu actividad y objetivo
-                                 </p>
-                             )}
-                         </div>
-                    </motion.div>
-
-                    {/* Stats Grid */}
-                    <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {[
-                            { label: 'Peso', value: perfil.peso_actual, unit: 'kg', icon: Scale, color: 'text-primary' },
-                            { label: 'Altura', value: perfil.altura, unit: 'cm', icon: Ruler, color: 'text-blue-500' },
-                            { label: 'IMC', value: imc?.toFixed(1), unit: categoriaIMC, icon: Target, color: 'text-purple-500' },
-                            { label: 'Edad', value: edad, unit: 'años', icon: Calendar, color: 'text-green-500' },
-                        ].map((d, i) => (
-                            <div key={i} className="p-5 sm:p-6 bg-[#141414]/50 backdrop-blur-3xl rounded-xl border border-white/5 flex flex-col items-center text-center group hover:border-primary/20 transition-all">
-                                <d.icon className={`w-5 h-5 mb-4 ${d.color} opacity-40 group-hover:opacity-100 transition-all duration-300`} />
-                                <p className="text-[9px] text-gray-500 font-black uppercase tracking-[0.15em] mb-1">{d.label}</p>
-                                <div className="text-2xl font-black text-white leading-none mb-1">
-                                    {d.value ?? '--'}
-                                </div>
-                                <span className="text-[10px] text-gray-600 font-bold uppercase tracking-tighter truncate max-w-full px-1">{d.unit}</span>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div className="bg-[#201f20] rounded-lg p-3 flex flex-col gap-1">
+                                <span className="text-[11px] text-[#9ea3ae] flex items-center gap-1.5">
+                                    <Weight className="w-3.5 h-3.5" /> Peso
+                                </span>
+                                <span className="text-lg font-bold text-[#e5e2e3]">
+                                    {perfil?.peso_actual ?? '--'} <span className="text-xs font-normal text-[#9ea3ae]">kg</span>
+                                </span>
                             </div>
-                        ))}
-                    </motion.div>
-                    
-                    {/* Gamification Stats */}
+                            <div className="bg-[#201f20] rounded-lg p-3 flex flex-col gap-1">
+                                <span className="text-[11px] text-[#9ea3ae] flex items-center gap-1.5">
+                                    <Ruler className="w-3.5 h-3.5" /> Altura
+                                </span>
+                                <span className="text-lg font-bold text-[#e5e2e3]">
+                                    {perfil?.altura ?? '--'} <span className="text-xs font-normal text-[#9ea3ae]">cm</span>
+                                </span>
+                                {estaturaTexto && <span className="text-[11px] text-[#5f636e]">Estatura fija</span>}
+                            </div>
+                            <div className="bg-[#201f20] rounded-lg p-3 flex flex-col gap-1">
+                                <span className="text-[11px] text-[#9ea3ae] flex items-center gap-1.5">
+                                    <Gauge className="w-3.5 h-3.5" /> IMC
+                                </span>
+                                <span className="text-lg font-bold text-primary">
+                                    {imc ? imc.toFixed(1) : '--'}
+                                </span>
+                                <span className="text-[11px] text-primary-light">{categoriaIMC}</span>
+                            </div>
+                            <div className="bg-[#201f20] rounded-lg p-3 flex flex-col gap-1">
+                                <span className="text-[11px] text-[#9ea3ae] flex items-center gap-1.5">
+                                    <Cake className="w-3.5 h-3.5" /> Edad
+                                </span>
+                                <span className="text-lg font-bold text-[#e5e2e3]">
+                                    {edad ?? '--'} <span className="text-xs font-normal text-[#9ea3ae]">años</span>
+                                </span>
+                            </div>
+                        </div>
+                    </motion.section>
+
                     {userStats && (
-                        <motion.div variants={itemVariants} className="bg-linear-to-br from-primary/10 to-transparent p-4 rounded-xl border border-primary/10 shadow-2xl">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <Sparkles className="w-3.5 h-3.5 text-primary" /> Camino del Guerrero
-                                </h3>
-                                <span className="text-2xl font-black text-primary">LVL {userStats.nivel || 1}</span>
-                            </div>
-                            
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                                    <span className="text-gray-400">Progreso de XP</span>
-                                    <span className="text-primary">{userStats.xp_total} / {(userStats.nivel || 1) * 100}</span>
+                        <motion.section
+                            variants={itemVariants}
+                            className="bg-[#0e0e0f] rounded-xl p-5 md:p-8 shadow-md flex flex-col gap-5"
+                        >
+                            <div className="flex items-center justify-between gap-3 flex-wrap">
+                                <div className="flex items-center gap-3">
+                                    <span className="w-8 h-8 rounded-lg bg-primary text-[#531900] flex items-center justify-center shrink-0">
+                                        <Swords className="w-4 h-4" />
+                                    </span>
+                                    <div className="flex flex-col">
+                                        <h3 className="text-sm md:text-base font-bold tracking-tight uppercase text-[#e5e2e3]">
+                                            Camino del Guerrero
+                                        </h3>
+                                        <span className="text-xs text-[#9ea3ae]">Sistema de Progresión DaveFit</span>
+                                    </div>
                                 </div>
-                                <div className="h-2.5 bg-black/60 rounded-full border border-white/5">
-                                    <motion.div 
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${Math.min(((userStats.xp_total || 0) % 100) / 100 * 100, 100)}%` }}
-                                        className="h-full bg-linear-to-r from-primary-dark to-primary rounded-full shadow-[0_0_15px_rgba(255,107,0,0.4)]"
+                                <span className="bg-primary/20 text-primary px-3 md:px-4 py-1 rounded-full text-xs font-bold tracking-wide uppercase">
+                                    LVL {nivelStats} · {rangoLabel(nivelStats)}
+                                </span>
+                            </div>
+
+                            <div className="flex flex-col gap-2 bg-[#1c1b1c] rounded-xl p-4">
+                                <div className="flex items-center justify-between gap-2 text-[11px] md:text-xs">
+                                    <span className="font-bold text-[#e5e2e3] uppercase tracking-wider">
+                                        Progreso de Experiencia (XP)
+                                    </span>
+                                    <span className="text-primary font-extrabold whitespace-nowrap">
+                                        {progresoXp.xpEnNivel} / {progresoXp.xpParaSiguiente} XP
+                                    </span>
+                                </div>
+                                <div className="w-full h-3 bg-[#353436] rounded-full overflow-hidden p-0.5">
+                                    <div
+                                        className="h-full bg-gradient-to-r from-[#d77917] via-primary to-primary-light rounded-full transition-all duration-500"
+                                        style={{ width: `${progresoXp.pct}%` }}
                                     />
                                 </div>
+                                <div className="flex items-center justify-between gap-2 text-xs text-[#9ea3ae] pt-1">
+                                    <span>{xpTotal.toLocaleString()} XP totales</span>
+                                    <span className="text-[#e5e2e3] font-medium text-right">
+                                        ¡A solo <strong className="text-primary">{progresoXp.restante} XP</strong> de LVL{' '}
+                                        {nivelStats + 1}: {rangoLabel(nivelStats + 1)}!
+                                    </span>
+                                </div>
                             </div>
-                        </motion.div>
+
+                            <div className="flex items-start gap-3 bg-[#201f20] rounded-xl p-4">
+                                <Gift className="w-5 h-5 text-primary-light shrink-0 mt-0.5" />
+                                <div className="flex flex-col min-w-0">
+                                    <span className="text-sm font-bold text-[#e5e2e3]">Próxima Recompensa Desbloqueable:</span>
+                                    <p className="text-xs text-[#9ea3ae] leading-relaxed mt-0.5">
+                                        Desbloquea el planificador de comidas automáticas, recetas hiperproteicas avanzadas y la insignia de honor "Constancia Semanal".
+                                    </p>
+                                </div>
+                            </div>
+                        </motion.section>
                     )}
                 </div>
-            )}
+            </div>
 
-            {/* Crop Modal */}
+            {/* ===== Tira de consejo + historial real ===== */}
+            <motion.section
+                variants={itemVariants}
+                className="bg-[#0e0e0f] rounded-xl p-4 md:p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+            >
+                <div className="flex items-start sm:items-center gap-3 min-w-0">
+                    <span className="w-10 h-10 rounded-full bg-primary/15 text-primary flex items-center justify-center shrink-0">
+                        <Flag className="w-5 h-5" />
+                    </span>
+                    <p className="text-sm text-[#e5e2e3] leading-snug">
+                        <strong className="text-primary">Consejo de hoy:</strong> {consejo}
+                    </p>
+                </div>
+                <Link
+                    to="/dashboard"
+                    className="shrink-0 text-primary hover:text-primary-light text-sm font-semibold flex items-center gap-1 transition-colors"
+                >
+                    <BarChart3 className="w-4 h-4" /> Ver historial de progreso <ArrowRight className="w-4 h-4" />
+                </Link>
+            </motion.section>
+
+            {/* ===== Modal de recorte de avatar ===== */}
             <AnimatePresence>
                 {imageSrc && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4">
-                        <div className="relative w-full max-w-md aspect-square bg-[#111111] rounded-xl overflow-hidden border border-white/10 shadow-2xl">
-                            <Cropper image={imageSrc} crop={crop} zoom={zoom} aspect={1} cropShape="round" showGrid={false} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} />
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4"
+                    >
+                        <div className="relative w-full max-w-md aspect-square bg-[#0e0e0f] rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+                            <Cropper
+                                image={imageSrc}
+                                crop={crop}
+                                zoom={zoom}
+                                aspect={1}
+                                cropShape="round"
+                                showGrid={false}
+                                onCropChange={setCrop}
+                                onCropComplete={onCropComplete}
+                                onZoomChange={setZoom}
+                            />
                             <div className="absolute bottom-0 left-0 right-0 p-6 bg-linear-to-t from-black via-black/80 to-transparent flex flex-col gap-6">
-                                <input type="range" value={zoom} min={1} max={3} step={0.1} onChange={(e) => setZoom(Number(e.target.value))} className="w-full accent-primary" />
+                                <input
+                                    type="range"
+                                    value={zoom}
+                                    min={1}
+                                    max={3}
+                                    step={0.1}
+                                    onChange={(e) => setZoom(Number(e.target.value))}
+                                    className="w-full accent-primary"
+                                />
                                 <div className="flex gap-3">
-                                    <button onClick={() => setImageSrc(null)} className="flex-1 h-12 rounded-2xl bg-white/5 text-white font-bold text-sm">Cancelar</button>
-                                    <button onClick={processAndUploadCrop} className="flex-1 h-12 rounded-2xl bg-primary text-black font-black uppercase tracking-widest text-sm shadow-xl">Confirmar</button>
+                                    <button
+                                        onClick={() => setImageSrc(null)}
+                                        className="flex-1 h-12 rounded-2xl bg-[#2a2a2b] hover:bg-[#353436] text-white font-bold text-sm transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={processAndUploadCrop}
+                                        className="flex-1 h-12 rounded-2xl bg-primary hover:bg-primary-dark text-[#531900] font-black uppercase tracking-widest text-sm shadow-xl transition-colors"
+                                    >
+                                        Confirmar
+                                    </button>
                                 </div>
                             </div>
                         </div>
