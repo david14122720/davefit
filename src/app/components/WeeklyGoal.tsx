@@ -1,10 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
 import { getWeeklyWorkoutCount } from '../../lib/stats';
 import { getInicioSemana } from '../lib/dates';
 import { useAuth } from '../context/AuthContext';
 import { useCelebration } from '../hooks/useCelebration';
-import { Target, Trophy, CheckCircle2 } from 'lucide-react';
+import { Target, CheckCircle2 } from 'lucide-react';
 
 export default function WeeklyGoal() {
     const { user, perfil } = useAuth();
@@ -16,6 +15,8 @@ export default function WeeklyGoal() {
 
     const metaSemanal = perfil?.dias_entrenamiento_semana || 3;
     const metaAlcanzada = weeklyCount >= metaSemanal;
+    const faltan = Math.max(0, metaSemanal - weeklyCount);
+    const pct = metaSemanal > 0 ? Math.min(100, Math.round((weeklyCount / metaSemanal) * 100)) : 0;
 
     useEffect(() => {
         if (!userId) {
@@ -54,61 +55,57 @@ export default function WeeklyGoal() {
 
     if (loading) {
         return (
-            <div className="p-4 bg-[#141414] rounded-xl border border-white/5">
-                <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
-                    <div className="h-4 bg-white/10 rounded-sm w-24 animate-pulse" />
+            <div className="relative overflow-hidden rounded-xl bg-[#1c1b1c] p-4 lg:p-5">
+                <div className="flex items-center justify-between mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-white/10 animate-pulse" />
+                    <div className="h-5 w-24 rounded-full bg-white/10 animate-pulse" />
                 </div>
-                <div className="h-3 bg-white/10 rounded-full animate-pulse" />
+                <div className="h-3 w-28 rounded-sm bg-white/10 animate-pulse mb-2" />
+                <div className="h-6 w-24 rounded-sm bg-white/10 animate-pulse mb-3" />
+                <div className="h-2 w-full rounded-full bg-white/5 animate-pulse" />
             </div>
         );
     }
 
     return (
-        <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`p-4 rounded-xl border transition-all ${
-                metaAlcanzada 
-                    ? 'bg-linear-to-br from-primary/10 to-primary-dark/5 border-primary/30' 
-                    : 'bg-[#141414] border-white/5 hover:border-primary/20'
-            }`}
-        >
-            <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                    {metaAlcanzada ? (
-                        <div className="w-10 h-10 rounded-full bg-linear-to-br from-primary to-primary-dark flex items-center justify-center">
-                            <Trophy className="w-5 h-5 text-black" />
-                        </div>
-                    ) : (
-                        <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                            <Target className="w-5 h-5 text-white" />
-                        </div>
-                    )}
-                    <div>
-                        <p className="text-xs text-gray-400 font-medium">Meta Semanal</p>
-                        <p className="text-lg font-black text-white">
-                            {metaAlcanzada ? '¡Completada!' : `${weeklyCount}/${metaSemanal} días`}
-                        </p>
-                    </div>
+        <div className="relative overflow-hidden rounded-xl bg-[#1c1b1c] p-4 lg:p-5 hover:bg-[#201f20] transition-all">
+            <div className="flex items-center justify-between mb-2">
+                <div className="w-10 h-10 rounded-lg bg-[#2a2a2b] flex items-center justify-center text-[#ffb77d]">
+                    <Target className="w-5 h-5" />
                 </div>
-                {metaAlcanzada && (
-                    <div className="flex items-center gap-1 text-primary-light text-sm font-bold">
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>¡Hecho!</span>
-                    </div>
-                )}
+                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${metaAlcanzada ? 'bg-[#ff5e00]/20 text-[#ff5e00]' : 'bg-[#353436] text-[#c5c6cc]'}`}>
+                    {metaAlcanzada ? '¡Completada!' : `${pct}% Completado`}
+                </span>
             </div>
-
+            <p className="text-xs font-semibold text-[#c5c6cc]">Meta de Sesiones</p>
+            <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-lg lg:text-2xl font-bold text-[#e5e2e3]">{weeklyCount} / {metaSemanal}</span>
+                <span className="text-xs text-[#c5c6cc]">días cumplidos</span>
+            </div>
+            <div className="mt-3 space-y-1.5">
+                <div className="w-full h-2 rounded-full bg-[#353436] overflow-hidden">
+                    <div
+                        className="h-full bg-[#ff5e00] rounded-full transition-all duration-700"
+                        style={{ width: `${pct}%` }}
+                    />
+                </div>
+                <div className="flex items-center justify-between">
+                    {metaAlcanzada ? (
+                        <span className="flex items-center gap-1 text-[11px] font-bold text-[#ff5e00]">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> ¡Hecho!
+                        </span>
+                    ) : (
+                        <span className="text-[11px] font-bold text-[#ff5e00]">
+                            {faltan === 1 ? '¡Falta 1!' : `¡Faltan ${faltan}!`}
+                        </span>
+                    )}
+                </div>
+            </div>
             {metaAlcanzada && (
-                <motion.p 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-center text-xs text-primary-light font-medium mt-2"
-                >
+                <p className="text-center text-[11px] text-[#ffb77d] font-medium mt-2">
                     ¡Felicidades! Has alcanzado tu meta semanal 🎉
-                </motion.p>
+                </p>
             )}
-        </motion.div>
+        </div>
     );
 }
