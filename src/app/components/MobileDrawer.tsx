@@ -37,7 +37,7 @@ export default function MobileDrawer({ isOpen, onClose, user, isAdmin, signOut }
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'tween', duration: 0.3, ease: 'easeInOut' }}
-            className="fixed top-0 right-0 h-full w-72 bg-[#0d0d0d] border-l border-white/5 z-50 md:hidden flex flex-col"
+            className="fixed top-0 right-0 h-full w-72 bg-[#0e0e0f] border-l border-white/5 z-50 md:hidden flex flex-col"
           >
             {/* Drawer header */}
             <div className="flex items-center justify-between p-4 border-b border-white/5">
@@ -64,8 +64,8 @@ export default function MobileDrawer({ isOpen, onClose, user, isAdmin, signOut }
                     onClick={onClose}
                     className={`block px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                       isActive(link.path)
-                        ? 'bg-primary/10 text-primary border border-primary/20'
-                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                        ? 'bg-[#ff5e00] text-[#531900] font-semibold'
+                        : 'text-[#9ea3ae] hover:text-white hover:bg-[#201f20]'
                     }`}
                   >
                     {link.label}
@@ -84,8 +84,8 @@ export default function MobileDrawer({ isOpen, onClose, user, isAdmin, signOut }
                       onClick={onClose}
                       className={`block px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                         isActive(item.path)
-                          ? 'bg-primary/10 text-primary border border-primary/20'
-                          : 'text-gray-400 hover:text-white hover:bg-white/5'
+                          ? 'bg-[#ff5e00] text-[#531900] font-semibold'
+                          : 'text-[#9ea3ae] hover:text-white hover:bg-[#201f20]'
                       }`}
                     >
                       {item.label}
@@ -95,7 +95,7 @@ export default function MobileDrawer({ isOpen, onClose, user, isAdmin, signOut }
                     <Link
                       to="/admin"
                       onClick={onClose}
-                      className="block px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                      className="block px-4 py-3 rounded-xl text-sm font-medium text-[#9ea3ae] hover:text-white hover:bg-[#201f20] transition-all"
                     >
                       Admin Panel
                     </Link>
@@ -109,7 +109,7 @@ export default function MobileDrawer({ isOpen, onClose, user, isAdmin, signOut }
                   <Link
                     to="/login"
                     onClick={onClose}
-                    className="block w-full text-center px-4 py-3 bg-primary hover:bg-primary-light text-white text-sm font-medium rounded-xl transition-all"
+                    className="block w-full text-center px-4 py-3 bg-[#ff5e00] hover:bg-[#ea580c] text-white text-sm font-bold rounded-xl transition-all"
                   >
                     Iniciar Sesión
                   </Link>

@@ -46,12 +46,13 @@ export default function UserMenu({ user, perfil, isAdmin, signOut }: UserMenuPro
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="h-10 w-10 rounded-full bg-cover bg-center ring-2 ring-white/10 cursor-pointer hover:ring-primary transition-all overflow-hidden"
+        className="h-8 w-8 rounded-full bg-[#ffb599] bg-cover bg-center ring-2 ring-[#2a2c32] cursor-pointer hover:ring-[#ff5e00]/60 transition-all overflow-hidden"
         style={avatarUrl ? { backgroundImage: `url(${avatarUrl})` } : {}}
+        aria-label="Menú de usuario"
       >
         {!avatarUrl && (
-          <div className="w-full h-full bg-primary/20 flex items-center justify-center">
-            <span className="text-primary font-bold text-sm">
+          <div className="w-full h-full bg-[#ffb599] flex items-center justify-center">
+            <span className="text-[#5a1c00] font-bold text-xs">
               {userName[0]?.toUpperCase()}
             </span>
           </div>
@@ -59,7 +60,7 @@ export default function UserMenu({ user, perfil, isAdmin, signOut }: UserMenuPro
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-56 bg-[#141414] border border-white/10 rounded-xl shadow-2xl py-2 z-50">
+        <div className="absolute right-0 mt-2 w-56 bg-[#161619] border border-[#2a2c32] rounded-xl shadow-2xl py-2 z-50">
           <div className="px-4 py-3 border-b border-white/5">
             <p className="text-sm font-medium text-white truncate">{userName}</p>
             <p className="text-xs text-gray-400 truncate">{(user as { email?: string })?.email}</p>
