@@ -3,29 +3,29 @@
 @source '../**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}';
 
 @theme {
-  --color-primary: #ff6b00;
-  --color-primary-light: #ff8533;
-  --color-primary-dark: #e65100;
-  --color-primary-hover: #e65a00;
+  --color-primary: #ff5e00;
+  --color-primary-light: #fb923c;
+  --color-primary-dark: #ea580c;
+  --color-primary-hover: #ea580c;
   --color-primary-on: #ffffff;
-  --color-primary-glow: rgba(255, 107, 0, 0.3);
+  --color-primary-glow: rgba(255, 94, 0, 0.3);
 
-  --color-background-dark: #0a0a0a;
-  --color-background-darker: #050505;
-  --color-background-card: #141414;
-  --color-background-surface: #1e1e1e;
-  --color-background-elevated: #252525;
-  --color-background-glass: rgba(20, 20, 20, 0.8);
+  --color-background-dark: #0b0b0c;
+  --color-background-darker: #08080a;
+  --color-background-card: #121316;
+  --color-background-surface: #1a1b1f;
+  --color-background-elevated: #22242a;
+  --color-background-glass: rgba(11, 11, 12, 0.8);
 
-  --color-surface: #1e1e1e;
-  --color-surface-dark: #141414;
+  --color-surface: #1a1b1f;
+  --color-surface-dark: #121316;
 
-  --color-on-surface: #f8ddd2;
-  --color-on-surface-variant: #9ca3af;
+  --color-on-surface: #f8f9fa;
+  --color-on-surface-variant: #9ea3ae;
 
-  --color-text-muted: #9ca3af;
+  --color-text-muted: #9ea3ae;
 
-  --font-sans: Inter, system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
 
   --animate-fade-in: fadeIn 0.5s ease-out forwards;
   --animate-slide-in: slideIn 0.4s ease-out forwards;
