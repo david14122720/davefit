@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     BookOpen, Search, Clock, Sparkles,
     Dumbbell, Flower2, RefreshCw, AlertCircle,
-    Zap, Heart, Wind, ChevronRight, Activity
+    Zap, Heart, Activity, TrendingUp, SearchX, ArrowRight, X
 } from 'lucide-react';
 
 // --- Types ---
@@ -60,16 +60,17 @@ const nivelLabels: Record<string, string> = {
     avanzado: 'Avanzado',
 };
 
+// Colores de badge del diseño Stitch: naranja para ejercicio, esmeralda para yoga
 const tipoBadge: Record<string, { label: string; bg: string; icon: React.ReactNode }> = {
     ejercicio: {
         label: 'Ejercicio',
-        bg: 'bg-primary/20 text-primary border-primary/30',
-        icon: <Dumbbell className="w-2.5 h-2.5" />,
+        bg: 'bg-[#ff5e00]/90',
+        icon: <Dumbbell className="w-3.5 h-3.5" />,
     },
     yoga: {
         label: 'Yoga',
-        bg: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-        icon: <Flower2 className="w-2.5 h-2.5" />,
+        bg: 'bg-emerald-600/90',
+        icon: <Flower2 className="w-3.5 h-3.5" />,
     },
 };
 
@@ -179,6 +180,10 @@ export default function BibliotecaPage() {
         }
     });
 
+    const hayFiltrosActivos = filterChip !== 'todo' || busqueda.trim() !== '';
+    // Catálogo realmente vacío (sin filtros): copy informativo, no de "sin coincidencias"
+    const catalogoVacioSinFiltros = catalogo.length === 0 && !hayFiltrosActivos;
+
     // --- Card Click ---
 
     const handleCardClick = (item: CatalogoItem) => {
@@ -189,64 +194,56 @@ export default function BibliotecaPage() {
         }
     };
 
+    // --- Reset filters (estado "Sin resultados") ---
+
+    const resetFiltros = () => {
+        setFilterChip('todo');
+        setBusqueda('');
+    };
+
     // --- Skeleton Loading ---
 
     if (!loaded) {
         return (
-            <div className="w-full px-4 sm:px-6 pb-24 pt-2 max-w-6xl mx-auto">
-                <div className="animate-pulse">
-                    {/* Header skeleton */}
-                    <div className="flex items-center gap-2.5 mb-5">
-                        <div className="w-10 h-10 rounded-lg bg-white/5" />
-                        <div className="space-y-2">
-                            <div className="h-6 w-48 bg-white/5 rounded-lg" />
-                            <div className="h-4 w-64 bg-white/5 rounded-lg" />
-                        </div>
+            <div className="w-full space-y-4 sm:space-y-5 pb-4 animate-pulse" aria-busy="true">
+                {/* Header skeleton */}
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 shrink-0" />
+                    <div className="space-y-2">
+                        <div className="h-7 w-56 bg-white/5 rounded-lg" />
+                        <div className="h-4 w-72 bg-white/5 rounded-lg" />
                     </div>
+                </div>
 
-                    {/* Mentalidad widget skeleton */}
-                    <div className="bg-white/5 rounded-lg p-4 mb-4">
-                        <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-full bg-white/5" />
-                            <div className="flex-1 space-y-2">
-                                <div className="h-5 w-48 bg-white/5 rounded-lg" />
-                                <div className="h-4 w-3/4 bg-white/5 rounded-lg" />
-                                <div className="h-9 w-28 bg-white/5 rounded-lg" />
-                            </div>
-                        </div>
-                    </div>
+                {/* Mindset banner skeleton */}
+                <div className="h-16 bg-white/5 rounded-xl" />
 
-                    {/* Search skeleton */}
-                    <div className="h-10 bg-white/5 rounded-lg mb-3" />
-
-                    {/* Filter pills skeleton */}
-                    <div className="flex gap-2 overflow-hidden mb-5">
+                {/* Search + chips skeleton */}
+                <div className="bg-white/5 rounded-xl p-3.5 sm:p-4 space-y-3">
+                    <div className="h-10 bg-white/5 rounded-xl" />
+                    <div className="flex gap-2 overflow-hidden">
                         {[1, 2, 3, 4, 5].map((i) => (
-                            <div key={i} className="h-8 w-24 bg-white/5 rounded-lg shrink-0" />
+                            <div key={i} className="h-8 w-24 bg-white/5 rounded-full shrink-0" />
                         ))}
                     </div>
+                </div>
 
-                    {/* Grid skeleton */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {[1, 2, 3, 4].map((i) => (
-                            <div
-                                key={i}
-                                className="bg-surface rounded-lg border border-white/5 overflow-hidden"
-                            >
-                                <div className="h-32 sm:h-40 bg-white/5" />
-                                <div className="p-4 space-y-3">
-                                    <div className="flex gap-2">
-                                        <div className="h-5 w-16 bg-white/5 rounded-md" />
-                                        <div className="h-5 w-20 bg-white/5 rounded-md" />
-                                    </div>
-                                    <div className="h-5 w-3/4 bg-white/5 rounded-lg" />
-                                    <div className="h-3 w-full bg-white/5 rounded-md" />
-                                    <div className="h-3 w-2/3 bg-white/5 rounded-md" />
-                                    <div className="h-4 w-20 bg-white/5 rounded-md" />
-                                </div>
+                {/* Grid skeleton */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                    {[1, 2, 3].map((i) => (
+                        <div
+                            key={i}
+                            className="bg-[#1c1b1c] border border-white/5 rounded-2xl overflow-hidden"
+                        >
+                            <div className="aspect-[4/3] sm:aspect-auto sm:h-56 bg-white/5" />
+                            <div className="p-4 sm:p-6 space-y-3">
+                                <div className="h-6 w-3/4 bg-white/5 rounded-lg" />
+                                <div className="h-3 w-full bg-white/5 rounded-md" />
+                                <div className="h-3 w-2/3 bg-white/5 rounded-md" />
+                                <div className="h-10 w-full bg-white/5 rounded-xl" />
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         );
@@ -256,11 +253,11 @@ export default function BibliotecaPage() {
 
     if (error) {
         return (
-            <div className="w-full px-4 sm:px-6 pb-24 pt-12 max-w-6xl mx-auto flex justify-center">
+            <div className="w-full flex justify-center py-12">
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="max-w-md w-full bg-surface border border-red-500/20 rounded-lg p-8 text-center shadow-[0_15px_50px_rgba(239,68,68,0.1)]"
+                    className="max-w-md w-full bg-[#1c1b1c] border border-red-500/20 rounded-2xl p-8 text-center shadow-[0_15px_50px_rgba(239,68,68,0.1)]"
                 >
                     <div className="w-20 h-20 bg-red-500/10 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-red-500/20">
                         <AlertCircle className="w-10 h-10" />
@@ -268,10 +265,10 @@ export default function BibliotecaPage() {
                     <h2 className="text-2xl font-bold text-white mb-3 tracking-tight">
                         Error al cargar
                     </h2>
-                    <p className="text-gray-400 mb-8 text-sm leading-relaxed">{error}</p>
+                    <p className="text-[#9ea3ae] mb-8 text-sm leading-relaxed">{error}</p>
                     <button
                         onClick={() => window.location.reload()}
-                        className="w-full py-4 bg-primary hover:bg-primary-hover text-black font-bold rounded-lg transition-all shadow-[0_10px_20px_rgba(255,107,0,0.3)] flex items-center justify-center gap-2"
+                        className="w-full py-4 bg-primary hover:bg-[#ea580c] text-white font-bold rounded-xl transition-all shadow-[0_10px_20px_rgba(255,94,0,0.3)] flex items-center justify-center gap-2"
                     >
                         <RefreshCw className="w-5 h-5" />
                         Reintentar
@@ -284,106 +281,138 @@ export default function BibliotecaPage() {
     // --- Main Render ---
 
     return (
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-24 pt-2">
-            {/* Header */}
-            <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2.5 mb-4 sm:mb-5"
-            >
-                <div className="w-10 h-10 rounded-lg bg-linear-to-br from-primary/20 to-purple-500/20 flex items-center justify-center border border-primary/20 shrink-0">
-                    <BookOpen className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                        Biblioteca de <span className="text-primary">Rutinas</span>
-                    </h1>
-                    <p className="text-on-surface-variant text-sm mt-0">
-                        Explora ejercicios y yoga. Todo en un solo lugar.
-                    </p>
-                </div>
-            </motion.div>
-
-            {/* Momento de Mentalidad Widget */}
-            <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-linear-to-r from-primary/10 via-primary/5 to-surface border border-primary/20 rounded-lg p-4 mb-4"
-            >
-                <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                        <Wind className="w-5 h-5 text-primary" />
+        <div className="w-full space-y-4 sm:space-y-5 pb-4">
+            {/* ===== Encabezado + Momento de Mentalidad ===== */}
+            <section className="space-y-3">
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-3"
+                >
+                    <div className="w-10 h-10 rounded-xl bg-[#ff5e00]/10 border border-[#ff5e00]/20 flex items-center justify-center text-[#fb923c] shrink-0">
+                        <BookOpen className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-white text-sm">Momento de Mentalidad</h3>
-                        <p className="text-on-surface-variant text-sm mt-0.5 italic leading-snug">
-                            {randomQuote()}
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">
+                            Biblioteca de{' '}
+                            <span className="bg-linear-to-r from-[#ff7a29] via-[#ff5e00] to-[#ff3d00] bg-clip-text text-transparent">
+                                Rutinas
+                            </span>
+                        </h1>
+                        <p className="text-[#9ea3ae] text-xs sm:text-sm">
+                            Explora ejercicios y yoga. Todo en un solo lugar.
                         </p>
-                        
                     </div>
-                </div>
-            </motion.div>
+                </motion.div>
 
-            {/* Filter Panel */}
-            <div className="bg-surface border border-white/10 rounded-lg p-3 sm:p-4 mb-4 sm:mb-5">
-                {/* Search */}
-                <div className="relative mb-3">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                {/* Momento de Mentalidad: card en móvil, banner en desktop */}
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="relative overflow-hidden rounded-xl bg-[#2a2a2b] sm:bg-linear-to-r sm:from-[#16161d] sm:via-[#1c1b1c] sm:to-[#16161d] sm:border sm:border-[#353436]/80 px-4 py-4 sm:px-4 sm:py-2.5 shadow-md"
+                >
+                    <div className="absolute -right-6 -bottom-6 sm:-right-10 sm:-bottom-10 w-28 h-28 sm:w-24 sm:h-24 bg-[#ff5e00]/10 rounded-full blur-xl pointer-events-none" />
+                    <div className="relative z-10 flex items-start sm:items-center gap-3">
+                        <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-full sm:rounded-lg bg-[#ff5e00]/15 border border-[#ff5e00]/30 flex items-center justify-center text-[#fb923c] shrink-0">
+                            <Zap className="w-5 h-5 sm:w-4 sm:h-4" />
+                        </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2.5 min-w-0">
+                            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#fb923c] shrink-0">
+                                Momento de Mentalidad
+                                <span
+                                    className="sm:hidden inline-block w-1.5 h-1.5 rounded-full bg-[#ff5e00] animate-pulse"
+                                    aria-hidden="true"
+                                />
+                            </span>
+                            <p className="text-[#e5e2e3] font-medium italic text-sm leading-snug">
+                                {randomQuote()}
+                            </p>
+                        </div>
+                    </div>
+                </motion.div>
+            </section>
+
+            {/* ===== Búsqueda + Filtros ===== */}
+            <section
+                className="space-y-3 bg-[#1c1b1c] border border-white/5 p-3.5 sm:p-4 rounded-xl shadow-md"
+                aria-label="Búsqueda y filtros"
+            >
+                {/* Input de búsqueda inline */}
+                <div className="relative w-full">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5f636e]">
+                        <Search className="w-4 h-4" strokeWidth={2.5} />
+                    </div>
                     <input
                         type="text"
-                        placeholder="Buscar rutinas por nombre o descripción..."
+                        placeholder="Buscar rutinas por nombre, grupo muscular o disciplina..."
                         value={busqueda}
                         onChange={(e) => setBusqueda(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-background-darker border border-white/10 rounded-lg text-white text-sm placeholder-text-muted focus:outline-hidden focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all"
+                        aria-label="Buscar rutinas"
+                        className="w-full bg-[#0e0e0f] text-[#e5e2e3] placeholder-[#5f636e] pl-10 pr-10 py-2.5 rounded-xl border border-[#353436]/80 focus:border-[#ff5e00] focus:ring-2 focus:ring-[#ff5e00]/20 text-xs sm:text-sm transition-all outline-none"
                     />
+                    {busqueda && (
+                        <button
+                            onClick={() => setBusqueda('')}
+                            aria-label="Limpiar búsqueda"
+                            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#5f636e] hover:text-[#e5e2e3] transition-colors"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
 
-                {/* Filter Chips */}
-                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                {/* Chips de disciplina con scroll horizontal sin scrollbar */}
+                <div
+                    className="flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                    aria-label="Filtros de disciplina"
+                >
                     {CHIPS.map((chip) => {
                         const isActive = filterChip === chip.value;
                         return (
                             <button
                                 key={chip.value}
                                 onClick={() => setFilterChip(chip.value)}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border whitespace-nowrap text-[13px] font-medium transition-all shrink-0 ${
+                                aria-pressed={isActive}
+                                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full sm:rounded-lg text-xs shrink-0 transition-all active:scale-95 ${
                                     isActive
-                                        ? 'bg-primary text-primary-on border-primary shadow-lg shadow-primary/20'
-                                        : 'bg-surface border-white/10 text-on-surface-variant hover:text-white hover:border-white/20'
+                                        ? 'bg-primary text-[#531900] font-bold shadow-sm shadow-[#ff5e00]/25'
+                                        : 'bg-[#201f20] sm:bg-[#16161d] text-[#9ea3ae] hover:text-white hover:bg-[#2a2a2b] font-medium border border-transparent sm:border-[#353436]'
                                 }`}
                             >
-                                {chip.icon}
+                                <span className={isActive ? 'text-[#531900]' : 'text-[#fb923c]'}>
+                                    {chip.icon}
+                                </span>
                                 {chip.label}
                             </button>
                         );
                     })}
                 </div>
+            </section>
 
-                {/* Active filter indicator */}
-                {filterChip !== 'todo' && (
-                    <div className="mt-3 pt-3 border-t border-white/5 flex items-center justify-between">
-                        <p className="text-xs text-text-muted">
-                            Mostrando{' '}
-                            <span className="text-primary font-medium">{filtered.length}</span>{' '}
-                            {filtered.length === 1 ? 'resultado' : 'resultados'}
-                        </p>
-                        <button
-                            onClick={() => setFilterChip('todo')}
-                            className="text-xs text-primary/60 hover:text-primary font-medium transition-colors"
-                        >
-                            Limpiar filtros
-                        </button>
-                    </div>
-                )}
-            </div>
+            {/* Fila de afinidad: cuántos resultados hay y atajo para limpiar */}
+            {hayFiltrosActivos && filtered.length > 0 && (
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-xs text-[#9ea3ae]">
+                        Mostrando <span className="font-bold text-[#e5e2e3]">{filtered.length}</span>{' '}
+                        {filtered.length === 1 ? 'resultado' : 'resultados'}
+                    </p>
+                    <button
+                        onClick={resetFiltros}
+                        className="text-xs font-bold text-[#ff5e00] hover:text-[#fb923c] transition-colors"
+                    >
+                        Limpiar filtros
+                    </button>
+                </div>
+            )}
 
-            {/* Catalog Grid */}
+            {/* ===== Catálogo / Estado sin resultados ===== */}
             <AnimatePresence mode="popLayout">
                 {filtered.length > 0 ? (
                     <motion.div
                         layout
-                        className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                        aria-label="Catálogo de rutinas"
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
                     >
                         {filtered.map((item, idx) => (
                             <motion.button
@@ -394,102 +423,84 @@ export default function BibliotecaPage() {
                                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
                                 transition={{ delay: idx * 0.04, duration: 0.3 }}
                                 onClick={() => handleCardClick(item)}
-                                className="group bg-surface rounded-lg overflow-hidden border border-white/5 hover:border-primary/30 hover:shadow-[0_0_30px_rgba(255,107,0,0.12)] transition-all duration-500 text-left w-full"
+                                className="group bg-[#1c1b1c] border border-white/5 hover:border-[#ff5e00]/45 rounded-2xl overflow-hidden flex flex-col text-left w-full transition-all duration-300 hover:shadow-[0_10px_30px_-10px_rgba(255,94,0,0.2)]"
                             >
-                                {/* Cover Image */}
-                                <div className="h-32 sm:h-40 md:h-44 relative overflow-hidden">
-                                    {item.imagen_cover_url ? (
-                                        <>
-                                            <img
-                                                src={item.imagen_cover_url}
-                                                alt=""
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-75"
-                                                loading="lazy"
-                                                onError={(e) => {
-                                                    e.currentTarget.style.display = 'none';
-                                                    const parent = e.currentTarget.parentElement;
-                                                    if (parent) {
-                                                        parent.classList.add(
-                                                            'bg-linear-to-br',
-                                                            item.tipo === 'yoga'
-                                                                ? 'from-purple-700/30 to-black'
-                                                                : 'from-primary/30 to-black'
-                                                        );
-                                                    }
-                                                }}
-                                            />
-                                            <div className="absolute inset-0 bg-linear-to-t from-surface via-transparent to-transparent" />
-                                        </>
-                                    ) : (
-                                        <div
-                                            className={`w-full h-full flex items-center justify-center ${
-                                                item.tipo === 'yoga'
-                                                    ? 'bg-linear-to-br from-purple-700/30 via-purple-600/10 to-black'
-                                                    : 'bg-linear-to-br from-primary/30 via-primary/10 to-black'
-                                            }`}
-                                        >
-                                            {item.tipo === 'yoga' ? (
-                                                <Flower2 className="w-12 h-12 text-purple-400/30" />
-                                            ) : (
-                                                <Dumbbell className="w-12 h-12 text-primary/30" />
-                                            )}
-                                            <div className="absolute inset-0 bg-linear-to-t from-surface via-transparent to-transparent" />
-                                        </div>
+                                {/* Cover con badge de tipo y chip de duración */}
+                                <div className="relative aspect-[4/3] sm:aspect-auto sm:h-56 w-full bg-[#353436] overflow-hidden">
+                                    {/* Fallback (visible si no hay cover o si la imagen falla) */}
+                                    <div
+                                        className={`absolute inset-0 flex items-center justify-center ${
+                                            item.tipo === 'yoga'
+                                                ? 'bg-linear-to-br from-emerald-700/30 via-emerald-600/10 to-[#0e0e0f]'
+                                                : 'bg-linear-to-br from-[#ff5e00]/30 via-[#ff5e00]/10 to-[#0e0e0f]'
+                                        }`}
+                                    >
+                                        {item.tipo === 'yoga' ? (
+                                            <Flower2 className="w-12 h-12 text-emerald-400/30" />
+                                        ) : (
+                                            <Dumbbell className="w-12 h-12 text-[#ff5e00]/30" />
+                                        )}
+                                    </div>
+                                    {item.imagen_cover_url && (
+                                        <img
+                                            src={item.imagen_cover_url}
+                                            alt=""
+                                            loading="lazy"
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                            }}
+                                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
                                     )}
+                                    <div className="absolute inset-0 bg-linear-to-t from-[#1c1b1c] via-transparent to-black/40 pointer-events-none" />
 
-                                    {/* Type badge overlay */}
-                                    <div className="absolute top-2 left-2">
-                                        <span
-                                            className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border backdrop-blur-md flex items-center gap-1 ${
-                                                tipoBadge[item.tipo].bg
-                                            }`}
-                                        >
-                                            {tipoBadge[item.tipo].icon}
-                                            {tipoBadge[item.tipo].label}
-                                        </span>
-                                    </div>
+                                    {/* Badge de tipo */}
+                                    <span
+                                        className={`absolute top-3 left-3 sm:top-4 sm:left-4 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-extrabold uppercase px-2.5 py-1 sm:px-3 rounded-md tracking-wider shadow-sm flex items-center gap-1.5 ${
+                                            tipoBadge[item.tipo].bg
+                                        }`}
+                                    >
+                                        {tipoBadge[item.tipo].icon}
+                                        {tipoBadge[item.tipo].label}
+                                    </span>
 
-                                    {/* Duration pill */}
-                                    <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md border border-white/10 rounded-md px-2 py-0.5 text-[9px] font-medium text-white flex items-center gap-1">
-                                        <Clock className="w-3 h-3 text-primary" />
+                                    {/* Chip de duración: arriba-derecha en móvil, abajo-derecha en desktop */}
+                                    <span className="absolute top-3 right-3 bottom-auto sm:top-auto sm:bottom-3 sm:right-4 bg-black/80 backdrop-blur-md text-[#e5e2e3] text-[11px] sm:text-xs font-semibold px-2.5 py-1 rounded-md flex items-center gap-1 border border-white/10">
+                                        <Clock className="w-3.5 h-3.5 text-[#fb923c]" />
                                         {item.duracion_estimada || 30} min
-                                    </div>
+                                    </span>
                                 </div>
 
-                                {/* Card Body */}
-                                <div className="p-4">
-                                    <h3 className="font-bold text-white text-sm sm:text-base capitalize truncate">
-                                        {item.nombre}
-                                    </h3>
-                                    {item.descripcion && (
-                                        <p className="text-on-surface-variant text-xs sm:text-sm line-clamp-2 mt-1 leading-relaxed">
-                                            {item.descripcion}
-                                        </p>
-                                    )}
+                                {/* Cuerpo de la card */}
+                                <div className="p-4 sm:p-6 flex flex-col flex-grow justify-between space-y-4 sm:space-y-5">
+                                    <div>
+                                        <h3 className="text-base sm:text-xl font-bold text-white group-hover:text-[#fb923c] transition-colors line-clamp-2">
+                                            {item.nombre}
+                                        </h3>
+                                        {item.descripcion && (
+                                            <p className="mt-1.5 sm:mt-2 text-[#9ea3ae] text-xs sm:text-sm leading-relaxed line-clamp-2">
+                                                {item.descripcion}
+                                            </p>
+                                        )}
+                                    </div>
 
-                                    {/* Chips: difficulty + equipment */}
-                                    <div className="flex flex-wrap gap-2 mt-3">
-                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/5 text-on-surface-variant text-[10px] font-medium border border-white/5">
-                                            <Clock className="w-3 h-3" />
-                                            {item.duracion_estimada || 30} min
-                                        </span>
-                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/5 text-on-surface-variant text-[10px] font-medium border border-white/5">
-                                            <Activity className="w-3 h-3" />
+                                    {/* Tags: nivel + equipo */}
+                                    <div className="flex flex-wrap gap-2 text-[10px] sm:text-xs font-medium text-[#e5e2e3]">
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#2a2a2b] rounded-lg border border-white/5">
+                                            <TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#fb923c]" />
                                             {nivelLabels[item.nivel || 'principiante']}
                                         </span>
-                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/5 text-on-surface-variant text-[10px] font-medium border border-white/5">
-                                            <Dumbbell className="w-3 h-3" />
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#2a2a2b] rounded-lg border border-white/5">
+                                            <Dumbbell className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#fb923c]" />
                                             {equipoLabel}
                                         </span>
                                     </div>
 
-                                    {/* Probar Gratis CTA */}
-                                    <div className="mt-4">
-                                        <span className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 bg-primary text-primary-on font-bold text-xs rounded-lg transition-all group-hover:bg-primary-hover group-hover:shadow-lg group-hover:shadow-primary/20">
-                                            Probar Gratis
-                                            <ChevronRight className="w-3.5 h-3.5" />
-                                        </span>
-                                    </div>
+                                    {/* CTA: conserva la navegación actual de la card */}
+                                    <span className="w-full py-2.5 sm:py-3 px-4 bg-primary group-hover:bg-[#ea580c] active:scale-[0.98] text-white font-bold text-xs sm:text-sm rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#ff5e00]/20 transition-all">
+                                        Probar Gratis
+                                        <ArrowRight className="w-4 h-4" />
+                                    </span>
                                 </div>
                             </motion.button>
                         ))}
@@ -499,23 +510,29 @@ export default function BibliotecaPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         layout
-                        className="text-center py-16 bg-surface rounded-lg border border-dashed border-white/10"
+                        className="flex flex-col items-center justify-center py-14 sm:py-16 text-center gap-2 bg-[#201f20]/50 rounded-xl p-6 sm:p-8 border border-dashed border-white/10"
                     >
-                        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
-                            {filterChip === 'yoga' || filterChip === 'hiit' ? (
-                                <Flower2 className="w-8 h-8 text-text-muted" />
-                            ) : (
-                                <Dumbbell className="w-8 h-8 text-text-muted" />
-                            )}
+                        <div className="w-14 h-14 rounded-full bg-[#2a2a2b] flex items-center justify-center text-[#ff5e00]">
+                            <SearchX className="w-7 h-7" />
                         </div>
-                        <h3 className="text-lg font-bold text-white mb-1">No hay rutinas disponibles</h3>
-                        <p className="text-on-surface-variant text-sm max-w-xs mx-auto">
-                            {busqueda
-                                ? 'Intenta con otro término de búsqueda.'
-                                : filterChip !== 'todo'
-                                  ? 'No encontramos rutinas para este filtro.'
-                                  : 'El catálogo estará disponible próximamente.'}
-                        </p>
+                        <div>
+                            <h3 className="text-lg font-bold text-[#e5e2e3]">
+                                {catalogoVacioSinFiltros ? 'No hay rutinas disponibles' : 'Sin resultados encontrados'}
+                            </h3>
+                            <p className="text-[#9ea3ae] text-sm mt-1 max-w-md mx-auto leading-relaxed">
+                                {catalogoVacioSinFiltros
+                                    ? 'El catálogo estará disponible próximamente.'
+                                    : 'No encontramos rutinas que coincidan con tus criterios. Intenta con otro término o limpia los filtros.'}
+                            </p>
+                        </div>
+                        {!catalogoVacioSinFiltros && (
+                            <button
+                                onClick={resetFiltros}
+                                className="mt-2 px-4 py-1.5 bg-[#353436] text-[#e5e2e3] rounded-lg text-sm font-medium hover:bg-primary hover:text-[#531900] transition-colors"
+                            >
+                                Restablecer filtros
+                            </button>
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>

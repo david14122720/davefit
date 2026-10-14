@@ -29,6 +29,8 @@ function mockChain(resolvedValue: { data?: any[]; error?: any } = { data: [] }) 
   return chain;
 }
 
+const SEARCH_PLACEHOLDER = 'Buscar rutinas por nombre, grupo muscular o disciplina...';
+
 describe('BibliotecaPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -83,9 +85,7 @@ describe('BibliotecaPage', () => {
       expect(screen.getByText((content) => content.includes('Biblioteca de'))).toBeInTheDocument();
     });
 
-    const searchInput = screen.getByPlaceholderText(
-      'Buscar rutinas por nombre o descripción...'
-    );
+    const searchInput = screen.getByPlaceholderText(SEARCH_PLACEHOLDER);
     expect(searchInput).toBeInTheDocument();
   });
 
@@ -187,5 +187,57 @@ describe('BibliotecaPage', () => {
     // El widget se muestra sin botón "Comenzar" (solo título + frase aleatoria)
     const mentalidad = screen.getByText('Momento de Mentalidad').closest('div')!;
     expect(within(mentalidad).queryByText('Comenzar')).not.toBeInTheDocument();
+  });
+
+  // --- Rediseño Stitch: estado "Sin resultados" con reset de filtros ---
+
+  it('restablece chips y búsqueda con el botón Restablecer filtros', async () => {
+    const rutinasMock = [
+      {
+        id: 'r1',
+        nombre: 'Fuerza Total',
+        descripcion: 'Rutina de fuerza para todo el cuerpo',
+        objetivo: 'ganar_fuerza',
+        nivel: 'principiante',
+        duracion_estimada: 30,
+        imagen_cover_url: null,
+        calorias_estimadas: 200,
+      },
+    ];
+
+    vi.mocked(insforge.database.from).mockImplementation((table: any) =>
+      mockChain(table === 'rutinas' ? { data: rutinasMock, error: null } : { data: [], error: null })
+    );
+
+    renderPage();
+
+    // El catálogo cargado muestra la card del ejercicio
+    await waitFor(() => {
+      expect(screen.getByText('Fuerza Total')).toBeInTheDocument();
+    });
+
+    // Búsqueda sin coincidencias + filtro Yoga → estado sin resultados del diseño
+    fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), {
+      target: { value: 'zzz' },
+    });
+    fireEvent.click(screen.getByText('Yoga'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Sin resultados encontrados')).toBeInTheDocument();
+    });
+    expect(
+      screen.getByText(
+        'No encontramos rutinas que coincidan con tus criterios. Intenta con otro término o limpia los filtros.'
+      )
+    ).toBeInTheDocument();
+
+    // Restablecer filtros → vuelve el catálogo completo, búsqueda vacía y chip Todo activo
+    fireEvent.click(screen.getByText('Restablecer filtros'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Fuerza Total')).toBeInTheDocument();
+    });
+    expect(screen.getByPlaceholderText(SEARCH_PLACEHOLDER)).toHaveValue('');
+    expect(screen.getByText('Todo').closest('button')!.className).toContain('bg-primary');
   });
 });
