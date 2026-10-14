@@ -25,7 +25,13 @@ function formatDate(dateStr: string): string {
   return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
 }
 
-export default function SuggestionsSection() {
+interface SuggestionsSectionProps {
+  /** Modo embebido (p. ej. dentro de la card "Muro de la Comunidad"): oculta
+   *  el encabezado propio y los paddings de sección, conserva toda la lógica. */
+  compact?: boolean;
+}
+
+export default function SuggestionsSection({ compact = false }: SuggestionsSectionProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [message, setMessage] = useState('');
   const [rating, setRating] = useState(0);
@@ -84,26 +90,28 @@ export default function SuggestionsSection() {
   };
 
   return (
-    <section className="py-20 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-4">
-            <MessageCircle className="w-4 h-4" />
-            Tu Opinión Importa
+    <section className={compact ? '' : 'py-20 px-4'}>
+      <div className={compact ? '' : 'max-w-2xl mx-auto'}>
+        {!compact && (
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-4">
+              <MessageCircle className="w-4 h-4" />
+              Tu Opinión Importa
+            </div>
+            <h2 className="text-4xl font-bold text-white mb-4">
+              ¿Qué te gustaría ver en <span className="text-primary">DaveFit</span>?
+            </h2>
+            <p className="text-gray-400 max-w-xl mx-auto">
+              Comparte tus ideas, sugerencias o reporta problemas. Ayúdanos a mejorar la plataforma para todos.
+            </p>
           </div>
-          <h2 className="text-4xl font-bold text-white mb-4">
-            ¿Qué te gustaría ver en <span className="text-primary">DaveFit</span>?
-          </h2>
-          <p className="text-gray-400 max-w-xl mx-auto">
-            Comparte tus ideas, sugerencias o reporta problemas. Ayúdanos a mejorar la plataforma para todos.
-          </p>
-        </div>
+        )}
 
         {/* Form Card */}
-        <form onSubmit={handleSubmit} className="p-6 rounded-2xl bg-background-card border border-white/10">
+        <form onSubmit={handleSubmit} className="p-6 rounded-xl bg-[#201f20] border border-white/5">
           {/* Star Rating */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-400 mb-2">Valoración</label>
+            <label className="block text-sm font-medium text-[#9ea3ae] mb-2">Valoración</label>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map(star => (
                 <button
@@ -129,23 +137,23 @@ export default function SuggestionsSection() {
 
           {/* Textarea */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-400 mb-2">Tu sugerencia</label>
+            <label className="block text-sm font-medium text-[#9ea3ae] mb-2">Tu sugerencia</label>
             <textarea
               value={message}
               onChange={e => setMessage(e.target.value)}
               placeholder="Escribe aquí tu sugerencia, idea o reporte..."
               rows={4}
               maxLength={1000}
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder:text-gray-500 focus:outline-hidden focus:border-primary transition-all resize-none"
+              className="w-full bg-[#0e0e0f] border border-white/10 rounded-xl p-4 text-white placeholder:text-[#5f636e] focus:outline-hidden focus:border-primary transition-all resize-none"
             />
-            <p className="text-xs text-gray-500 mt-1 text-right">{message.length}/1000</p>
+            <p className="text-xs text-[#5f636e] mt-1 text-right">{message.length}/1000</p>
           </div>
 
           {/* Submit */}
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 bg-primary hover:bg-primary-light text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(255,107,0,0.3)] hover:shadow-[0_0_30px_rgba(255,107,0,0.5)]"
+            className="w-full py-3 bg-primary hover:bg-primary-light text-[#531900] font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(255,94,0,0.3)] hover:shadow-[0_0_30px_rgba(255,94,0,0.5)]"
           >
             {submitting ? 'Enviando...' : 'Enviar Sugerencia'}
           </button>
@@ -176,7 +184,7 @@ export default function SuggestionsSection() {
             Sugerencias Recientes ({suggestions.length})
           </h3>
           {suggestions.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">Sé el primero en dar una sugerencia</p>
+            <p className="text-[#5f636e] text-center py-8">Sé el primero en dar una sugerencia</p>
           ) : (
             <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
               <AnimatePresence>
@@ -186,7 +194,7 @@ export default function SuggestionsSection() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.03 }}
-                    className="p-4 rounded-xl bg-white/5 border border-white/5"
+                    className="p-4 rounded-xl bg-[#201f20] border border-white/5"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex gap-0.5">
@@ -199,9 +207,9 @@ export default function SuggestionsSection() {
                           />
                         ))}
                       </div>
-                      <span className="text-xs text-gray-500">{formatDate(s.created_at)}</span>
+                      <span className="text-xs text-[#5f636e]">{formatDate(s.created_at)}</span>
                     </div>
-                    <p className="text-sm text-gray-300">{s.message}</p>
+                    <p className="text-sm text-[#e5e2e3]">{s.message}</p>
                   </motion.div>
                 ))}
               </AnimatePresence>
