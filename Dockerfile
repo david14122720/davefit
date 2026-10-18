@@ -3,7 +3,7 @@ FROM node:22-alpine AS builder
 
 # Astro inlines PUBLIC_* env vars at build time into client bundles.
 # Valores por defecto para build local. En Dokploy se sobreescriben via buildArgs.
-ARG PUBLIC_INSFORGE_URL=https://insforge.tesh.online
+ARG PUBLIC_INSFORGE_URL=http://192.168.50.121:7130
 ARG PUBLIC_INSFORGE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3OC0xMjM0LTU2NzgtOTBhYi1jZGVmMTIzNDU2NzgiLCJlbWFpbCI6ImFub25AaW5zZm9yZ2UuY29tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5OTMyNzJ9.7zrvJ3VeVawf0uhSQ7eytXUDzOZMpcOlKg5pbkx2Iik
 ENV PUBLIC_INSFORGE_URL=${PUBLIC_INSFORGE_URL}
 ENV PUBLIC_INSFORGE_ANON_KEY=${PUBLIC_INSFORGE_ANON_KEY}
