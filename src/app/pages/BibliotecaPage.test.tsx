@@ -189,6 +189,39 @@ describe('BibliotecaPage', () => {
     expect(within(mentalidad).queryByText('Comenzar')).not.toBeInTheDocument();
   });
 
+  // --- Cliente pesado: payload del catálogo reducido (S6 Directiva C) ---
+
+  it('solicita solo las columnas necesarias del catálogo (no select(*))', async () => {
+    const rutinasChain = mockChain({ data: [], error: null });
+    const yogaChain = mockChain({ data: [], error: null });
+
+    vi.mocked(insforge.database.from).mockImplementation((table: any) =>
+      table === 'rutinas' ? rutinasChain : yogaChain
+    );
+
+    renderPage();
+
+    // Ambas consultas del catálogo se disparan en paralelo
+    await waitFor(() => {
+      expect(rutinasChain.order).toHaveBeenCalled();
+      expect(yogaChain.order).toHaveBeenCalled();
+    });
+
+    // select('*') es un payload masivo innecesario: debe pedir columnas explícitas
+    const rutinasColumns = rutinasChain.select.mock.calls[0][0];
+    const yogaColumns = yogaChain.select.mock.calls[0][0];
+
+    expect(rutinasColumns).not.toBe('*');
+    expect(yogaColumns).not.toBe('*');
+
+    // Campo minimizado: duracion_minutos solo en yoga (yoga lo mapea a duracion_estimada en UI)
+    for (const col of ['id', 'nombre', 'descripcion', 'objetivo', 'nivel', 'duracion_estimada', 'calorias_estimadas']) {
+      expect(rutinasColumns).toContain(col);
+    }
+    expect(rutinasColumns).toContain('imagen_cover_url');
+    expect(yogaColumns).toContain('duracion_minutos');
+  });
+
   // --- Rediseño Stitch: estado "Sin resultados" con reset de filtros ---
 
   it('restablece chips y búsqueda con el botón Restablecer filtros', async () => {

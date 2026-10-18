@@ -79,6 +79,8 @@ const Avatar = ({
       <img
         src={normalized}
         alt={name || 'Usuario'}
+        loading="lazy"
+        decoding="async"
         className={`${sizeClasses[size]} rounded-full object-cover ${className}`}
       />
     );

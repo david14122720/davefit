@@ -188,7 +188,7 @@ export default function AdminEjerciciosPage() {
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-4">
                                         {e.imagen_url ? (
-                                            <img src={e.imagen_url} alt={e.nombre} className="w-12 h-12 rounded-xl object-cover border border-white/10" />
+                                            <img src={e.imagen_url} alt={e.nombre} loading="lazy" decoding="async" className="w-12 h-12 rounded-xl object-cover border border-white/10" />
                                         ) : (
                                             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-xl border border-primary/20">
                                                 {grupoIcons[e.grupo_muscular] || '💪'}
@@ -234,7 +234,7 @@ export default function AdminEjerciciosPage() {
                 {filteredEjercicios.map((e) => (
                     <div key={e.id} className="bg-[#141414] rounded-2xl border border-white/5 p-4 flex items-center gap-4">
                         {e.imagen_url ? (
-                            <img src={e.imagen_url} alt={e.nombre} className="w-14 h-14 rounded-xl object-cover border border-white/10 shrink-0" />
+                            <img src={e.imagen_url} alt={e.nombre} loading="lazy" decoding="async" className="w-14 h-14 rounded-xl object-cover border border-white/10 shrink-0" />
                         ) : (
                             <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-2xl border border-primary/20 shrink-0">
                                 {grupoIcons[e.grupo_muscular] || '💪'}

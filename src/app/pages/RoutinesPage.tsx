@@ -440,7 +440,7 @@ export default function RoutinesPage() {
 
                             <div className="relative h-36 sm:h-48 md:h-56 shrink-0">
                                 {selectedRutina.imagen_cover_url ? (
-                                    <img src={selectedRutina.imagen_cover_url} alt="" className="w-full h-full object-cover brightness-[0.5]" />
+                                    <img src={selectedRutina.imagen_cover_url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover brightness-[0.5]" />
                                 ) : (
                                     <div className="w-full h-full bg-linear-to-br from-primary-dark/30 to-black" />
                                 )}

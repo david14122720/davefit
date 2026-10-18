@@ -267,7 +267,7 @@ export default function AdminRutinasPage() {
                     <div key={r.id} className="bg-[#141414] rounded-2xl border border-white/5 overflow-hidden hover:border-blue-500/30 transition-colors group">
                         <div className="h-32 bg-linear-to-br from-blue-500/20 to-purple-500/20 relative">
                             {r.imagen_cover_url && (
-                                <img src={r.imagen_cover_url} alt={r.nombre} className="w-full h-full object-cover" />
+                                <img src={r.imagen_cover_url} alt={r.nombre} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                             )}
                             <div className="absolute top-3 right-3 flex gap-2">
                                 <span className={`px-2 py-1 rounded-lg text-xs font-medium ${r.es_publica ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}`}>
@@ -562,7 +562,7 @@ export default function AdminRutinasPage() {
                                         }`}
                                     >
                                         {ejercicio.imagen_url ? (
-                                            <img src={ejercicio.imagen_url} alt={ejercicio.nombre} className="w-10 h-10 rounded-lg object-cover" />
+                                            <img src={ejercicio.imagen_url} alt={ejercicio.nombre} loading="lazy" decoding="async" className="w-10 h-10 rounded-lg object-cover" />
                                         ) : (
                                             <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-lg">💪</div>
                                         )}

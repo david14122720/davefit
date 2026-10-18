@@ -113,6 +113,8 @@ export default function FileUpload({
                         <img 
                             src={displayUrl ?? value} 
                             alt="Preview" 
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-40 object-cover" 
                         />
                     )}

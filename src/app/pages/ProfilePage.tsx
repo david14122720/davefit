@@ -472,8 +472,9 @@ export default function ProfilePage() {
                     {/* Avatar con botón de cámara (subida + recorte reales) */}
                     <div className="relative shrink-0 self-start">
                         <div className="w-20 h-20 lg:w-24 lg:h-24 rounded-full lg:rounded-xl bg-[#2a2a2b] flex items-center justify-center overflow-hidden shadow-inner relative">
+                            {/* Avatar: above the fold → sin lazy, solo decodificación async */}
                             {avatarUrl ? (
-                                <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                <img src={avatarUrl} alt="Avatar" decoding="async" className="w-full h-full object-cover" />
                             ) : (
                                 <span className="text-3xl lg:text-4xl font-black text-primary-light">
                                     {userName[0]?.toUpperCase() || 'U'}

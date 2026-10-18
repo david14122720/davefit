@@ -199,7 +199,8 @@ export default function WorkoutPracticePage() {
             {currentEjercicio.ejercicio?.video_url ? (
                <video ref={videoRef} src={currentEjercicio.ejercicio.video_url} className="w-full h-full object-cover brightness-[0.8] group-hover:brightness-100 transition-all duration-700" autoPlay loop muted={isMuted} playsInline />
             ) : currentEjercicio.ejercicio?.imagen_url ? (
-               <img src={currentEjercicio.ejercicio.imagen_url} alt="" className="w-full h-full object-contain bg-black" />
+               // Imagen principal del ejercicio: above the fold → sin lazy, solo async
+               <img src={currentEjercicio.ejercicio.imagen_url} alt="" decoding="async" className="w-full h-full object-contain bg-black" />
             ) : (
                <div className="w-full h-full flex flex-col items-center justify-center opacity-10 gap-4"><Dumbbell className="w-24 h-24"/><span className="font-black uppercase tracking-widest text-xs">Sin Visual</span></div>
             )}

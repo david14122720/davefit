@@ -127,6 +127,8 @@ export default function YogaPosicionesPage() {
                         <img 
                           src={posicion.imagen_url} 
                           alt={posicion.nombre}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover rounded-lg"
                         />
                       ) : (

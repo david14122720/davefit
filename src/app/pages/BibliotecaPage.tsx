@@ -105,10 +105,16 @@ export default function BibliotecaPage() {
             try {
                 const [rutinasResult, yogaResult] = await Promise.all([
                     queryWithRetry<any[]>(() =>
-                        insforge.database.from('rutinas').select('*').eq('es_publica', true).order('created_at', { ascending: false })
+                        // Cliente pesado: columnas explícitas (no select(*)) — reduce el payload JSON
+                        // en la ruta crítica /biblioteca sin cambiar la API del backend (S6).
+                        insforge.database.from('rutinas').select(
+                            'id, nombre, descripcion, objetivo, nivel, duracion_estimada, imagen_cover_url, calorias_estimadas'
+                        ).eq('es_publica', true).order('created_at', { ascending: false })
                     ),
                     queryWithRetry<any[]>(() =>
-                        insforge.database.from('yoga_rutinas').select('*').order('created_at', { ascending: false })
+                        insforge.database.from('yoga_rutinas').select(
+                            'id, nombre, descripcion, objetivo, nivel, duracion_minutos, calorias_estimadas'
+                        ).order('created_at', { ascending: false })
                     ),
                 ]);
 

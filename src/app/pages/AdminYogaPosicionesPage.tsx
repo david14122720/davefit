@@ -182,7 +182,7 @@ export default function AdminYogaPosicionesPage() {
                     <div key={p.id} className="bg-[#141414] rounded-2xl border border-white/5 overflow-hidden hover:border-purple-500/30 transition-colors">
                         <div className="h-40 bg-linear-to-br from-purple-500/20 to-pink-500/20 relative flex items-center justify-center">
                             {p.imagen_url ? (
-                                <img src={p.imagen_url} alt={p.nombre} className="w-full h-full object-cover" />
+                                <img src={p.imagen_url} alt={p.nombre} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                             ) : (
                                 <Sparkles className="w-16 h-16 text-purple-500/30" />
                             )}

@@ -285,9 +285,11 @@ export default function YogaPracticePage() {
               <div className="flex flex-col gap-6">
                 <div className="aspect-4/3 bg-linear-to-br from-primary/20 to-purple-500/20 rounded-xl border border-white/10 overflow-hidden shadow-2xl relative group">
                   {posicionActual.posicion?.imagen_url ? (
+                    // Imagen principal: above the fold → sin lazy, solo async
                     <img 
                       src={posicionActual.posicion.imagen_url} 
                       alt={posicionActual.posicion.nombre}
+                      decoding="async"
                       className="w-full h-full object-cover"
                     />
                   ) : (
