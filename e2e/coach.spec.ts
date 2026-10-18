@@ -15,7 +15,8 @@
 //      asteriscos visibles y NINGÚN enlace es clickeable (cero <a> en el chat).
 //      Se captura evidencia DURANTE el tipeo y AL FINAL (S3/S5).
 //
-// Usuario: e2e-coach@davefit.local (sembrado en prod: objetivo ganar_fuerza,
+// Usuario: ROTADO e inyectado por env (ver auditoría F1); sembrado en prod
+// solo con datos de prueba (objetivo ganar_fuerza,
 // 3 rutinas E2E con historial, métricas 2450 XP / racha 12).
 //
 // Precondición: el usuario de prueba necesita cuota disponible (se renueva
@@ -30,13 +31,34 @@
 
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-const EMAIL = 'e2e-coach@davefit.local';
-const PASSWORD = 'Coach!E2E2026';
+// Auditoría F1 (2026-10-18): las credenciales ya no viven en el repo. Se
+// leen del entorno o de un .env local (gitignored); si faltan, el spec
+// entero se salta con test.skip en lugar de fallar por credenciales ausentes.
+function loadDotEnv(pathname: string): void {
+  try {
+    const raw = readFileSync(pathname, 'utf8');
+    for (const line of raw.split('\n')) {
+      const match = line.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/);
+      if (match && !(match[1] in process.env)) process.env[match[1]] = match[2].trim();
+    }
+  } catch {
+    // Sin .env no pasa nada: en CI las vars llegan por shell/secrets.
+  }
+}
+loadDotEnv(path.resolve(process.cwd(), '.env'));
+
+const EMAIL = process.env.E2E_COACH_EMAIL ?? '';
+const PASSWORD = process.env.E2E_COACH_PASSWORD ?? '';
 const EVIDENCE_DIR = path.resolve(process.cwd(), 'odd/evidence/ia-coach-mvp');
 const APP_ORIGIN = 'http://localhost:4321';
+
+test.skip(
+  EMAIL.length === 0 || PASSWORD.length === 0,
+  'E2E_COACH_EMAIL/E2E_COACH_PASSWORD no definidas: credenciales se inyectan por env (auditoría F1), nunca por el repo.'
+);
 
 // Serial: el test 2 depende de la cuota consumida por el test 1.
 test.describe.configure({ mode: 'serial' });
