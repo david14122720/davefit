@@ -46,7 +46,7 @@ const statsInFlight = new Map<string, Promise<UserStats | null>>();
  * roto) que tratar la ausencia como error fatal — eso causaba el
  * "Identidad Extraviada" en el perfil de usuarios nuevos.
  */
-export function buildEmptyUserStats(userId: string): UserStats {
+function buildEmptyUserStats(userId: string): UserStats {
   const now = new Date().toISOString();
   return {
     id: '',

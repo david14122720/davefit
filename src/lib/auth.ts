@@ -16,7 +16,7 @@ const DANGEROUS_PROTOCOLS = /^data:|^vbscript:|^javascript:/i;
  * Sanitiza un string para prevenir XSS en campos de texto libre.
  * Elimina etiquetas HTML, protocolos peligrosos y normaliza espacios.
  */
-export function sanitizeText(input: string): string {
+function sanitizeText(input: string): string {
   return input
     .replace(XSS_PATTERN, '')
     .replace(SCRIPT_PATTERN, '')

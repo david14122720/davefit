@@ -42,7 +42,7 @@ export interface RutinaConEjercicios extends Rutina {
 
 const rutinasCrud = createCrudApi<Rutina>('/api/admin/rutinas');
 
-export const { list: getRutinas, create: createRutina, update: updateRutina, del: deleteRutina } = rutinasCrud;
+export const { list: getRutinas, del: deleteRutina } = rutinasCrud;
 
 export async function saveRutinaConEjercicios(
     token: string,

@@ -2,8 +2,6 @@
 // Tipos compartidos del dominio DaveFit
 // ============================================================
 
-import type React from 'react';
-
 // ---- Perfil de usuario ----
 
 export interface Perfil {
@@ -54,53 +52,6 @@ export interface XpCalculation {
   xp_en_nivel_actual: number;
 }
 
-// ---- Rutinas ----
-
-export interface Rutina {
-  id: string;
-  nombre: string;
-  descripcion?: string | null;
-  nivel?: string | null;
-  duracion_estimada?: number | null;
-  imagen_url?: string | null;
-  creado_por?: string | null;
-  created_at?: string;
-  updated_at?: string;
-}
-
-// ---- Yoga ----
-
-export interface YogaPosicion {
-  id: string;
-  nombre: string;
-  nombre_sanscrito?: string | null;
-  descripcion?: string | null;
-  nivel?: string | null;
-  duracion_segundos?: number | null;
-  imagen_url?: string | null;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface RutinaYoga {
-  id: string;
-  nombre: string;
-  descripcion?: string | null;
-  nivel?: string | null;
-  duracion_estimada?: number | null;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface RutinaYogaPosicion {
-  id: string;
-  rutina_id: string;
-  posicion_id: string;
-  orden: number;
-  duracion_segundos?: number | null;
-  posicion?: YogaPosicion;
-}
-
 // ---- Historial de entrenamientos ----
 
 export interface HistorialEntrenamiento {
@@ -115,61 +66,10 @@ export interface HistorialEntrenamiento {
   rutinas?: { nombre: string } | null;
 }
 
-// ---- Nutrición ----
-
-export interface NutritionMetrics {
-  bmr: number | null;
-  tdee: number | null;
-  imc: number | null;
-  categoriaImc: string;
-  caloriasObjetivo: number | null;
-  tipoDieta: string;
-}
-
-// ---- Leaderboard ----
-
-export interface LeaderboardEntry {
-  user_id: string;
-  username: string;
-  avatar_url?: string;
-  dias_racha: number;
-  total_score: number;
-  total_workouts: number;
-}
-
-// ---- Workout completions ----
-
-export interface WorkoutCompletion {
-  id: string;
-  user_id: string;
-  workout_id: string;
-  completed_at: string;
-  score_earned: number;
-}
-
-// ---- Respuesta de API genérica ----
-
-export interface ApiResponse<T> {
-  data: T | null;
-  error: string | null;
-}
-
-export interface ApiSuccess {
-  success: boolean;
-  error?: string;
-}
-
-// ---- Filtros y paginación ----
-
-export interface PaginationParams {
-  page: number;
-  pageSize: number;
-}
-
-export interface RutinaFilters {
-  search?: string;
-  nivel?: string;
-  tipo?: string;
-  lugar?: string;
-  duracionMax?: number;
-}
+/**
+ * Pile former members removed (2026-11-01 cleanup):
+ * Rutina, YogaPosicion, RutinaYoga, RutinaYogaPosicion, NutritionMetrics,
+ * LeaderboardEntry, WorkoutCompletion, ApiResponse, ApiSuccess,
+ * PaginationParams, RutinaFilters — they were defined but never imported.
+ * Domain owners now: rutinasApi.ts / yogaAdminApi.ts / lib/nutrition.ts.
+ */

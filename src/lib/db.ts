@@ -23,16 +23,6 @@ export interface DbError {
 
 type QueryBuilder<T> = () => Promise<{ data: T | null; error: any }>;
 
-/**
- * Variante que preserva el `count` devuelto por queries con
- * `{ count: 'exact' | 'estimated' }`.
- */
-type QueryBuilderWithCount<T> = () => Promise<{
-  data: T | null;
-  error: any;
-  count: number | null;
-}>;
-
 // ------------------------------------------------------------------
 // Configuración
 // ------------------------------------------------------------------
@@ -145,64 +135,6 @@ export async function queryWithRetry<T>(
       code: 'MAX_RETRIES',
       retryable: false,
     },
-  };
-}
-
-/**
- * Como `queryWithRetry` pero preserva el `count` de queries
- * que usan `{ count: 'exact' }`.
- */
-export async function queryWithRetryAndCount<T>(
-  queryFn: QueryBuilderWithCount<T>,
-  options?: { retries?: number }
-): Promise<QueryResult<T> & { count: number | null }> {
-  const maxRetries = options?.retries ?? RETRY_CONFIG.maxRetries;
-  let lastError: DbError | null = null;
-
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      const { data, error, count } = await queryFn();
-
-      if (error) {
-        const dbErr = normalizeError(error);
-        if (dbErr.retryable && attempt < maxRetries) {
-          lastError = dbErr;
-          console.warn(
-            `[DB] Error recuperable (intento ${attempt + 1}/${maxRetries + 1}):`,
-            dbErr.message
-          );
-          await delay(attempt, RETRY_CONFIG.baseDelayMs);
-          continue;
-        }
-        return { data: null, error: dbErr, count: null };
-      }
-
-      return { data, error: null, count: count ?? null };
-    } catch (err: any) {
-      const dbErr = normalizeError(err);
-
-      if (dbErr.retryable && attempt < maxRetries) {
-        lastError = dbErr;
-        console.warn(
-          `[DB] Excepción recuperable (intento ${attempt + 1}/${maxRetries + 1}):`,
-          dbErr.message
-        );
-        await delay(attempt, RETRY_CONFIG.baseDelayMs);
-        continue;
-      }
-
-      return { data: null, error: dbErr, count: null };
-    }
-  }
-
-  return {
-    data: null,
-    error: lastError || {
-      message: 'La operación falló después de varios intentos',
-      code: 'MAX_RETRIES',
-      retryable: false,
-    },
-    count: null,
   };
 }
 

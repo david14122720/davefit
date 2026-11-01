@@ -74,9 +74,9 @@ const CORS_HEADERS: Record<string, string> = {
 };
 
 export const TEST_CSRF = 'e2e-csrf-token';
-export const TEST_ACCESS_TOKEN = 'e2e-access-token';
+const TEST_ACCESS_TOKEN = 'e2e-access-token';
 
-export const TEST_USER = {
+const TEST_USER = {
     id: 'e2e00000-0000-4000-8000-000000000001',
     email: 'e2e.dashboard@davefit.test',
     profile: { name: 'Test' },
@@ -86,7 +86,7 @@ export const TEST_USER = {
     updatedAt: '2026-01-01T00:00:00.000Z',
 };
 
-export const TEST_PERFIL = {
+const TEST_PERFIL = {
     id: TEST_USER.id,
     email: TEST_USER.email,
     nombre_completo: 'Test Usuario',
@@ -105,7 +105,7 @@ export const TEST_PERFIL = {
     updated_at: '2026-01-01T00:00:00.000Z',
 };
 
-export const TEST_STATS = {
+const TEST_STATS = {
     id: 'e2e00000-0000-4000-8000-000000000002',
     user_id: TEST_USER.id,
     xp_total: 2450,
@@ -124,7 +124,7 @@ export const TEST_STATS = {
  * Two recipes for the dashboard "Recarga Post-Entreno" section
  * (recetas query: select * order created_at desc limit 2).
  */
-export const TEST_RECIPES = [
+const TEST_RECIPES = [
     {
         id: 'e2e-receta-1',
         nombre: 'Bowl E2E de Pollo y Arroz',
@@ -162,13 +162,13 @@ export const TEST_RECIPES = [
  * the dashboard "Comunidad en Vivo" widget (top 3 by XP). Names are single
  * words because the widget shows only the first name.
  */
-export const TEST_COMMUNITY_PERFILES = [
+const TEST_COMMUNITY_PERFILES = [
     { id: 'e2e-atleta-1', nombre_completo: 'AtletaUno', avatar_url: null },
     { id: 'e2e-atleta-2', nombre_completo: 'AtletaDos', avatar_url: null },
     { id: 'e2e-atleta-3', nombre_completo: 'AtletaTres', avatar_url: null },
 ];
 
-export const TEST_COMMUNITY_STATS = [
+const TEST_COMMUNITY_STATS = [
     { user_id: 'e2e-atleta-1', xp_total: 1800, total_workouts: 42, dias_racha: 9 },
     { user_id: 'e2e-atleta-2', xp_total: 1200, total_workouts: 30, dias_racha: 5 },
     { user_id: 'e2e-atleta-3', xp_total: 600, total_workouts: 12, dias_racha: 2 },
@@ -187,7 +187,7 @@ const HISTORY_NAMES = [
     'Estiramiento Total',
 ];
 
-export interface HistorialRow {
+interface HistorialRow {
     id: string;
     usuario_id: string;
     rutina_id: string;
@@ -199,7 +199,7 @@ export interface HistorialRow {
     rutinas: { nombre: string };
 }
 
-export interface WeekItem {
+interface WeekItem {
     id: string;
     usuario_id: string;
     rutina_id: string;

@@ -94,11 +94,6 @@ export interface InsforgeClient {
 // Helpers tipados
 // ------------------------------------------------------------
 
-/** Devuelve getCurrentUser si existe, sino null. Tipado correctamente. */
-export function getCurrentUserSafely(client: InsforgeClient) {
-  return client.auth.getCurrentUser ?? null;
-}
-
 /** Lee el access token desde cualquier slot conocido del SDK. */
 export function readAccessToken(client: InsforgeClient): string | null {
   return (

@@ -49,7 +49,7 @@ export const insforge = createClient({
 
 // Re-export del tipo y helpers para consumidores.
 export type { InsforgeClient } from './insforge-types';
-export { getCurrentUserSafely, readAccessToken } from './insforge-types';
+export { readAccessToken } from './insforge-types';
 
 // =================================================================
 // RPC invoker con seguridad
